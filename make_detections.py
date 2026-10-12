@@ -29,9 +29,9 @@ from pathlib import Path
 # ---------- Settings (match the model config you were given) ----------
 HERE          = Path(__file__).parent
 DATA_DIR      = HERE / "data"
-FRAMES_DIR    = DATA_DIR / "frames"
-OUTPUT_FILE   = DATA_DIR / "detections.json"
-IMG_SIZE      = 640          # imgsz the model was trained with
+FRAMES_DIR = DATA_DIR / "test_frames" / "Avata"
+OUTPUT_FILE = DATA_DIR / "avata_detections.json"
+IMG_SIZE      = 960          # imgsz the model was trained with
 CONF_THRESHOLD = 0.25        # initial confidence; raise to 0.35-0.5 if you get false alarms
 DRONE_CLASS_ID = 0           # class 0 = drone
 # ----------------------------------------------------------------------
@@ -102,7 +102,7 @@ def load_frame_names():
 
 
 def main():
-    model_path = resolve_model_path()
+    model_path = DATA_DIR / "detection_yolo11s.pt"
     if model_path is None:
         raise SystemExit(
             "No model found in data/.\n"
