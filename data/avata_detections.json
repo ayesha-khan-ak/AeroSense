@@ -1,0 +1,1822 @@
+{
+  "frame_0000.jpg": {
+    "drone": true,
+    "confidence": 0.664,
+    "box": [
+      528,
+      55,
+      27,
+      17
+    ]
+  },
+  "frame_0001.jpg": {
+    "drone": true,
+    "confidence": 0.669,
+    "box": [
+      528,
+      56,
+      27,
+      17
+    ]
+  },
+  "frame_0002.jpg": {
+    "drone": true,
+    "confidence": 0.691,
+    "box": [
+      528,
+      57,
+      27,
+      18
+    ]
+  },
+  "frame_0003.jpg": {
+    "drone": true,
+    "confidence": 0.715,
+    "box": [
+      529,
+      58,
+      27,
+      19
+    ]
+  },
+  "frame_0004.jpg": {
+    "drone": true,
+    "confidence": 0.717,
+    "box": [
+      529,
+      59,
+      28,
+      19
+    ]
+  },
+  "frame_0005.jpg": {
+    "drone": true,
+    "confidence": 0.689,
+    "box": [
+      530,
+      60,
+      27,
+      22
+    ]
+  },
+  "frame_0006.jpg": {
+    "drone": true,
+    "confidence": 0.66,
+    "box": [
+      531,
+      62,
+      28,
+      22
+    ]
+  },
+  "frame_0007.jpg": {
+    "drone": true,
+    "confidence": 0.671,
+    "box": [
+      533,
+      69,
+      26,
+      17
+    ]
+  },
+  "frame_0008.jpg": {
+    "drone": true,
+    "confidence": 0.67,
+    "box": [
+      534,
+      71,
+      28,
+      18
+    ]
+  },
+  "frame_0009.jpg": {
+    "drone": true,
+    "confidence": 0.668,
+    "box": [
+      536,
+      76,
+      27,
+      19
+    ]
+  },
+  "frame_0010.jpg": {
+    "drone": true,
+    "confidence": 0.733,
+    "box": [
+      538,
+      81,
+      26,
+      18
+    ]
+  },
+  "frame_0011.jpg": {
+    "drone": true,
+    "confidence": 0.697,
+    "box": [
+      539,
+      84,
+      26,
+      18
+    ]
+  },
+  "frame_0012.jpg": {
+    "drone": true,
+    "confidence": 0.682,
+    "box": [
+      539,
+      87,
+      25,
+      18
+    ]
+  },
+  "frame_0013.jpg": {
+    "drone": true,
+    "confidence": 0.721,
+    "box": [
+      539,
+      90,
+      25,
+      19
+    ]
+  },
+  "frame_0014.jpg": {
+    "drone": true,
+    "confidence": 0.728,
+    "box": [
+      539,
+      92,
+      25,
+      18
+    ]
+  },
+  "frame_0015.jpg": {
+    "drone": true,
+    "confidence": 0.681,
+    "box": [
+      539,
+      94,
+      25,
+      17
+    ]
+  },
+  "frame_0016.jpg": {
+    "drone": true,
+    "confidence": 0.688,
+    "box": [
+      539,
+      95,
+      25,
+      18
+    ]
+  },
+  "frame_0017.jpg": {
+    "drone": true,
+    "confidence": 0.678,
+    "box": [
+      539,
+      99,
+      25,
+      17
+    ]
+  },
+  "frame_0018.jpg": {
+    "drone": true,
+    "confidence": 0.7,
+    "box": [
+      539,
+      104,
+      25,
+      17
+    ]
+  },
+  "frame_0019.jpg": {
+    "drone": true,
+    "confidence": 0.723,
+    "box": [
+      541,
+      113,
+      25,
+      18
+    ]
+  },
+  "frame_0020.jpg": {
+    "drone": true,
+    "confidence": 0.693,
+    "box": [
+      544,
+      122,
+      25,
+      18
+    ]
+  },
+  "frame_0021.jpg": {
+    "drone": true,
+    "confidence": 0.725,
+    "box": [
+      549,
+      132,
+      27,
+      20
+    ]
+  },
+  "frame_0022.jpg": {
+    "drone": true,
+    "confidence": 0.745,
+    "box": [
+      550,
+      144,
+      28,
+      20
+    ]
+  },
+  "frame_0023.jpg": {
+    "drone": true,
+    "confidence": 0.688,
+    "box": [
+      552,
+      157,
+      29,
+      22
+    ]
+  },
+  "frame_0024.jpg": {
+    "drone": true,
+    "confidence": 0.722,
+    "box": [
+      556,
+      173,
+      29,
+      23
+    ]
+  },
+  "frame_0025.jpg": {
+    "drone": true,
+    "confidence": 0.706,
+    "box": [
+      556,
+      189,
+      30,
+      23
+    ]
+  },
+  "frame_0026.jpg": {
+    "drone": true,
+    "confidence": 0.742,
+    "box": [
+      556,
+      205,
+      30,
+      25
+    ]
+  },
+  "frame_0027.jpg": {
+    "drone": true,
+    "confidence": 0.773,
+    "box": [
+      553,
+      223,
+      30,
+      26
+    ]
+  },
+  "frame_0028.jpg": {
+    "drone": true,
+    "confidence": 0.773,
+    "box": [
+      549,
+      241,
+      31,
+      28
+    ]
+  },
+  "frame_0029.jpg": {
+    "drone": true,
+    "confidence": 0.746,
+    "box": [
+      547,
+      260,
+      32,
+      29
+    ]
+  },
+  "frame_0030.jpg": {
+    "drone": true,
+    "confidence": 0.736,
+    "box": [
+      543,
+      281,
+      35,
+      29
+    ]
+  },
+  "frame_0031.jpg": {
+    "drone": true,
+    "confidence": 0.723,
+    "box": [
+      541,
+      302,
+      34,
+      31
+    ]
+  },
+  "frame_0032.jpg": {
+    "drone": true,
+    "confidence": 0.726,
+    "box": [
+      540,
+      325,
+      33,
+      33
+    ]
+  },
+  "frame_0033.jpg": {
+    "drone": true,
+    "confidence": 0.693,
+    "box": [
+      540,
+      350,
+      35,
+      33
+    ]
+  },
+  "frame_0034.jpg": {
+    "drone": true,
+    "confidence": 0.711,
+    "box": [
+      541,
+      368,
+      40,
+      37
+    ]
+  },
+  "frame_0035.jpg": {
+    "drone": true,
+    "confidence": 0.619,
+    "box": [
+      546,
+      379,
+      36,
+      38
+    ]
+  },
+  "frame_0036.jpg": {
+    "drone": true,
+    "confidence": 0.732,
+    "box": [
+      549,
+      381,
+      37,
+      39
+    ]
+  },
+  "frame_0037.jpg": {
+    "drone": true,
+    "confidence": 0.744,
+    "box": [
+      547,
+      380,
+      35,
+      37
+    ]
+  },
+  "frame_0038.jpg": {
+    "drone": true,
+    "confidence": 0.736,
+    "box": [
+      543,
+      379,
+      39,
+      37
+    ]
+  },
+  "frame_0039.jpg": {
+    "drone": true,
+    "confidence": 0.706,
+    "box": [
+      540,
+      378,
+      36,
+      36
+    ]
+  },
+  "frame_0040.jpg": {
+    "drone": true,
+    "confidence": 0.721,
+    "box": [
+      534,
+      378,
+      37,
+      36
+    ]
+  },
+  "frame_0041.jpg": {
+    "drone": true,
+    "confidence": 0.717,
+    "box": [
+      531,
+      378,
+      36,
+      37
+    ]
+  },
+  "frame_0042.jpg": {
+    "drone": true,
+    "confidence": 0.627,
+    "box": [
+      528,
+      380,
+      35,
+      36
+    ]
+  },
+  "frame_0043.jpg": {
+    "drone": true,
+    "confidence": 0.664,
+    "box": [
+      526,
+      380,
+      36,
+      36
+    ]
+  },
+  "frame_0044.jpg": {
+    "drone": true,
+    "confidence": 0.72,
+    "box": [
+      525,
+      382,
+      36,
+      37
+    ]
+  },
+  "frame_0045.jpg": {
+    "drone": true,
+    "confidence": 0.689,
+    "box": [
+      525,
+      384,
+      36,
+      37
+    ]
+  },
+  "frame_0046.jpg": {
+    "drone": true,
+    "confidence": 0.73,
+    "box": [
+      525,
+      385,
+      36,
+      37
+    ]
+  },
+  "frame_0047.jpg": {
+    "drone": true,
+    "confidence": 0.608,
+    "box": [
+      525,
+      385,
+      37,
+      38
+    ]
+  },
+  "frame_0048.jpg": {
+    "drone": true,
+    "confidence": 0.608,
+    "box": [
+      525,
+      386,
+      37,
+      36
+    ]
+  },
+  "frame_0049.jpg": {
+    "drone": true,
+    "confidence": 0.681,
+    "box": [
+      526,
+      384,
+      36,
+      35
+    ]
+  },
+  "frame_0050.jpg": {
+    "drone": true,
+    "confidence": 0.703,
+    "box": [
+      525,
+      382,
+      37,
+      37
+    ]
+  },
+  "frame_0051.jpg": {
+    "drone": true,
+    "confidence": 0.698,
+    "box": [
+      527,
+      380,
+      38,
+      36
+    ]
+  },
+  "frame_0052.jpg": {
+    "drone": true,
+    "confidence": 0.695,
+    "box": [
+      528,
+      378,
+      38,
+      37
+    ]
+  },
+  "frame_0053.jpg": {
+    "drone": true,
+    "confidence": 0.703,
+    "box": [
+      530,
+      378,
+      37,
+      36
+    ]
+  },
+  "frame_0054.jpg": {
+    "drone": true,
+    "confidence": 0.701,
+    "box": [
+      530,
+      376,
+      37,
+      37
+    ]
+  },
+  "frame_0055.jpg": {
+    "drone": true,
+    "confidence": 0.701,
+    "box": [
+      532,
+      375,
+      36,
+      36
+    ]
+  },
+  "frame_0056.jpg": {
+    "drone": true,
+    "confidence": 0.707,
+    "box": [
+      533,
+      374,
+      36,
+      37
+    ]
+  },
+  "frame_0057.jpg": {
+    "drone": true,
+    "confidence": 0.717,
+    "box": [
+      535,
+      375,
+      35,
+      37
+    ]
+  },
+  "frame_0058.jpg": {
+    "drone": true,
+    "confidence": 0.721,
+    "box": [
+      538,
+      374,
+      34,
+      38
+    ]
+  },
+  "frame_0059.jpg": {
+    "drone": true,
+    "confidence": 0.632,
+    "box": [
+      538,
+      374,
+      35,
+      39
+    ]
+  },
+  "frame_0060.jpg": {
+    "drone": true,
+    "confidence": 0.673,
+    "box": [
+      539,
+      372,
+      37,
+      41
+    ]
+  },
+  "frame_0061.jpg": {
+    "drone": true,
+    "confidence": 0.698,
+    "box": [
+      540,
+      372,
+      38,
+      41
+    ]
+  },
+  "frame_0062.jpg": {
+    "drone": true,
+    "confidence": 0.714,
+    "box": [
+      540,
+      373,
+      40,
+      40
+    ]
+  },
+  "frame_0063.jpg": {
+    "drone": true,
+    "confidence": 0.634,
+    "box": [
+      543,
+      374,
+      38,
+      39
+    ]
+  },
+  "frame_0064.jpg": {
+    "drone": true,
+    "confidence": 0.567,
+    "box": [
+      546,
+      376,
+      37,
+      38
+    ]
+  },
+  "frame_0065.jpg": {
+    "drone": true,
+    "confidence": 0.72,
+    "box": [
+      548,
+      378,
+      36,
+      38
+    ]
+  },
+  "frame_0066.jpg": {
+    "drone": true,
+    "confidence": 0.733,
+    "box": [
+      548,
+      379,
+      35,
+      37
+    ]
+  },
+  "frame_0067.jpg": {
+    "drone": true,
+    "confidence": 0.734,
+    "box": [
+      547,
+      381,
+      36,
+      38
+    ]
+  },
+  "frame_0068.jpg": {
+    "drone": true,
+    "confidence": 0.735,
+    "box": [
+      545,
+      383,
+      37,
+      37
+    ]
+  },
+  "frame_0069.jpg": {
+    "drone": true,
+    "confidence": 0.744,
+    "box": [
+      546,
+      384,
+      36,
+      37
+    ]
+  },
+  "frame_0070.jpg": {
+    "drone": true,
+    "confidence": 0.737,
+    "box": [
+      546,
+      384,
+      36,
+      37
+    ]
+  },
+  "frame_0071.jpg": {
+    "drone": true,
+    "confidence": 0.742,
+    "box": [
+      546,
+      383,
+      35,
+      37
+    ]
+  },
+  "frame_0072.jpg": {
+    "drone": true,
+    "confidence": 0.742,
+    "box": [
+      546,
+      382,
+      35,
+      37
+    ]
+  },
+  "frame_0073.jpg": {
+    "drone": true,
+    "confidence": 0.744,
+    "box": [
+      546,
+      382,
+      35,
+      37
+    ]
+  },
+  "frame_0074.jpg": {
+    "drone": true,
+    "confidence": 0.715,
+    "box": [
+      544,
+      386,
+      37,
+      37
+    ]
+  },
+  "frame_0075.jpg": {
+    "drone": true,
+    "confidence": 0.466,
+    "box": [
+      544,
+      395,
+      39,
+      41
+    ]
+  },
+  "frame_0076.jpg": {
+    "drone": true,
+    "confidence": 0.602,
+    "box": [
+      547,
+      416,
+      35,
+      36
+    ]
+  },
+  "frame_0077.jpg": {
+    "drone": true,
+    "confidence": 0.679,
+    "box": [
+      548,
+      443,
+      37,
+      38
+    ]
+  },
+  "frame_0078.jpg": {
+    "drone": true,
+    "confidence": 0.533,
+    "box": [
+      553,
+      485,
+      40,
+      41
+    ]
+  },
+  "frame_0079.jpg": {
+    "drone": false,
+    "confidence": 0.0,
+    "box": null
+  },
+  "frame_0080.jpg": {
+    "drone": false,
+    "confidence": 0.0,
+    "box": null
+  },
+  "frame_0081.jpg": {
+    "drone": true,
+    "confidence": 0.723,
+    "box": [
+      567,
+      598,
+      37,
+      35
+    ]
+  },
+  "frame_0082.jpg": {
+    "drone": true,
+    "confidence": 0.748,
+    "box": [
+      567,
+      599,
+      37,
+      36
+    ]
+  },
+  "frame_0083.jpg": {
+    "drone": true,
+    "confidence": 0.664,
+    "box": [
+      564,
+      592,
+      36,
+      37
+    ]
+  },
+  "frame_0084.jpg": {
+    "drone": true,
+    "confidence": 0.684,
+    "box": [
+      560,
+      587,
+      36,
+      38
+    ]
+  },
+  "frame_0085.jpg": {
+    "drone": true,
+    "confidence": 0.537,
+    "box": [
+      560,
+      581,
+      34,
+      38
+    ]
+  },
+  "frame_0086.jpg": {
+    "drone": true,
+    "confidence": 0.617,
+    "box": [
+      560,
+      580,
+      34,
+      41
+    ]
+  },
+  "frame_0087.jpg": {
+    "drone": true,
+    "confidence": 0.644,
+    "box": [
+      560,
+      580,
+      35,
+      41
+    ]
+  },
+  "frame_0088.jpg": {
+    "drone": false,
+    "confidence": 0.0,
+    "box": null
+  },
+  "frame_0089.jpg": {
+    "drone": true,
+    "confidence": 0.526,
+    "box": [
+      561,
+      576,
+      37,
+      43
+    ]
+  },
+  "frame_0090.jpg": {
+    "drone": true,
+    "confidence": 0.529,
+    "box": [
+      562,
+      575,
+      39,
+      42
+    ]
+  },
+  "frame_0091.jpg": {
+    "drone": true,
+    "confidence": 0.662,
+    "box": [
+      563,
+      574,
+      40,
+      40
+    ]
+  },
+  "frame_0092.jpg": {
+    "drone": false,
+    "confidence": 0.0,
+    "box": null
+  },
+  "frame_0093.jpg": {
+    "drone": true,
+    "confidence": 0.65,
+    "box": [
+      564,
+      580,
+      39,
+      40
+    ]
+  },
+  "frame_0094.jpg": {
+    "drone": true,
+    "confidence": 0.759,
+    "box": [
+      560,
+      588,
+      35,
+      37
+    ]
+  },
+  "frame_0095.jpg": {
+    "drone": true,
+    "confidence": 0.726,
+    "box": [
+      553,
+      594,
+      38,
+      37
+    ]
+  },
+  "frame_0096.jpg": {
+    "drone": true,
+    "confidence": 0.723,
+    "box": [
+      549,
+      599,
+      38,
+      37
+    ]
+  },
+  "frame_0097.jpg": {
+    "drone": true,
+    "confidence": 0.73,
+    "box": [
+      547,
+      600,
+      38,
+      38
+    ]
+  },
+  "frame_0098.jpg": {
+    "drone": true,
+    "confidence": 0.725,
+    "box": [
+      547,
+      602,
+      38,
+      39
+    ]
+  },
+  "frame_0099.jpg": {
+    "drone": true,
+    "confidence": 0.744,
+    "box": [
+      548,
+      602,
+      37,
+      38
+    ]
+  },
+  "frame_0100.jpg": {
+    "drone": true,
+    "confidence": 0.753,
+    "box": [
+      548,
+      602,
+      37,
+      38
+    ]
+  },
+  "frame_0101.jpg": {
+    "drone": true,
+    "confidence": 0.733,
+    "box": [
+      550,
+      602,
+      37,
+      37
+    ]
+  },
+  "frame_0102.jpg": {
+    "drone": true,
+    "confidence": 0.722,
+    "box": [
+      552,
+      602,
+      38,
+      37
+    ]
+  },
+  "frame_0103.jpg": {
+    "drone": true,
+    "confidence": 0.731,
+    "box": [
+      555,
+      602,
+      37,
+      37
+    ]
+  },
+  "frame_0104.jpg": {
+    "drone": true,
+    "confidence": 0.761,
+    "box": [
+      558,
+      602,
+      35,
+      37
+    ]
+  },
+  "frame_0105.jpg": {
+    "drone": true,
+    "confidence": 0.753,
+    "box": [
+      557,
+      602,
+      35,
+      37
+    ]
+  },
+  "frame_0106.jpg": {
+    "drone": true,
+    "confidence": 0.739,
+    "box": [
+      554,
+      601,
+      38,
+      38
+    ]
+  },
+  "frame_0107.jpg": {
+    "drone": true,
+    "confidence": 0.738,
+    "box": [
+      552,
+      603,
+      38,
+      38
+    ]
+  },
+  "frame_0108.jpg": {
+    "drone": true,
+    "confidence": 0.744,
+    "box": [
+      549,
+      611,
+      38,
+      38
+    ]
+  },
+  "frame_0109.jpg": {
+    "drone": true,
+    "confidence": 0.742,
+    "box": [
+      548,
+      624,
+      36,
+      38
+    ]
+  },
+  "frame_0110.jpg": {
+    "drone": true,
+    "confidence": 0.756,
+    "box": [
+      547,
+      644,
+      35,
+      35
+    ]
+  },
+  "frame_0111.jpg": {
+    "drone": true,
+    "confidence": 0.76,
+    "box": [
+      548,
+      667,
+      33,
+      34
+    ]
+  },
+  "frame_0112.jpg": {
+    "drone": true,
+    "confidence": 0.724,
+    "box": [
+      546,
+      690,
+      36,
+      32
+    ]
+  },
+  "frame_0113.jpg": {
+    "drone": true,
+    "confidence": 0.753,
+    "box": [
+      547,
+      713,
+      35,
+      30
+    ]
+  },
+  "frame_0114.jpg": {
+    "drone": true,
+    "confidence": 0.737,
+    "box": [
+      546,
+      725,
+      35,
+      30
+    ]
+  },
+  "frame_0115.jpg": {
+    "drone": true,
+    "confidence": 0.747,
+    "box": [
+      544,
+      728,
+      35,
+      32
+    ]
+  },
+  "frame_0116.jpg": {
+    "drone": true,
+    "confidence": 0.751,
+    "box": [
+      540,
+      727,
+      34,
+      32
+    ]
+  },
+  "frame_0117.jpg": {
+    "drone": true,
+    "confidence": 0.744,
+    "box": [
+      538,
+      722,
+      33,
+      32
+    ]
+  },
+  "frame_0118.jpg": {
+    "drone": true,
+    "confidence": 0.753,
+    "box": [
+      537,
+      722,
+      34,
+      33
+    ]
+  },
+  "frame_0119.jpg": {
+    "drone": true,
+    "confidence": 0.769,
+    "box": [
+      539,
+      720,
+      35,
+      32
+    ]
+  },
+  "frame_0120.jpg": {
+    "drone": true,
+    "confidence": 0.753,
+    "box": [
+      542,
+      717,
+      36,
+      33
+    ]
+  },
+  "frame_0121.jpg": {
+    "drone": true,
+    "confidence": 0.736,
+    "box": [
+      543,
+      714,
+      38,
+      35
+    ]
+  },
+  "frame_0122.jpg": {
+    "drone": true,
+    "confidence": 0.73,
+    "box": [
+      541,
+      713,
+      37,
+      33
+    ]
+  },
+  "frame_0123.jpg": {
+    "drone": true,
+    "confidence": 0.754,
+    "box": [
+      539,
+      715,
+      35,
+      31
+    ]
+  },
+  "frame_0124.jpg": {
+    "drone": true,
+    "confidence": 0.765,
+    "box": [
+      537,
+      718,
+      35,
+      33
+    ]
+  },
+  "frame_0125.jpg": {
+    "drone": true,
+    "confidence": 0.768,
+    "box": [
+      530,
+      720,
+      36,
+      32
+    ]
+  },
+  "frame_0126.jpg": {
+    "drone": true,
+    "confidence": 0.776,
+    "box": [
+      527,
+      720,
+      36,
+      32
+    ]
+  },
+  "frame_0127.jpg": {
+    "drone": true,
+    "confidence": 0.776,
+    "box": [
+      526,
+      719,
+      35,
+      32
+    ]
+  },
+  "frame_0128.jpg": {
+    "drone": true,
+    "confidence": 0.743,
+    "box": [
+      522,
+      717,
+      37,
+      33
+    ]
+  },
+  "frame_0129.jpg": {
+    "drone": true,
+    "confidence": 0.774,
+    "box": [
+      519,
+      710,
+      36,
+      32
+    ]
+  },
+  "frame_0130.jpg": {
+    "drone": true,
+    "confidence": 0.763,
+    "box": [
+      517,
+      701,
+      34,
+      32
+    ]
+  },
+  "frame_0131.jpg": {
+    "drone": true,
+    "confidence": 0.742,
+    "box": [
+      510,
+      692,
+      38,
+      34
+    ]
+  },
+  "frame_0132.jpg": {
+    "drone": true,
+    "confidence": 0.744,
+    "box": [
+      506,
+      682,
+      35,
+      32
+    ]
+  },
+  "frame_0133.jpg": {
+    "drone": true,
+    "confidence": 0.75,
+    "box": [
+      503,
+      670,
+      35,
+      33
+    ]
+  },
+  "frame_0134.jpg": {
+    "drone": true,
+    "confidence": 0.745,
+    "box": [
+      499,
+      658,
+      35,
+      34
+    ]
+  },
+  "frame_0135.jpg": {
+    "drone": true,
+    "confidence": 0.777,
+    "box": [
+      496,
+      645,
+      33,
+      34
+    ]
+  },
+  "frame_0136.jpg": {
+    "drone": true,
+    "confidence": 0.763,
+    "box": [
+      495,
+      630,
+      34,
+      36
+    ]
+  },
+  "frame_0137.jpg": {
+    "drone": true,
+    "confidence": 0.778,
+    "box": [
+      494,
+      613,
+      34,
+      36
+    ]
+  },
+  "frame_0138.jpg": {
+    "drone": true,
+    "confidence": 0.778,
+    "box": [
+      493,
+      601,
+      34,
+      36
+    ]
+  },
+  "frame_0139.jpg": {
+    "drone": true,
+    "confidence": 0.773,
+    "box": [
+      493,
+      592,
+      34,
+      36
+    ]
+  },
+  "frame_0140.jpg": {
+    "drone": true,
+    "confidence": 0.779,
+    "box": [
+      492,
+      589,
+      35,
+      35
+    ]
+  },
+  "frame_0141.jpg": {
+    "drone": true,
+    "confidence": 0.79,
+    "box": [
+      492,
+      587,
+      35,
+      36
+    ]
+  },
+  "frame_0142.jpg": {
+    "drone": true,
+    "confidence": 0.789,
+    "box": [
+      493,
+      586,
+      34,
+      36
+    ]
+  },
+  "frame_0143.jpg": {
+    "drone": true,
+    "confidence": 0.776,
+    "box": [
+      494,
+      586,
+      34,
+      36
+    ]
+  },
+  "frame_0144.jpg": {
+    "drone": true,
+    "confidence": 0.758,
+    "box": [
+      496,
+      582,
+      34,
+      38
+    ]
+  },
+  "frame_0145.jpg": {
+    "drone": true,
+    "confidence": 0.76,
+    "box": [
+      499,
+      582,
+      38,
+      36
+    ]
+  },
+  "frame_0146.jpg": {
+    "drone": true,
+    "confidence": 0.761,
+    "box": [
+      506,
+      581,
+      35,
+      36
+    ]
+  },
+  "frame_0147.jpg": {
+    "drone": true,
+    "confidence": 0.746,
+    "box": [
+      509,
+      580,
+      38,
+      37
+    ]
+  },
+  "frame_0148.jpg": {
+    "drone": true,
+    "confidence": 0.721,
+    "box": [
+      517,
+      580,
+      34,
+      37
+    ]
+  },
+  "frame_0149.jpg": {
+    "drone": true,
+    "confidence": 0.724,
+    "box": [
+      526,
+      580,
+      35,
+      37
+    ]
+  },
+  "frame_0150.jpg": {
+    "drone": true,
+    "confidence": 0.743,
+    "box": [
+      534,
+      580,
+      37,
+      37
+    ]
+  },
+  "frame_0151.jpg": {
+    "drone": true,
+    "confidence": 0.715,
+    "box": [
+      543,
+      576,
+      40,
+      40
+    ]
+  },
+  "frame_0152.jpg": {
+    "drone": true,
+    "confidence": 0.714,
+    "box": [
+      556,
+      572,
+      37,
+      39
+    ]
+  },
+  "frame_0153.jpg": {
+    "drone": true,
+    "confidence": 0.637,
+    "box": [
+      567,
+      570,
+      37,
+      36
+    ]
+  },
+  "frame_0154.jpg": {
+    "drone": false,
+    "confidence": 0.0,
+    "box": null
+  },
+  "frame_0155.jpg": {
+    "drone": true,
+    "confidence": 0.46,
+    "box": [
+      591,
+      560,
+      39,
+      40
+    ]
+  },
+  "frame_0156.jpg": {
+    "drone": true,
+    "confidence": 0.3,
+    "box": [
+      604,
+      560,
+      38,
+      37
+    ]
+  },
+  "frame_0157.jpg": {
+    "drone": true,
+    "confidence": 0.701,
+    "box": [
+      621,
+      558,
+      33,
+      36
+    ]
+  },
+  "frame_0158.jpg": {
+    "drone": true,
+    "confidence": 0.739,
+    "box": [
+      632,
+      557,
+      37,
+      35
+    ]
+  },
+  "frame_0159.jpg": {
+    "drone": true,
+    "confidence": 0.708,
+    "box": [
+      645,
+      552,
+      37,
+      39
+    ]
+  },
+  "frame_0160.jpg": {
+    "drone": true,
+    "confidence": 0.319,
+    "box": [
+      656,
+      547,
+      35,
+      39
+    ]
+  },
+  "frame_0161.jpg": {
+    "drone": true,
+    "confidence": 0.722,
+    "box": [
+      666,
+      544,
+      38,
+      36
+    ]
+  },
+  "frame_0162.jpg": {
+    "drone": true,
+    "confidence": 0.529,
+    "box": [
+      680,
+      538,
+      38,
+      38
+    ]
+  },
+  "frame_0163.jpg": {
+    "drone": true,
+    "confidence": 0.434,
+    "box": [
+      697,
+      535,
+      34,
+      37
+    ]
+  },
+  "frame_0164.jpg": {
+    "drone": true,
+    "confidence": 0.733,
+    "box": [
+      707,
+      527,
+      36,
+      39
+    ]
+  },
+  "frame_0165.jpg": {
+    "drone": true,
+    "confidence": 0.734,
+    "box": [
+      713,
+      523,
+      37,
+      39
+    ]
+  },
+  "frame_0166.jpg": {
+    "drone": true,
+    "confidence": 0.716,
+    "box": [
+      714,
+      522,
+      38,
+      39
+    ]
+  },
+  "frame_0167.jpg": {
+    "drone": true,
+    "confidence": 0.697,
+    "box": [
+      711,
+      522,
+      38,
+      37
+    ]
+  },
+  "frame_0168.jpg": {
+    "drone": true,
+    "confidence": 0.738,
+    "box": [
+      708,
+      522,
+      35,
+      37
+    ]
+  },
+  "frame_0169.jpg": {
+    "drone": true,
+    "confidence": 0.722,
+    "box": [
+      701,
+      523,
+      37,
+      39
+    ]
+  },
+  "frame_0170.jpg": {
+    "drone": true,
+    "confidence": 0.752,
+    "box": [
+      697,
+      524,
+      34,
+      38
+    ]
+  },
+  "frame_0171.jpg": {
+    "drone": true,
+    "confidence": 0.74,
+    "box": [
+      688,
+      525,
+      34,
+      38
+    ]
+  },
+  "frame_0172.jpg": {
+    "drone": true,
+    "confidence": 0.746,
+    "box": [
+      678,
+      526,
+      36,
+      39
+    ]
+  },
+  "frame_0173.jpg": {
+    "drone": true,
+    "confidence": 0.735,
+    "box": [
+      669,
+      526,
+      39,
+      39
+    ]
+  },
+  "frame_0174.jpg": {
+    "drone": true,
+    "confidence": 0.723,
+    "box": [
+      659,
+      525,
+      40,
+      39
+    ]
+  },
+  "frame_0175.jpg": {
+    "drone": true,
+    "confidence": 0.628,
+    "box": [
+      653,
+      526,
+      37,
+      39
+    ]
+  },
+  "frame_0176.jpg": {
+    "drone": true,
+    "confidence": 0.729,
+    "box": [
+      644,
+      529,
+      34,
+      36
+    ]
+  },
+  "frame_0177.jpg": {
+    "drone": true,
+    "confidence": 0.71,
+    "box": [
+      623,
+      530,
+      39,
+      38
+    ]
+  },
+  "frame_0178.jpg": {
+    "drone": true,
+    "confidence": 0.714,
+    "box": [
+      613,
+      533,
+      35,
+      37
+    ]
+  },
+  "frame_0179.jpg": {
+    "drone": true,
+    "confidence": 0.72,
+    "box": [
+      599,
+      534,
+      40,
+      41
+    ]
+  },
+  "frame_0180.jpg": {
+    "drone": true,
+    "confidence": 0.3,
+    "box": [
+      585,
+      536,
+      43,
+      43
+    ]
+  },
+  "frame_0181.jpg": {
+    "drone": false,
+    "confidence": 0.0,
+    "box": null
+  },
+  "frame_0182.jpg": {
+    "drone": true,
+    "confidence": 0.686,
+    "box": [
+      561,
+      545,
+      38,
+      37
+    ]
+  },
+  "frame_0183.jpg": {
+    "drone": true,
+    "confidence": 0.547,
+    "box": [
+      550,
+      545,
+      37,
+      38
+    ]
+  },
+  "frame_0184.jpg": {
+    "drone": true,
+    "confidence": 0.739,
+    "box": [
+      540,
+      546,
+      40,
+      38
+    ]
+  }
+}
