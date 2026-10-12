@@ -1,0 +1,102 @@
+[1mdiff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml[m
+[1mnew file mode 100644[m
+[1mindex 0000000..f3a2b75[m
+[1m--- /dev/null[m
+[1m+++ b/.github/workflows/ci.yml[m
+[36m@@ -0,0 +1,38 @@[m
+[32m+[m[32m﻿name: AeroSense CI[m
+[32m+[m
+[32m+[m[32mon:[m
+[32m+[m[32m  push:[m
+[32m+[m[32m    branches: [main, "feature/**"][m
+[32m+[m[32m  pull_request:[m
+[32m+[m[32m    branches: [main][m
+[32m+[m
+[32m+[m[32mpermissions:[m
+[32m+[m[32m  contents: read[m
+[32m+[m
+[32m+[m[32mjobs:[m
+[32m+[m[32m  test:[m
+[32m+[m[32m    name: Python checks and automated tests[m
+[32m+[m[32m    runs-on: ubuntu-latest[m
+[32m+[m
+[32m+[m[32m    steps:[m
+[32m+[m[32m      - name: Check out repository[m
+[32m+[m[32m        uses: actions/checkout@v4[m
+[32m+[m
+[32m+[m[32m      - name: Set up Python[m
+[32m+[m[32m        uses: actions/setup-python@v5[m
+[32m+[m[32m        with:[m
+[32m+[m[32m          python-version: "3.11"[m
+[32m+[m[32m          cache: pip[m
+[32m+[m[32m          cache-dependency-path: requirements.txt[m
+[32m+[m
+[32m+[m[32m      - name: Install backend dependencies[m
+[32m+[m[32m        run: python -m pip install -r requirements.txt[m
+[32m+[m
+[32m+[m[32m      - name: Install test framework[m
+[32m+[m[32m        run: python -m pip install pytest[m
+[32m+[m
+[32m+[m[32m      - name: Check Python syntax[m
+[32m+[m[32m        run: python -m compileall -q server.py make_detections.py make_test_frames.py[m
+[32m+[m
+[32m+[m[32m      - name: Run automated tests[m
+[32m+[m[32m        run: python -m pytest -v[m
+[1mdiff --git a/tests/test_project.py b/tests/test_project.py[m
+[1mnew file mode 100644[m
+[1mindex 0000000..7493bf3[m
+[1m--- /dev/null[m
+[1m+++ b/tests/test_project.py[m
+[36m@@ -0,0 +1,52 @@[m
+[32m+[m[32m﻿from pathlib import Path[m
+[32m+[m[32mimport ast[m
+[32m+[m
+[32m+[m[32mROOT = Path(__file__).resolve().parents[1][m
+[32m+[m
+[32m+[m
+[32m+[m[32mdef test_required_project_files_exist():[m
+[32m+[m[32m    required = [[m
+[32m+[m[32m        "server.py",[m
+[32m+[m[32m        "make_detections.py",[m
+[32m+[m[32m        "make_test_frames.py",[m
+[32m+[m[32m        "test_dashboard.html",[m
+[32m+[m[32m        "requirements.txt",[m
+[32m+[m[32m        "requirements_detection.txt",[m
+[32m+[m[32m    ][m
+[32m+[m[32m    for filename in required:[m
+[32m+[m[32m        assert (ROOT / filename).is_file(), f"Missing project file: {filename}"[m
+[32m+[m
+[32m+[m
+[32m+[m[32mdef test_python_files_have_valid_syntax():[m
+[32m+[m[32m    python_files = [[m
+[32m+[m[32m        "server.py",[m
+[32m+[m[32m        "make_detections.py",[m
+[32m+[m[32m        "make_test_frames.py",[m
+[32m+[m[32m    ][m
+[32m+[m[32m    for filename in python_files:[m
+[32m+[m[32m        source = (ROOT / filename).read_text(encoding="utf-8")[m
+[32m+[m[32m        ast.parse(source, filename=filename)[m
+[32m+[m
+[32m+[m
+[32m+[m[32mdef test_backend_dependencies_are_declared():[m
+[32m+[m[32m    requirements = (ROOT / "requirements.txt").read_text([m
+[32m+[m[32m        encoding="utf-8"[m
+[32m+[m[32m    ).lower()[m
+[32m+[m[32m    assert "fastapi" in requirements[m
+[32m+[m[32m    assert "uvicorn" in requirements[m
+[32m+[m
+[32m+[m
+[32m+[m[32mdef test_dashboard_controls_and_camera_are_present():[m
+[32m+[m[32m    html = (ROOT / "test_dashboard.html").read_text([m
+[32m+[m[32m        encoding="utf-8"[m
+[32m+[m[32m    )[m
+[32m+[m[32m    for element_id in [[m
+[32m+[m[32m        "startBtn",[m
+[32m+[m[32m        "stopBtn",[m
+[32m+[m[32m        "resumeBtn",[m
+[32m+[m[32m        "videoWrap",[m
+[32m+[m[32m        "frame",[m
+[32m+[m[32m    ]:[m
+[32m+[m[32m        assert f'id="{element_id}"' in html, ([m
+[32m+[m[32m            f"Dashboard element missing: {element_id}"[m
+[32m+[m[32m        )[m
