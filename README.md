@@ -14,11 +14,11 @@ The AeroSense server and monitoring dashboard have been exposed publicly using a
 
 | Service / Interface | Public URL | Description |
 |---|---|---|
-| 🖥️ **Live Tactical Dashboard** | [https://crispness-dilation-domestic.ngrok-free.dev/dashboard](https://crispness-dilation-domestic.ngrok-free.dev/dashboard) | Web UI with real-time video feed, bounding boxes, audio alert, and telemetry |
-| 📡 **WebSocket Stream** | `wss://crispness-dilation-domestic.ngrok-free.dev/ws` | Live WebSocket endpoint streaming frames and bounding box metadata |
-| 🩺 **System Health Check** | [https://crispness-dilation-domestic.ngrok-free.dev/health](https://crispness-dilation-domestic.ngrok-free.dev/health) | REST endpoint returning system operational status (`{"status":"ok"}`) |
-| 📊 **Dataset Telemetry / Info** | [https://crispness-dilation-domestic.ngrok-free.dev/info](https://crispness-dilation-domestic.ngrok-free.dev/info) | Summarizes total frames, drone-positive frames, and stream FPS |
-| 🏠 **API Root Endpoint** | [https://crispness-dilation-domestic.ngrok-free.dev/](https://crispness-dilation-domestic.ngrok-free.dev/) | Service root index and discovery endpoint |
+|  **Live Tactical Dashboard** | [https://crispness-dilation-domestic.ngrok-free.dev/dashboard](https://crispness-dilation-domestic.ngrok-free.dev/dashboard) | Web UI with real-time video feed, bounding boxes, audio alert, and telemetry |
+|  **WebSocket Stream** | `wss://crispness-dilation-domestic.ngrok-free.dev/ws` | Live WebSocket endpoint streaming frames and bounding box metadata |
+|  **System Health Check** | [https://crispness-dilation-domestic.ngrok-free.dev/health](https://crispness-dilation-domestic.ngrok-free.dev/health) | REST endpoint returning system operational status (`{"status":"ok"}`) |
+|  **Dataset Telemetry / Info** | [https://crispness-dilation-domestic.ngrok-free.dev/info](https://crispness-dilation-domestic.ngrok-free.dev/info) | Summarizes total frames, drone-positive frames, and stream FPS |
+|  **API Root Endpoint** | [https://crispness-dilation-domestic.ngrok-free.dev/](https://crispness-dilation-domestic.ngrok-free.dev/) | Service root index and discovery endpoint |
 
 ---
 
@@ -263,9 +263,9 @@ AeroSense-main/
 
 ## 👥 Inter-Team Collaboration Contract
 
-* **Vision & ML Team**: Provides camera frames in `data/frames/` and model weights in `data/detection.pt`.
-* **Server Team**: Manages `server.py`, runs `make_detections.py`, and exposes authenticated endpoints and tunnels.
-* **Frontend & Operations Team**: Connects to the public WebSocket `wss://.../ws` and renders detection metadata, alerts, and spatial bounding boxes on the dashboard.
+* **Member 1**: Provides camera frames in `data/frames/` and model weights in `data/detection.pt`.
+* **Member 2**: Manages `server.py`, runs `make_detections.py`, and exposes authenticated endpoints and tunnels.
+* **Member 3**: Connects to the public WebSocket `wss://.../ws` and renders detection metadata, alerts, and spatial bounding boxes on the dashboard.
 
 ---
 
