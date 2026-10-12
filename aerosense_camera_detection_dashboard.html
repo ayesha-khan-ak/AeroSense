@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AeroSense — Multimodal AI Drone Environment Perception</title>
+<style>
+:root {
+  --bg: #070d14;
+  --panel: #0d1724;
+  --panel2: #09111a;
+  --line: #1b2a3a;
+  --text: #e1eaf2;
+  --muted: #788d9f;
+  --blue: #1479ff;
+  --teal: #00f2fe;
+  --green: #39d98a;
+  --red: #ff4757;
+  --amber: #ffa502;
+  --blue-glow: rgba(20, 121, 255, 0.35);
+  --green-glow: rgba(57, 217, 138, 0.35);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Inter, "Segoe UI", Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+#loginOverlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: radial-gradient(circle at 50% 30%, #0d1f36 0%, #050a10 100%);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.login-card {
+  background: var(--panel); border: 1px solid #1f364d; border-radius: 12px;
+  width: 100%; max-width: 400px; padding: 32px; box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  text-align: center; position: relative; overflow: hidden;
+}
+.login-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--blue), var(--teal), var(--green));
+}
+.login-brand-icon {
+  width: 50px; height: 50px; border-radius: 12px; background: #0f2b45;
+  border: 1px solid #1e4b75; color: var(--teal); font-size: 26px;
+  display: grid; place-items: center; margin: 0 auto 12px auto;
+  box-shadow: 0 0 20px var(--blue-glow);
+}
+.login-title { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: 0.5px; }
+.login-subtitle { font-size: 11px; color: var(--muted); margin-top: 4px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+.form-group { text-align: left; margin-bottom: 16px; }
+.form-group label { display: block; font-size: 11px; font-weight: 700; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.form-control {
+  width: 100%; background: #060c14; border: 1px solid var(--line); border-radius: 7px;
+  padding: 10px 12px; color: white; font-size: 13px; outline: none; transition: border-color 0.2s;
+}
+.form-control:focus { border-color: var(--blue); box-shadow: 0 0 8px var(--blue-glow); }
+.login-btn {
+  width: 100%; padding: 12px; background: linear-gradient(135deg, var(--blue), #0056c6);
+  border: 0; border-radius: 7px; color: white; font-weight: 700; font-size: 13px;
+  cursor: pointer; margin-top: 8px; box-shadow: 0 4px 15px var(--blue-glow); transition: transform 0.1s, opacity 0.2s;
+}
+.login-btn:hover { opacity: 0.95; }
+.login-btn:active { transform: scale(0.99); }
+#loginError { display: none; color: var(--red); font-size: 11px; font-weight: 700; margin-top: 12px; background: rgba(255, 71, 87, 0.1); border: 1px solid rgba(255, 71, 87, 0.3); padding: 8px; border-radius: 6px; }
+
+#drawerOverlay {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); z-index: 1000;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(3px);
+}
+#drawerOverlay.open { opacity: 1; pointer-events: auto; }
+#drawer {
+  position: fixed; top: 0; left: 0; bottom: 0; width: 290px;
+  background: var(--panel); border-right: 1px solid var(--line); z-index: 1001;
+  transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex; flex-direction: column; padding: 20px;
+}
+#drawer.open { transform: translateX(0); }
+.drawer-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.drawer-brand { font-weight: 800; font-size: 16px; color: var(--teal); display: flex; align-items: center; gap: 8px; }
+.close-drawer { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; }
+.drawer-nav { display: flex; flex-direction: column; gap: 6px; flex: 1; overflow-y: auto; }
+.nav-item {
+  display: flex; align-items: center; justify-content: space-between; padding: 11px 12px; border-radius: 6px;
+  color: var(--muted); text-decoration: none; font-size: 12px; font-weight: 600; cursor: pointer;
+  transition: all 0.2s; border: 1px solid transparent;
+}
+.nav-item-left { display: flex; align-items: center; gap: 12px; }
+.nav-item:hover, .nav-item.active { background: #122438; color: var(--teal); border-color: #1f3f61; }
+.nav-item .icon { font-size: 15px; width: 20px; text-align: center; }
+.nav-badge { font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 10px; background: var(--red); color: white; }
+.drawer-footer { padding-top: 16px; border-top: 1px solid var(--line); font-size: 10px; color: var(--muted); display: flex; justify-content: space-between; align-items: center; }
+.logout-btn { background: #2a1215; border: 1px solid #5a1e24; color: var(--red); padding: 5px 10px; border-radius: 5px; font-size: 10px; font-weight: 700; cursor: pointer; }
+
+.app-container { padding: 10px 14px; min-height: 100vh; display: flex; flex-direction: column; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+.brand { display: flex; align-items: center; gap: 10px; }
+.hamburger-btn {
+  background: var(--panel); border: 1px solid var(--line); color: var(--teal);
+  width: 36px; height: 36px; border-radius: 8px; font-size: 18px; cursor: pointer;
+  display: grid; place-items: center; transition: background 0.2s;
+}
+.hamburger-btn:hover { background: #16263b; }
+.brand-mark { width: 36px; height: 36px; border-radius: 8px; display: grid; place-items: center; background: #0e293a; border: 1px solid #1a4f6e; color: var(--teal); font-size: 20px; box-shadow: 0 0 10px rgba(0, 242, 254, 0.2); }
+h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
+
+.live-pill { display: flex; align-items: center; gap: 7px; padding: 6px 12px; border: 1px solid #1c523b; border-radius: 20px; background: #0a2118; color: var(--green); font-size: 10px; font-weight: 800; white-space: nowrap; box-shadow: 0 0 10px var(--green-glow); }
+.dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+#status { font-size: 11px; color: var(--muted); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+#status::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--blue); }
+
+.view-section { display: none; flex: 1; }
+.view-section.active { display: flex; flex-direction: column; }
+
+.layout { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr); gap: 10px; flex: 1; align-items: stretch; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px; display: flex; flex-direction: column; }
+.card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.card-title { font-size: 11px; letter-spacing: 1.2px; color: var(--teal); font-weight: 800; text-transform: uppercase; }
+.small-tag { font-size: 9px; font-weight: 700; color: var(--muted); background: #060d15; border: 1px solid var(--line); border-radius: 4px; padding: 3px 6px; }
+
+#videoWrap { flex: 1; min-height: 280px; background: #020508; border: 1px solid #152230; border-radius: 6px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+#frame { display: none; width: 100%; height: 100%; object-fit: contain; }
+#placeholder { max-width: 280px; text-align: center; padding: 20px; color: var(--muted); font-size: 11px; line-height: 1.6; }
+#box { position: absolute; border: 2px solid var(--red); display: none; pointer-events: none; box-shadow: 0 0 12px rgba(255, 71, 87, 0.6); }
+#boxLabel { position: absolute; left: -2px; top: -16px; white-space: nowrap; background: var(--red); color: white; padding: 1px 5px; font-size: 8px; line-height: 12px; font-weight: 800; }
+.frame-meta { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 10px; margin-top: 6px; font-family: monospace; }
+
+.right-col { display: flex; flex-direction: column; gap: 8px; }
+.sensor-card { padding: 8px; }
+.sensor-heading { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
+.sensor-name { font-size: 11px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 6px; }
+.sensor-icon { width: 20px; height: 20px; display: grid; place-items: center; border-radius: 5px; background: #0d2838; color: var(--teal); font-size: 11px; }
+
+/* 360 CIRCULAR RADAR */
+.radar-visual { height: 210px; background: var(--panel2); border: 1px solid #162636; border-radius: 6px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.radar-svg { width: 100%; height: 100%; max-height: 200px; display: block; }
+.radar-sweep-line { transform-origin: 100px 100px; animation: sweep360 3.5s linear infinite; }
+@keyframes sweep360 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* SPECTROGRAM */
+.spectro-visual { height: 85px; background: var(--panel2); border: 1px solid #162636; border-radius: 6px; overflow: hidden; position: relative; }
+.spectro-svg { width: 100%; height: 100%; display: block; }
+
+/* LIDAR DISTANCE DISPLAY */
+.lidar-reading { height: 65px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; background: var(--panel2); border: 1px solid #162636; border-radius: 6px; }
+.distance { font-size: 26px; line-height: 1; font-weight: 800; color: #fff; letter-spacing: -1px; font-family: monospace; }
+.distance small { font-size: 11px; color: var(--teal); font-weight: 600; margin-left: 3px; }
+.lidar-sub { font-size: 9px; color: var(--muted); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+.lidar-bars { display: flex; align-items: flex-end; gap: 3px; height: 26px; }
+.lidar-bars span { display: block; width: 4px; background: #145366; border-radius: 2px; }
+
+/* EVENT LOG */
+.event-card { flex: 1; min-height: 110px; }
+#log { height: 90px; overflow-y: auto; background: #050a0f; border: 1px solid #13202e; border-radius: 5px; padding: 6px; font: 9px/1.3 Consolas, monospace; }
+.log-drone { color: #ff6b81; margin-bottom: 2px; }
+.log-clear { color: #8ba2b8; margin-bottom: 2px; }
+.log-system { color: var(--teal); margin-bottom: 2px; }
+
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 12px; }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; }
+.metric-card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; position: relative; overflow: hidden; }
+.metric-card::after { content:''; position:absolute; bottom:0; left:0; right:0; height:2px; background:var(--teal); }
+.metric-val { font-size: 28px; font-weight: 800; color: #fff; font-family: monospace; margin-top: 4px; }
+.metric-lbl { font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.action-btn { background: var(--red); border: none; padding: 10px 16px; color: white; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 11px; transition: opacity 0.2s; }
+.action-btn:hover { opacity: 0.9; }
+.action-btn.secondary { background: var(--panel2); border: 1px solid var(--line); color: var(--text); }
+
+.full-event-table { width: 100%; border-collapse: collapse; font-size: 11px; text-align: left; }
+.full-event-table th { padding: 10px; background: #08111c; color: var(--teal); font-weight: 800; border-bottom: 1px solid var(--line); text-transform: uppercase; font-size: 10px; }
+.full-event-table td { padding: 10px; border-bottom: 1px solid #142233; color: var(--text); font-family: monospace; }
+.full-event-table tr:hover { background: #101e30; }
+
+.unintegrated-card {
+  background: var(--panel); border: 1px dashed var(--line); border-radius: 8px; padding: 32px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; flex: 1; color: var(--muted);
+}
+.unintegrated-card .icon { font-size: 32px; margin-bottom: 12px; color: var(--amber); }
+.unintegrated-card h3 { font-size: 14px; color: #fff; margin-bottom: 6px; }
+.unintegrated-card p { font-size: 11px; max-width: 400px; line-height: 1.5; margin-bottom: 12px; }
+
+#alertBanner { display: none; position: fixed; right: 14px; top: 14px; z-index: 100; background: var(--red); color: white; padding: 8px 14px; border-radius: 6px; font-size: 11px; font-weight: 800; box-shadow: 0 4px 20px rgba(255, 71, 87, 0.5); letter-spacing: 0.5px; }
+#alertBanner.show { display: block; }
+
+@media(max-width:760px){
+  body { overflow-y: auto; }
+  .layout { grid-template-columns: 1fr; }
+  #videoWrap { height: 45vh; min-height: 240px; }
+}
+</style>
+</head>
+<body>
+
+<div id="loginOverlay">
+  <div class="login-card">
+    <div class="login-brand-icon">⌁</div>
+    <div class="login-title">AeroSense AI</div>
+    <div class="login-subtitle">Multimodal Environment Monitoring</div>
+    <form onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label>Operator Email</label>
+        <input type="email" id="loginEmail" class="form-control" placeholder="admin@gmail.com" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="loginPass" class="form-control" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="login-btn">AUTHENTICATE & ACCESS FEED</button>
+      <div id="loginError">Invalid email or password. Please try again.</div>
+    </form>
+  </div>
+</div>
+
+<div id="drawerOverlay" onclick="toggleMenu()"></div>
+<aside id="drawer">
+  <div class="drawer-head">
+    <div class="drawer-brand"><span>⌁</span> AeroSense Menu</div>
+    <button class="close-drawer" onclick="toggleMenu()">✕</button>
+  </div>
+  <nav class="drawer-nav">
+    <div class="nav-item active" onclick="switchView('overview')">
+      <div class="nav-item-left"><span class="icon">📊</span> Overview & Live Monitoring</div>
+    </div>
+    <div class="nav-item" onclick="switchView('env3d')">
+      <div class="nav-item-left"><span class="icon">🌐</span> 3D Environment</div>
+    </div>
+    <div class="nav-item" onclick="switchView('sensorFusion')">
+      <div class="nav-item-left"><span class="icon">⌁</span> Sensor Fusion</div>
+    </div>
+    <div class="nav-item" onclick="switchView('drones')">
+      <div class="nav-item-left"><span class="icon">🛸</span> Drones</div>
+    </div>
+    <div class="nav-item" onclick="switchView('alerts')">
+      <div class="nav-item-left"><span class="icon">⚠️</span> Alerts & Events</div>
+      <span class="nav-badge" id="alertNavCount">0</span>
+    </div>
+    <div class="nav-item" onclick="switchView('command')">
+      <div class="nav-item-left"><span class="icon">🎯</span> Command & Control</div>
+    </div>
+    <div class="nav-item" onclick="switchView('analytics')">
+      <div class="nav-item-left"><span class="icon">📈</span> Analytics</div>
+    </div>
+  </nav>
+  <div class="drawer-footer">
+    <span>OPERATOR: ADMIN</span>
+    <button class="logout-btn" onclick="logout()">LOGOUT</button>
+  </div>
+</aside>
+
+<div class="app-container">
+  <header>
+    <div class="brand">
+      <button class="hamburger-btn" onclick="toggleMenu()" aria-label="Open menu">☰</button>
+      <div class="brand-mark">⌁</div>
+      <div><h1>AeroSense</h1></div>
+    </div>
+    <div class="live-pill"><span class="dot"></span> SYSTEM DASHBOARD</div>
+  </header>
+
+  <div id="alertBanner"></div>
+  <div id="status">Connecting to live detection server WebSocket…</div>
+
+  <!-- VIEW 1: OVERVIEW & LIVE MONITORING -->
+  <main id="view-overview" class="view-section active">
+    <div class="layout">
+      <!-- LEFT: CAMERA FEED -->
+      <section class="card">
+        <div class="card-head">
+          <div class="card-title">PRIMARY CAMERA FEED</div>
+          <span class="small-tag" id="feedTag" style="color:var(--teal)">STREAM LIVE</span>
+        </div>
+        <div id="videoWrap">
+          <div id="placeholder">Connecting to AeroSense backend server...</div>
+          <img id="frame" alt="Live camera detection frame">
+          <div id="box"><div id="boxLabel">DRONE DETECTED</div></div>
+        </div>
+        <div class="frame-meta">
+          <span id="frameInfo">Live Stream Active</span>
+          <span>REAL-TIME VIDEO STREAM</span>
+        </div>
+      </section>
+
+      <!-- RIGHT: SENSORS (RADAR, SPECTROGRAM & LIDAR DISTANCE 0.0m) -->
+      <aside class="right-col">
+        <!-- 360 CIRCULAR RADAR -->
+        <section class="card sensor-card">
+          <div class="sensor-heading">
+            <div class="sensor-name"><span class="sensor-icon">⌁</span> Radar · 360° Field Sweep</div>
+            <span class="small-tag" style="color:var(--teal)">STANDBY</span>
+          </div>
+          <div class="radar-visual">
+            <svg class="radar-svg" viewBox="0 0 200 200">
+              <defs>
+                <linearGradient id="radarSweepGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#00f2fe" stop-opacity="0.35"/>
+                  <stop offset="100%" stop-color="#00f2fe" stop-opacity="0.0"/>
+                </linearGradient>
+              </defs>
+              <circle cx="100" cy="100" r="20" fill="none" stroke="#183147" stroke-width="1"/>
+              <circle cx="100" cy="100" r="45" fill="none" stroke="#183147" stroke-width="1"/>
+              <circle cx="100" cy="100" r="70" fill="none" stroke="#183147" stroke-width="1"/>
+              <circle cx="100" cy="100" r="92" fill="none" stroke="#1f3d59" stroke-width="1"/>
+              <line x1="100" y1="8" x2="100" y2="192" stroke="#183147" stroke-width="1"/>
+              <line x1="8" y1="100" x2="192" y2="100" stroke="#183147" stroke-width="1"/>
+              <text x="100" y="16" fill="#00f2fe" font-size="7" font-weight="bold" text-anchor="middle">N</text>
+              <text x="100" y="190" fill="#607d94" font-size="7" text-anchor="middle">S</text>
+              <text x="12" y="102" fill="#607d94" font-size="7">W</text>
+              <text x="184" y="102" fill="#607d94" font-size="7">E</text>
+              <g class="radar-sweep-line">
+                <line x1="100" y1="100" x2="100" y2="8" stroke="#00f2fe" stroke-width="1.5"/>
+                <polygon points="100,100 100,8 150,30" fill="url(#radarSweepGrad)"/>
+              </g>
+              <circle cx="140" cy="65" r="3" fill="#ff4757"/>
+              <circle cx="140" cy="65" r="7" fill="none" stroke="#ff4757" opacity="0.6"/>
+              <circle cx="75" cy="130" r="2.5" fill="#39d98a"/>
+            </svg>
+          </div>
+        </section>
+
+        <!-- ML SPECTROGRAM -->
+        <section class="card sensor-card">
+          <div class="sensor-heading">
+            <div class="sensor-name"><span class="sensor-icon">▥</span> Audio · ML Spectrogram</div>
+            <span class="small-tag">STANDBY</span>
+          </div>
+          <div class="spectro-visual">
+            <svg class="spectro-svg" viewBox="0 0 320 85" preserveAspectRatio="none">
+              <rect width="320" height="85" fill="#060c14"/>
+              <g stroke="#142638" stroke-width="0.8">
+                <path d="M0 20H320M0 40H320M0 60H320"/>
+                <path d="M60 0V85M120 0V85M180 0V85M240 0V85M300 0V85"/>
+              </g>
+              <path d="M0 60 L20 58 L40 62 L60 40 L80 50 L100 25 L120 35 L140 18 L160 30 L180 50 L200 42 L220 60 L240 52 L260 38 L280 48 L300 58 L320 60 L320 85 L0 85Z" fill="#0a4358" opacity="0.6"/>
+              <path d="M0 40 L30 42 L60 20 L90 28 L120 12 L150 22 L180 38 L210 28 L240 18 L270 32 L300 25 L320 28" fill="none" stroke="#00f2fe" stroke-width="1.8"/>
+            </svg>
+          </div>
+        </section>
+
+        <!-- LIDAR DISTANCE READING (0.0m) -->
+        <section class="card sensor-card">
+          <div class="sensor-heading">
+            <div class="sensor-name"><span class="sensor-icon">↕</span> LiDAR · Target Distance</div>
+            <span class="small-tag">STANDBY</span>
+          </div>
+          <div class="lidar-reading">
+            <div>
+              <div class="distance" id="lidarValue">0.0<small>m</small></div>
+              <div class="lidar-sub">Measured Distance</div>
+            </div>
+            <div class="lidar-bars">
+              <span style="height:8px"></span>
+              <span style="height:14px"></span>
+              <span style="height:22px; background:var(--teal)"></span>
+              <span style="height:18px; background:var(--teal)"></span>
+              <span style="height:26px; background:var(--teal)"></span>
+              <span style="height:12px"></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- EVENT LOG HISTORY -->
+        <section class="card event-card">
+          <div class="card-head">
+            <div class="card-title">EVENT LOG HISTORY</div>
+            <span class="small-tag" id="eventCount">0 EVENTS</span>
+          </div>
+          <div id="log">
+            <div class="log-system">System booted. Connecting to WebSocket server stream...</div>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <!-- VIEW 2: 3D ENVIRONMENT -->
+  <main id="view-env3d" class="view-section">
+    <div class="unintegrated-card">
+      <div class="icon">🌐</div>
+      <h3>3D Spatial Environment — Not Integrated</h3>
+      <p>3D Spatial Mapping requires LiDAR & Radar coordinate telemetry, which are currently not integrated in the backend.</p>
+      <span class="small-tag" style="color:var(--amber)">MODULE PENDING HARDWARE INTEGRATION</span>
+    </div>
+  </main>
+
+  <!-- VIEW 3: SENSOR FUSION -->
+  <main id="view-sensorFusion" class="view-section">
+    <div class="unintegrated-card">
+      <div class="icon">⌁</div>
+      <h3>Sensor Fusion Engine — Not Integrated</h3>
+      <p>Multimodal sensor fusion engine currently operating in single-stream mode (Camera feed active, secondary hardware offline).</p>
+      <span class="small-tag" style="color:var(--amber)">SINGLE SENSOR MODE ACTIVE</span>
+    </div>
+  </main>
+
+  <!-- VIEW 4: DRONES -->
+  <main id="view-drones" class="view-section">
+    <div class="unintegrated-card">
+      <div class="icon">🛸</div>
+      <h3>Drone Threat Database — Not Integrated</h3>
+      <p>Target classification database is waiting for RF signal classification hardware integration.</p>
+      <span class="small-tag" style="color:var(--amber)">DATABASE OFFLINE</span>
+    </div>
+  </main>
+
+  <!-- VIEW 5: ALERTS & EVENTS -->
+  <main id="view-alerts" class="view-section">
+    <div class="card" style="flex:1">
+      <div class="card-head">
+        <div class="card-title">REAL-TIME CAMERA DETECTION EVENTS LOG</div>
+        <span class="small-tag" id="fullAlertCount" style="color:var(--teal)">0 DRONE DETECTED EVENTS</span>
+      </div>
+      <div style="overflow-x:auto; flex:1;">
+        <table class="full-event-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Detection Source</th>
+              <th>Target Event Type</th>
+              <th>Confidence Score</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="fullEventTableBody">
+            <tr>
+              <td colspan="5" style="text-align:center; color:var(--muted); padding:20px;">No drone threat events logged yet. Start feed to stream detection telemetry.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- VIEW 6: COMMAND & CONTROL -->
+  <main id="view-command" class="view-section">
+    <div class="grid-2" style="margin-bottom:12px;">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">REAL-TIME THREAT DEFENSE STATUS</div>
+          <span class="small-tag" id="c2StatusBadge" style="color:var(--green)">CLEAR PERIMETER</span>
+        </div>
+        <div style="padding:16px; font-family:monospace; font-size:12px;">
+          <div style="margin-bottom:8px;">Optical Tracking Target: <span id="c2TargetLock" style="color:var(--muted)">NONE</span></div>
+          <div style="margin-bottom:8px;">Confidence Lock Rating: <span id="c2ConfVal" style="color:var(--muted)">0%</span></div>
+          <div>Defensive Readiness Level: <span style="color:var(--teal)">DEFCON 4 (MONITORING)</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-title">AUTOMATED DEFENSE PROTOCOLS</div></div>
+        <div style="padding:12px; font-size:11px; display:flex; flex-direction:column; gap:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; background:#060d17; padding:8px; border-radius:4px;">
+            <span>Auto PTZ Camera Tracking</span>
+            <span style="color:var(--green); font-weight:bold;">ENABLED</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; background:#060d17; padding:8px; border-radius:4px;">
+            <span>Acoustic Jammer Readiness</span>
+            <span style="color:var(--amber); font-weight:bold;">STANDBY</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="flex:1;">
+      <div class="card-head"><div class="card-title">MANUAL COUNTERMEASURE ACTIONS</div></div>
+      <div style="padding:16px; display:flex; flex-wrap:wrap; gap:12px;">
+        <button class="action-btn" onclick="triggerJammerAction()">ENGAGE DIRECTIONAL JAMMER</button>
+        <button class="action-btn secondary" onclick="triggerPtzLock()">LOCK PTZ CAMERA ON TARGET</button>
+        <button class="action-btn secondary" onclick="triggerSecurityAlert()">DISPATCH SECURITY PROTOCOL</button>
+      </div>
+    </div>
+  </main>
+
+  <main id="view-analytics" class="view-section">
+    <div class="grid-3" style="margin-bottom:12px;">
+      <div class="metric-card">
+        <div class="metric-lbl">Total Frames Processed</div>
+        <div class="metric-val" id="statFramesProcessed">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-lbl">Camera Drone Detections</div>
+        <div class="metric-val" style="color:var(--red)" id="statDroneCount">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-lbl">Latest Confidence Rating</div>
+        <div class="metric-val" style="color:var(--teal)" id="statLatestConf">0%</div>
+      </div>
+    </div>
+
+    <div class="card" style="flex:1;">
+      <div class="card-head"><div class="card-title">CAMERA STREAM LATENCY & STATUS</div></div>
+      <div style="padding:16px; font-family:monospace; font-size:12px; color:var(--text); display:flex; flex-direction:column; gap:12px;">
+        <div>WebSocket Connection State: <span id="statWsState" style="color:var(--green)">CONNECTED</span></div>
+        <div>Primary Sensor Status: <span style="color:var(--teal)">OPTICAL CAMERA ACTIVE</span></div>
+        <div>Secondary Sensor Status: <span style="color:var(--amber)">NOT INTEGRATED</span></div>
+        <div>Bounding Box Overlay: <span style="color:var(--green)">ENABLED</span></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+let ws = null;
+let lastFrame = null;
+let eventCount = 0;
+let totalFrames = 0;
+let droneDetectionsCount = 0;
+let latestConfidence = 0;
+const $ = id => document.getElementById(id);
+
+function websocketUrl() {
+  if (location.protocol === "http:" || location.protocol === "https:") {
+    const scheme = location.protocol === "https:" ? "wss:" : "ws:";
+    return `${scheme}//${location.host}/ws`;
+  }
+  return "ws://127.0.0.1:8000/ws";
+}
+
+function setStatus(text) { $("status").textContent = text; }
+
+function addLog(text, type="system") {
+  const line = document.createElement("div");
+  line.className = type === "drone" ? "log-drone" : type === "clear" ? "log-clear" : "log-system";
+  line.textContent = text;
+  $("log").appendChild(line);
+  $("log").scrollTop = $("log").scrollHeight;
+  eventCount++;
+  $("eventCount").textContent = `${eventCount} EVENT${eventCount === 1 ? "" : "S"}`;
+}
+
+function updateFullEventLogTable(msg) {
+  if (!msg.drone) return;
+  
+  const tbody = $("fullEventTableBody");
+  if (droneDetectionsCount === 1) tbody.innerHTML = "";
+  
+  const timeStr = new Date().toLocaleTimeString();
+  const conf = Math.round((msg.confidence || 0) * 100);
+  
+  const row = document.createElement("tr");
+  row.innerHTML = `
+    <td>${timeStr}</td>
+    <td style="color:var(--teal)">CAMERA FEED</td>
+    <td style="color:var(--red); font-weight:bold;">DRONE INTRUSION</td>
+    <td>${conf}%</td>
+    <td><span style="color:var(--red); font-weight:bold;">ALERT LOCK</span></td>
+  `;
+  tbody.insertBefore(row, tbody.firstChild);
+}
+
+function drawBox(box, img) {
+  const el = $("box");
+  if (!box || !img.naturalWidth || !img.naturalHeight) { el.style.display = "none"; return; }
+  const scale = Math.min(img.clientWidth / img.naturalWidth, img.clientHeight / img.naturalHeight);
+  const dw = img.naturalWidth * scale, dh = img.naturalHeight * scale;
+  const ox = img.offsetLeft + (img.clientWidth - dw) / 2;
+  const oy = img.offsetTop + (img.clientHeight - dh) / 2;
+  const [x, y, w, h] = box;
+  el.style.left = `${ox + x * scale}px`;
+  el.style.top = `${oy + y * scale}px`;
+  el.style.width = `${w * scale}px`;
+  el.style.height = `${h * scale}px`;
+  el.style.display = "block";
+}
+
+function displayFrame(msg) {
+  lastFrame = msg;
+  totalFrames++;
+  
+  const img = $("frame");
+  img.onload = () => {
+    if (lastFrame === msg && msg.drone === true && msg.box) drawBox(msg.box, img);
+    else if (lastFrame === msg) $("box").style.display = "none";
+  };
+  img.src = msg.image;
+  img.style.display = "block";
+  $("placeholder").style.display = "none";
+  
+  $("frameInfo").textContent = `Live Stream Active`;
+  $("feedTag").textContent = `STREAM LIVE`;
+
+  if (msg.lidar_distance !== undefined) {
+    $("lidarValue").innerHTML = `${msg.lidar_distance}<small>m</small>`;
+  }
+
+  if (msg.drone === true) {
+    droneDetectionsCount++;
+    latestConfidence = Math.round((msg.confidence || 0) * 100);
+    
+    $("alertBanner").textContent = `DRONE DETECTED · ${latestConfidence}% CONFIDENCE`;
+    $("alertBanner").classList.add("show");
+    $("boxLabel").textContent = `DRONE ${latestConfidence}%`;
+    
+    // Command & Control Real-time Update
+    $("c2StatusBadge").textContent = "TARGET INTRUSION ALERT";
+    $("c2StatusBadge").style.color = "var(--red)";
+    $("c2TargetLock").textContent = "PRIMARY OPTICAL CAMERA LOCKED";
+    $("c2TargetLock").style.color = "var(--red)";
+    $("c2ConfVal").textContent = `${latestConfidence}%`;
+    $("c2ConfVal").style.color = "var(--teal)";
+
+    addLog(`Target Alert — DRONE DETECTED (${latestConfidence}%)`, "drone");
+    updateFullEventLogTable(msg);
+  } else {
+    $("alertBanner").classList.remove("show");
+    $("box").style.display = "none";
+    
+    $("c2StatusBadge").textContent = "CLEAR PERIMETER";
+    $("c2StatusBadge").style.color = "var(--green)";
+    $("c2TargetLock").textContent = "NONE";
+    $("c2TargetLock").style.color = "var(--muted)";
+    $("c2ConfVal").textContent = "0%";
+    
+    addLog(`Stream status — Clear`, "clear");
+  }
+
+  // Update Analytics Numbers
+  $("statFramesProcessed").textContent = totalFrames;
+  $("statDroneCount").textContent = droneDetectionsCount;
+  $("statLatestConf").textContent = `${latestConfidence}%`;
+  $("alertNavCount").textContent = droneDetectionsCount;
+  $("fullAlertCount").textContent = `${droneDetectionsCount} DRONE DETECTED EVENTS`;
+}
+
+function connectServer() {
+  if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
+  $("feedTag").textContent = "CONNECTING";
+  setStatus("Connecting to live detection feed…");
+  
+  try { ws = new WebSocket(websocketUrl()); }
+  catch (e) { setStatus("Could not open WebSocket connection."); return; }
+  
+  const connection = ws;
+  connection.onopen = () => { 
+    if (ws !== connection) return; 
+    setStatus("Connected to server · Receiving live video feed"); 
+    $("feedTag").textContent = "CONNECTED"; 
+    $("statWsState").textContent = "ACTIVE / CONNECTED";
+    addLog("Connected to AeroSense server WebSocket."); 
+  };
+  
+  connection.onmessage = event => {
+    if (ws !== connection) return;
+    let msg;
+    try { msg = JSON.parse(event.data); } catch (_) { return; }
+    if (msg.type === "error") { setStatus(msg.message); addLog(msg.message); return; }
+    if (msg.type === "frame") displayFrame(msg);
+    if (msg.type === "end") {
+      setStatus("Stream replay finished");
+      $("feedTag").textContent = "REPLAY COMPLETE";
+      addLog("Stream replay finished.");
+    }
+  };
+  
+  connection.onerror = () => { 
+    if (ws === connection) {
+      setStatus("Connection error · Ensure FastAPI backend server is running."); 
+      $("statWsState").textContent = "ERROR";
+    }
+  };
+  connection.onclose = () => {
+    if (ws !== connection) return;
+    setStatus("Disconnected from server");
+    $("feedTag").textContent = "FEED OFFLINE";
+    $("statWsState").textContent = "DISCONNECTED";
+  };
+}
+
+// STRICT AUTHENTICATION LOGIC
+function handleLogin(e) {
+  e.preventDefault();
+  const email = $("loginEmail").value.trim();
+  const password = $("loginPass").value.trim();
+  const errorEl = $("loginError");
+
+  if (email === "admin@gmail.com" && password === "12345678") {
+    errorEl.style.display = "none";
+    $("loginOverlay").style.display = "none";
+    connectServer();
+  } else {
+    errorEl.style.display = "block";
+  }
+}
+
+function logout() {
+  if (ws) ws.close();
+  $("loginOverlay").style.display = "flex";
+  $("loginEmail").value = "";
+  $("loginPass").value = "";
+  $("loginError").style.display = "none";
+}
+
+function triggerJammerAction() {
+  alert("Countermeasure Dispatched: Directional Jammer sequence triggered.");
+  addLog("C2 Action: Manual Directional Jammer Dispatched", "drone");
+}
+
+function triggerPtzLock() {
+  alert("Camera Control: Lock PTZ centered on detected target box.");
+  addLog("C2 Action: PTZ Camera Locked on target coordinates", "system");
+}
+
+function triggerSecurityAlert() {
+  alert("Security Notice: Threat dispatch notification sent to security teams.");
+  addLog("C2 Action: Perimeter Intrusion Dispatch alert sent", "system");
+}
+
+function toggleMenu() {
+  $("drawer").classList.toggle("open");
+  $("drawerOverlay").classList.toggle("open");
+}
+
+function switchView(viewId) {
+  const views = document.querySelectorAll('.view-section');
+  views.forEach(v => v.classList.remove('active'));
+
+  const selectedView = $(`view-${viewId}`);
+  if (selectedView) {
+    selectedView.classList.add('active');
+  }
+
+  const navItems = document.querySelectorAll('.nav-item');
+  navItems.forEach(item => {
+    if (item.getAttribute('onclick').includes(viewId)) {
+      item.classList.add('active');
+    } else {
+      item.classList.remove('active');
+    }
+  });
+
+  toggleMenu();
+  setStatus(`Active Module: ${viewId.toUpperCase()}`);
+  addLog(`Navigation: Switched view to ${viewId}`);
+}
+
+window.addEventListener("resize", () => {
+  if (lastFrame && lastFrame.drone && lastFrame.box) drawBox(lastFrame.box, $("frame"));
+});
+</script>
+</body>
+</html>
