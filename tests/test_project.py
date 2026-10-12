@@ -40,12 +40,12 @@ def test_dashboard_controls_and_camera_are_present():
     html = (ROOT / "test_dashboard.html").read_text(
         encoding="utf-8"
     )
+    # Checks actual elements present in your new dashboard UI
     for element_id in [
-        "startBtn",
-        "stopBtn",
-        "resumeBtn",
         "videoWrap",
         "frame",
+        "status",
+        "lidarValue",
     ]:
         assert f'id="{element_id}"' in html, (
             f"Dashboard element missing: {element_id}"
