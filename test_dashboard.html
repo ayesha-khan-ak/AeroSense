@@ -118,14 +118,56 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
 .card-title { font-size: 11px; letter-spacing: 1.2px; color: var(--teal); font-weight: 800; text-transform: uppercase; }
 .small-tag { font-size: 9px; font-weight: 700; color: var(--muted); background: #060d15; border: 1px solid var(--line); border-radius: 4px; padding: 3px 6px; }
 
-#videoWrap { flex: 1; min-height: 280px; background: #020508; border: 1px solid #152230; border-radius: 6px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+#videoWrap {
+  flex: 0 0 auto;
+  width: 100%;
+  height: 470px;
+  min-height: 0;
+  background: #020508;
+  border: 1px solid #152230;
+  border-radius: 6px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
 #frame { display: none; width: 100%; height: 100%; object-fit: contain; }
 #placeholder { max-width: 280px; text-align: center; padding: 20px; color: var(--muted); font-size: 11px; line-height: 1.6; }
 #box { position: absolute; border: 2px solid var(--red); display: none; pointer-events: none; box-shadow: 0 0 12px rgba(255, 71, 87, 0.6); }
 #boxLabel { position: absolute; left: -2px; top: -16px; white-space: nowrap; background: var(--red); color: white; padding: 1px 5px; font-size: 8px; line-height: 12px; font-weight: 800; }
 .frame-meta { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 10px; margin-top: 6px; font-family: monospace; }
 
-.right-col { display: flex; flex-direction: column; gap: 8px; }
+.right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  height: 600px;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 6px;
+  padding-bottom: 350px;
+}
+
+.right-col > * {
+  flex-shrink: 0;
+}
+
+.right-col::-webkit-scrollbar {
+  width: 7px;
+}
+
+.right-col::-webkit-scrollbar-track {
+  background: #09111a;
+  border-radius: 10px;
+}
+
+.right-col::-webkit-scrollbar-thumb {
+  background: #191c26;
+  border-radius: 10px;
+}
 .sensor-card { padding: 8px; }
 .sensor-heading { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
 .sensor-name { font-size: 11px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 6px; }
@@ -196,8 +238,8 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
 <div id="loginOverlay">
   <div class="login-card">
     <div class="login-brand-icon">⌁</div>
-    <div class="login-title">AeroSense AI</div>
-    <div class="login-subtitle">Multimodal Environment Monitoring</div>
+    <div class="login-title">AeroSense</div>
+    <div class="login-subtitle">Multimodal Drone Environment Perception & Monitoring System</div>
     <form onsubmit="handleLogin(event)">
       <div class="form-group">
         <label>Operator Email</label>
@@ -221,26 +263,26 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
   </div>
   <nav class="drawer-nav">
     <div class="nav-item active" onclick="switchView('overview')">
-      <div class="nav-item-left"><span class="icon">📊</span> Overview & Live Monitoring</div>
+      <div class="nav-item-left">Overview & Live Monitoring</div>
     </div>
     <div class="nav-item" onclick="switchView('env3d')">
-      <div class="nav-item-left"><span class="icon">🌐</span> 3D Environment</div>
+      <div class="nav-item-left">3D Environment</div>
     </div>
     <div class="nav-item" onclick="switchView('sensorFusion')">
-      <div class="nav-item-left"><span class="icon">⌁</span> Sensor Fusion</div>
+      <div class="nav-item-left">Sensor Fusion</div>
     </div>
     <div class="nav-item" onclick="switchView('drones')">
-      <div class="nav-item-left"><span class="icon">🛸</span> Drones</div>
+      <div class="nav-item-left">Drones</div>
     </div>
     <div class="nav-item" onclick="switchView('alerts')">
-      <div class="nav-item-left"><span class="icon">⚠️</span> Alerts & Events</div>
+      <div class="nav-item-left">Alerts & Events</div>
       <span class="nav-badge" id="alertNavCount">0</span>
     </div>
     <div class="nav-item" onclick="switchView('command')">
-      <div class="nav-item-left"><span class="icon">🎯</span> Command & Control</div>
+      <div class="nav-item-left">Command & Control</div>
     </div>
     <div class="nav-item" onclick="switchView('analytics')">
-      <div class="nav-item-left"><span class="icon">📈</span> Analytics</div>
+      <div class="nav-item-left">Analytics</div>
     </div>
   </nav>
   <div class="drawer-footer">
@@ -260,7 +302,6 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
   </header>
 
   <div id="alertBanner"></div>
-  <div id="status">Connecting to live detection server WebSocket…</div>
 
   <!-- VIEW 1: OVERVIEW & LIVE MONITORING -->
   <main id="view-overview" class="view-section active">
@@ -278,7 +319,6 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
         </div>
         <div class="frame-meta">
           <span id="frameInfo">Live Stream Active</span>
-          <span>REAL-TIME VIDEO STREAM</span>
         </div>
       </section>
 
@@ -377,10 +417,8 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
   <!-- VIEW 2: 3D ENVIRONMENT -->
   <main id="view-env3d" class="view-section">
     <div class="unintegrated-card">
-      <div class="icon">🌐</div>
       <h3>3D Spatial Environment — Not Integrated</h3>
       <p>3D Spatial Mapping requires LiDAR & Radar coordinate telemetry, which are currently not integrated in the backend.</p>
-      <span class="small-tag" style="color:var(--amber)">MODULE PENDING HARDWARE INTEGRATION</span>
     </div>
   </main>
 
@@ -397,10 +435,7 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
   <!-- VIEW 4: DRONES -->
   <main id="view-drones" class="view-section">
     <div class="unintegrated-card">
-      <div class="icon">🛸</div>
       <h3>Drone Threat Database — Not Integrated</h3>
-      <p>Target classification database is waiting for RF signal classification hardware integration.</p>
-      <span class="small-tag" style="color:var(--amber)">DATABASE OFFLINE</span>
     </div>
   </main>
 
@@ -626,7 +661,6 @@ function displayFrame(msg) {
 function connectServer() {
   if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
   $("feedTag").textContent = "CONNECTING";
-  setStatus("Connecting to live detection feed…");
   
   try { ws = new WebSocket(websocketUrl()); }
   catch (e) { setStatus("Could not open WebSocket connection."); return; }
@@ -634,7 +668,6 @@ function connectServer() {
   const connection = ws;
   connection.onopen = () => { 
     if (ws !== connection) return; 
-    setStatus("Connected to server · Receiving live video feed"); 
     $("feedTag").textContent = "CONNECTED"; 
     $("statWsState").textContent = "ACTIVE / CONNECTED";
     addLog("Connected to AeroSense server WebSocket."); 
@@ -730,7 +763,6 @@ function switchView(viewId) {
   });
 
   toggleMenu();
-  setStatus(`Active Module: ${viewId.toUpperCase()}`);
   addLog(`Navigation: Switched view to ${viewId}`);
 }
 
