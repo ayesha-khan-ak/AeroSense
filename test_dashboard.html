@@ -112,7 +112,7 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
 .view-section { display: none; flex: 1; }
 .view-section.active { display: flex; flex-direction: column; }
 
-.layout { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr); gap: 10px; flex: 1; align-items: stretch; }
+.layout { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(250px, 0.72fr); gap: 10px; flex: 1; align-items: stretch; }
 .card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px; display: flex; flex-direction: column; }
 .card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
 .card-title { font-size: 11px; letter-spacing: 1.2px; color: var(--teal); font-weight: 800; text-transform: uppercase; }
@@ -148,7 +148,7 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
   overflow-y: auto;
   overflow-x: hidden;
   padding-right: 6px;
-  padding-bottom: 350px;
+  padding-bottom: 8px;
 }
 
 .right-col > * {
@@ -168,6 +168,21 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
   background: #191c26;
   border-radius: 10px;
 }
+
+/* GEO-FENCE ZONE MONITORING */
+.geofence-card { padding: 9px; gap: 7px; }
+.geofence-controls { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
+.geofence-select { width: 100%; background: #060c14; color: var(--text); border: 1px solid #24415a; border-radius: 6px; padding: 8px 9px; font-size: 11px; outline: none; }
+.geofence-select:focus { border-color: var(--blue); }
+.geofence-status { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 9px; border-radius: 6px; background: var(--panel2); border: 1px solid #162636; }
+.zone-state { font-size: 10px; font-weight: 800; letter-spacing: .4px; color: var(--green); }
+.zone-state.alert { color: var(--red); }
+.zone-detail { color: var(--muted); font-size: 9px; line-height: 1.4; }
+.geofence-last-event { font-size: 10px; font-weight: 700; color: var(--text); }
+.zone-type-badge { border: 1px solid #24415a; color: var(--teal); border-radius: 4px; padding: 3px 5px; font-size: 8px; font-weight: 800; white-space: nowrap; }
+.zone-type-badge.restricted { color: var(--red); border-color: #6b2932; background: rgba(255,71,87,.08); }
+@media(max-width:760px){ .layout { grid-template-columns: 1fr; } .right-col { height: auto; padding-bottom: 0; } }
+
 .sensor-card { padding: 8px; }
 .sensor-heading { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
 .sensor-name { font-size: 11px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 6px; }
@@ -401,6 +416,33 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
           </div>
         </section>
 
+        <!-- GEO-FENCING -->
+        <section class="card sensor-card geofence-card" id="geofencePanel">
+          <div class="sensor-heading">
+            <div class="sensor-name"><span class="sensor-icon">⌖</span> Geo-fencing</div>
+            <span class="small-tag">ZONE MONITOR</span>
+          </div>
+          <div class="geofence-controls">
+            <label for="zoneSelect" class="zone-detail">Select zone to monitor</label>
+            <select id="zoneSelect" class="geofence-select" onchange="handleZoneChange()">
+              <option value="monitoring">Monitoring Zone</option>
+              <option value="restricted">Restricted Zone</option>
+            </select>
+          </div>
+          <div class="geofence-status">
+            <div>
+              <div class="zone-detail">ZONE STATUS</div>
+              <div id="zoneState" class="zone-state">NO DRONE IN ZONE</div>
+            </div>
+            <span id="zoneTypeBadge" class="zone-type-badge">MONITORING</span>
+          </div>
+          <div>
+            <div class="zone-detail">LATEST MOVEMENT</div>
+            <div id="zoneLastEvent" class="geofence-last-event">Waiting for camera detection…</div>
+          </div>
+          <div class="zone-detail" id="zoneNote">Entry and exit events are logged once per transition. Camera-only mode uses the selected zone as a demo assignment until location/zone coordinates are integrated.</div>
+        </section>
+
         <!-- EVENT LOG HISTORY -->
         <section class="card event-card">
           <div class="card-head">
@@ -543,6 +585,10 @@ let eventCount = 0;
 let totalFrames = 0;
 let droneDetectionsCount = 0;
 let latestConfidence = 0;
+let droneCurrentlyInZone = false;
+let previousZone = 'monitoring';
+let lastZoneTransitionKey = '';
+let previousDroneDetected = false;
 const $ = id => document.getElementById(id);
 
 function websocketUrl() {
@@ -577,8 +623,8 @@ function updateFullEventLogTable(msg) {
   const row = document.createElement("tr");
   row.innerHTML = `
     <td>${timeStr}</td>
-    <td style="color:var(--teal)">CAMERA FEED</td>
-    <td style="color:var(--red); font-weight:bold;">DRONE INTRUSION</td>
+    <td style="color:var(--teal)">CAMERA / GEO-FENCE</td>
+    <td style="color:var(--red); font-weight:bold;">${$("zoneSelect").value === "restricted" ? "RESTRICTED ZONE ENTRY" : "MONITORING ZONE ENTRY"}</td>
     <td>${conf}%</td>
     <td><span style="color:var(--red); font-weight:bold;">ALERT LOCK</span></td>
   `;
@@ -598,6 +644,62 @@ function drawBox(box, img) {
   el.style.width = `${w * scale}px`;
   el.style.height = `${h * scale}px`;
   el.style.display = "block";
+}
+
+
+function currentZoneLabel() {
+  return $("zoneSelect").value === "restricted" ? "Restricted Zone" : "Monitoring Zone";
+}
+
+function handleZoneChange() {
+  const zone = $("zoneSelect").value;
+  previousZone = zone;
+  $("zoneTypeBadge").textContent = zone === "restricted" ? "RESTRICTED" : "MONITORING";
+  $("zoneTypeBadge").classList.toggle("restricted", zone === "restricted");
+  $("zoneState").classList.remove("alert");
+
+  // Changing the monitored zone resets its local occupancy state so the next
+  // detected frame is treated as a fresh entry into the selected demo zone.
+  droneCurrentlyInZone = false;
+  $("zoneState").textContent = "NO DRONE IN ZONE";
+  $("zoneLastEvent").textContent = `Monitoring switched to ${currentZoneLabel()}`;
+  $("zoneNote").textContent = zone === "restricted"
+    ? "Restricted-zone entry raises a high-priority alert. Camera-only mode assigns detections to the selected demo zone until location/zone coordinates are integrated."
+    : "Monitoring-zone entry is logged as an observation. Camera-only mode assigns detections to the selected demo zone until location/zone coordinates are integrated.";
+  addLog(`Geo-fence: monitoring changed to ${currentZoneLabel()}`, "system");
+
+  if (lastFrame && lastFrame.drone === true) {
+    processGeofenceTransition(true, lastFrame);
+  }
+}
+
+function processGeofenceTransition(droneDetected, msg) {
+  const zone = $("zoneSelect").value;
+  const zoneLabel = currentZoneLabel();
+
+  if (droneDetected && !droneCurrentlyInZone) {
+    droneCurrentlyInZone = true;
+    const movement = `DRONE ENTERED ${zoneLabel.toUpperCase()}`;
+    $("zoneState").textContent = zone === "restricted" ? "RESTRICTED ZONE BREACH" : "DRONE IN MONITORING ZONE";
+    $("zoneState").classList.toggle("alert", zone === "restricted");
+    $("zoneLastEvent").textContent = `${new Date().toLocaleTimeString()} · ${movement}`;
+    addLog(zone === "restricted" ? `GEO-FENCE ALERT — ${movement}` : `Geo-fence — ${movement}`, zone === "restricted" ? "drone" : "system");
+
+    if (zone === "restricted") {
+      $("alertBanner").textContent = `RESTRICTED ZONE BREACH · ${Math.round((msg.confidence || 0) * 100)}% CONFIDENCE`;
+      $("alertBanner").classList.add("show");
+    }
+    lastZoneTransitionKey = `${zone}:in`;
+  } else if (!droneDetected && droneCurrentlyInZone) {
+    droneCurrentlyInZone = false;
+    const movement = `DRONE EXITED ${zoneLabel.toUpperCase()}`;
+    $("zoneState").textContent = "NO DRONE IN ZONE";
+    $("zoneState").classList.remove("alert");
+    $("zoneLastEvent").textContent = `${new Date().toLocaleTimeString()} · ${movement}`;
+    addLog(`Geo-fence — ${movement}`, "clear");
+    if (zone === "restricted") $("alertBanner").classList.remove("show");
+    lastZoneTransitionKey = `${zone}:out`;
+  }
 }
 
 function displayFrame(msg) {
@@ -620,11 +722,15 @@ function displayFrame(msg) {
     $("lidarValue").innerHTML = `${msg.lidar_distance}<small>m</small>`;
   }
 
+  processGeofenceTransition(msg.drone === true, msg);
+
   if (msg.drone === true) {
+    const isNewDetection = !previousDroneDetected;
+    previousDroneDetected = true;
     droneDetectionsCount++;
     latestConfidence = Math.round((msg.confidence || 0) * 100);
     
-    $("alertBanner").textContent = `DRONE DETECTED · ${latestConfidence}% CONFIDENCE`;
+    $("alertBanner").textContent = $("zoneSelect").value === "restricted" ? `RESTRICTED ZONE BREACH · ${latestConfidence}% CONFIDENCE` : `DRONE DETECTED · ${latestConfidence}% CONFIDENCE`;
     $("alertBanner").classList.add("show");
     $("boxLabel").textContent = `DRONE ${latestConfidence}%`;
     
@@ -636,10 +742,13 @@ function displayFrame(msg) {
     $("c2ConfVal").textContent = `${latestConfidence}%`;
     $("c2ConfVal").style.color = "var(--teal)";
 
-    addLog(`Target Alert — DRONE DETECTED (${latestConfidence}%)`, "drone");
-    updateFullEventLogTable(msg);
+    if (isNewDetection) {
+      addLog(`Target Alert — DRONE DETECTED (${latestConfidence}%)`, "drone");
+      updateFullEventLogTable(msg);
+    }
   } else {
-    $("alertBanner").classList.remove("show");
+    previousDroneDetected = false;
+    if ($("zoneSelect").value !== "restricted" || !droneCurrentlyInZone) $("alertBanner").classList.remove("show");
     $("box").style.display = "none";
     
     $("c2StatusBadge").textContent = "CLEAR PERIMETER";
