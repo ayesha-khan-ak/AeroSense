@@ -1,0 +1,120 @@
+{
+  "type": "FeatureCollection",
+  "name": "FAST-NUCES Islamabad Campus (H-11/4)",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "buffer",
+      "properties": {
+        "name": "Campus Buffer (Monitoring)",
+        "kind": "monitoring",
+        "min_alt_m": 0.0,
+        "max_alt_m": 200.0,
+        "color": "#ffa502"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              73.0131757,
+              33.6591547
+            ],
+            [
+              73.0196443,
+              33.6591547
+            ],
+            [
+              73.0196443,
+              33.6537453
+            ],
+            [
+              73.0131757,
+              33.6537453
+            ],
+            [
+              73.0131757,
+              33.6591547
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "campus",
+      "properties": {
+        "name": "FAST Campus Restricted Airspace",
+        "kind": "restricted",
+        "min_alt_m": 0.0,
+        "max_alt_m": 120.0,
+        "color": "#ff4757"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              73.0150624,
+              33.657577
+            ],
+            [
+              73.0177576,
+              33.657577
+            ],
+            [
+              73.0177576,
+              33.655323
+            ],
+            [
+              73.0150624,
+              33.655323
+            ],
+            [
+              73.0150624,
+              33.657577
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "core",
+      "properties": {
+        "name": "Academic Block No-Fly Core",
+        "kind": "critical",
+        "min_alt_m": 0.0,
+        "max_alt_m": 60.0,
+        "color": "#c039ff"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              73.0159249,
+              33.6568557
+            ],
+            [
+              73.0168951,
+              33.6568557
+            ],
+            [
+              73.0168951,
+              33.6562246
+            ],
+            [
+              73.0159249,
+              33.6562246
+            ],
+            [
+              73.0159249,
+              33.6568557
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

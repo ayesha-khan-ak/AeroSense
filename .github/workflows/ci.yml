@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out repository
+      - name: Check out repository (without LFS videos/weights)
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -28,11 +28,11 @@ jobs:
       - name: Install backend dependencies
         run: python -m pip install -r requirements.txt
 
-      - name: Install test framework
-        run: python -m pip install pytest
+      - name: Install test tools (httpx for FastAPI TestClient, pymavlink for protocol cross-check)
+        run: python -m pip install pytest httpx pymavlink
 
       - name: Check Python syntax
-        run: python -m compileall -q server.py make_detections.py make_test_frames.py
+        run: python -m compileall -q server.py make_detections.py make_test_frames.py geo.py geofence.py mavlink_lite.py qgc_plan.py sim_drone.py sensor_adapters.py tools
 
       - name: Run automated tests
         run: python -m pytest -v

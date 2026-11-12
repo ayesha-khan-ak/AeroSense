@@ -1,0 +1,1464 @@
+{
+  "sensor": "lidar",
+  "coordinate_frame": "sensor_xyz",
+  "detections": [
+    {
+      "t": 11.2,
+      "x": -134.11,
+      "y": 257.72,
+      "z": 73.9,
+      "confidence": 0.592,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 11.4,
+      "x": -128.88,
+      "y": 253.63,
+      "z": 73.81,
+      "confidence": 0.592,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 11.6,
+      "x": -125.72,
+      "y": 249.36,
+      "z": 73.21,
+      "confidence": 0.593,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 12.4,
+      "x": -111.38,
+      "y": 228.7,
+      "z": 70.94,
+      "confidence": 0.629,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 13.2,
+      "x": -98.6,
+      "y": 214.34,
+      "z": 68.67,
+      "confidence": 0.682,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 13.4,
+      "x": -97.25,
+      "y": 213.22,
+      "z": 68.02,
+      "confidence": 0.677,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 13.6,
+      "x": -95.03,
+      "y": 211.27,
+      "z": 67.24,
+      "confidence": 0.699,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 13.8,
+      "x": -89.76,
+      "y": 208.23,
+      "z": 66.75,
+      "confidence": 0.676,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 14.0,
+      "x": -89.17,
+      "y": 208.2,
+      "z": 66.29,
+      "confidence": 0.705,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 14.2,
+      "x": -86.86,
+      "y": 205.88,
+      "z": 66.02,
+      "confidence": 0.667,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 14.8,
+      "x": -80.15,
+      "y": 197.21,
+      "z": 63.99,
+      "confidence": 0.728,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 15.0,
+      "x": -78.65,
+      "y": 194.76,
+      "z": 63.65,
+      "confidence": 0.7,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 15.2,
+      "x": -73.82,
+      "y": 191.83,
+      "z": 63.14,
+      "confidence": 0.698,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 15.6,
+      "x": -68.07,
+      "y": 185.19,
+      "z": 62.12,
+      "confidence": 0.741,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 15.8,
+      "x": -68.09,
+      "y": 181.53,
+      "z": 61.79,
+      "confidence": 0.741,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 16.0,
+      "x": -64.98,
+      "y": 178.04,
+      "z": 60.94,
+      "confidence": 0.719,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 16.4,
+      "x": -59.3,
+      "y": 172.52,
+      "z": 59.5,
+      "confidence": 0.721,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 16.6,
+      "x": -55.69,
+      "y": 169.78,
+      "z": 58.88,
+      "confidence": 0.747,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 16.8,
+      "x": -51.36,
+      "y": 167.28,
+      "z": 58.49,
+      "confidence": 0.726,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 17.0,
+      "x": -48.24,
+      "y": 163.83,
+      "z": 57.84,
+      "confidence": 0.744,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 17.2,
+      "x": -44.18,
+      "y": 160.24,
+      "z": 57.47,
+      "confidence": 0.794,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 17.4,
+      "x": -41.69,
+      "y": 157.19,
+      "z": 57.25,
+      "confidence": 0.764,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 17.6,
+      "x": -37.28,
+      "y": 153.02,
+      "z": 56.01,
+      "confidence": 0.761,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 17.8,
+      "x": -33.39,
+      "y": 150.6,
+      "z": 55.86,
+      "confidence": 0.797,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 18.0,
+      "x": -30.78,
+      "y": 148.03,
+      "z": 55.39,
+      "confidence": 0.788,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 18.4,
+      "x": -24.07,
+      "y": 142.7,
+      "z": 54.14,
+      "confidence": 0.812,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 18.6,
+      "x": -22.61,
+      "y": 141.5,
+      "z": 53.47,
+      "confidence": 0.784,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 18.8,
+      "x": -19.23,
+      "y": 139.51,
+      "z": 53.34,
+      "confidence": 0.829,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 19.0,
+      "x": -17.15,
+      "y": 137.27,
+      "z": 52.9,
+      "confidence": 0.784,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 19.2,
+      "x": -14.13,
+      "y": 133.98,
+      "z": 51.97,
+      "confidence": 0.798,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 19.6,
+      "x": -9.18,
+      "y": 131.66,
+      "z": 50.8,
+      "confidence": 0.84,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 19.8,
+      "x": -8.47,
+      "y": 129.14,
+      "z": 50.03,
+      "confidence": 0.829,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 20.0,
+      "x": -4.7,
+      "y": 126.13,
+      "z": 49.6,
+      "confidence": 0.821,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 20.2,
+      "x": -1.29,
+      "y": 125.48,
+      "z": 49.17,
+      "confidence": 0.816,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 20.4,
+      "x": 1.15,
+      "y": 122.88,
+      "z": 48.76,
+      "confidence": 0.846,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 20.6,
+      "x": 3.3,
+      "y": 120.94,
+      "z": 48.62,
+      "confidence": 0.801,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 20.8,
+      "x": 5.06,
+      "y": 118.17,
+      "z": 47.87,
+      "confidence": 0.84,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 21.2,
+      "x": 9.31,
+      "y": 114.14,
+      "z": 46.57,
+      "confidence": 0.851,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 21.4,
+      "x": 12.67,
+      "y": 112.18,
+      "z": 46.12,
+      "confidence": 0.843,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 21.6,
+      "x": 15.64,
+      "y": 110.54,
+      "z": 45.42,
+      "confidence": 0.841,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 21.8,
+      "x": 16.72,
+      "y": 108.41,
+      "z": 44.74,
+      "confidence": 0.818,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 22.0,
+      "x": 19.37,
+      "y": 106.65,
+      "z": 44.16,
+      "confidence": 0.829,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 22.2,
+      "x": 22.25,
+      "y": 105.11,
+      "z": 43.74,
+      "confidence": 0.871,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 22.4,
+      "x": 25.75,
+      "y": 103.4,
+      "z": 42.82,
+      "confidence": 0.845,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 22.6,
+      "x": 27.73,
+      "y": 100.02,
+      "z": 42.32,
+      "confidence": 0.839,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 22.8,
+      "x": 30.5,
+      "y": 98.78,
+      "z": 42.37,
+      "confidence": 0.864,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 23.2,
+      "x": 33.96,
+      "y": 94.58,
+      "z": 40.78,
+      "confidence": 0.832,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 23.4,
+      "x": 37.85,
+      "y": 93.17,
+      "z": 40.66,
+      "confidence": 0.849,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 23.6,
+      "x": 39.74,
+      "y": 90.59,
+      "z": 39.69,
+      "confidence": 0.832,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 23.8,
+      "x": 43.04,
+      "y": 94.45,
+      "z": 38.35,
+      "confidence": 0.872,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 24.0,
+      "x": 44.36,
+      "y": 98.38,
+      "z": 37.51,
+      "confidence": 0.846,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 24.2,
+      "x": 46.27,
+      "y": 101.63,
+      "z": 36.5,
+      "confidence": 0.825,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 24.6,
+      "x": 51.01,
+      "y": 106.88,
+      "z": 34.21,
+      "confidence": 0.813,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 24.8,
+      "x": 54.63,
+      "y": 110.25,
+      "z": 33.1,
+      "confidence": 0.857,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 25.4,
+      "x": 61.14,
+      "y": 117.66,
+      "z": 29.74,
+      "confidence": 0.795,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 25.6,
+      "x": 63.43,
+      "y": 115.99,
+      "z": 29.59,
+      "confidence": 0.798,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 25.8,
+      "x": 67.94,
+      "y": 113.95,
+      "z": 28.56,
+      "confidence": 0.84,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 26.0,
+      "x": 69.14,
+      "y": 111.93,
+      "z": 28.52,
+      "confidence": 0.825,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 26.2,
+      "x": 71.78,
+      "y": 110.09,
+      "z": 27.51,
+      "confidence": 0.83,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 26.4,
+      "x": 73.61,
+      "y": 107.6,
+      "z": 27.37,
+      "confidence": 0.84,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 26.6,
+      "x": 76.24,
+      "y": 105.86,
+      "z": 26.68,
+      "confidence": 0.796,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 26.8,
+      "x": 78.46,
+      "y": 103.93,
+      "z": 25.92,
+      "confidence": 0.836,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 27.0,
+      "x": 81.0,
+      "y": 102.95,
+      "z": 25.11,
+      "confidence": 0.801,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 27.2,
+      "x": 83.28,
+      "y": 99.59,
+      "z": 24.8,
+      "confidence": 0.808,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 27.4,
+      "x": 86.36,
+      "y": 97.6,
+      "z": 24.58,
+      "confidence": 0.83,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 27.6,
+      "x": 88.95,
+      "y": 95.44,
+      "z": 23.73,
+      "confidence": 0.812,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 27.8,
+      "x": 91.9,
+      "y": 92.91,
+      "z": 23.3,
+      "confidence": 0.823,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 28.0,
+      "x": 95.12,
+      "y": 91.85,
+      "z": 22.25,
+      "confidence": 0.806,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 28.2,
+      "x": 96.01,
+      "y": 90.29,
+      "z": 22.26,
+      "confidence": 0.845,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 28.4,
+      "x": 97.75,
+      "y": 87.69,
+      "z": 21.75,
+      "confidence": 0.845,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 28.6,
+      "x": 100.43,
+      "y": 85.55,
+      "z": 20.91,
+      "confidence": 0.815,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 28.8,
+      "x": 103.71,
+      "y": 84.22,
+      "z": 20.74,
+      "confidence": 0.837,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 29.0,
+      "x": 106.19,
+      "y": 82.4,
+      "z": 19.96,
+      "confidence": 0.797,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 29.4,
+      "x": 108.47,
+      "y": 78.85,
+      "z": 19.18,
+      "confidence": 0.801,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 29.6,
+      "x": 109.13,
+      "y": 78.19,
+      "z": 18.33,
+      "confidence": 0.797,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 29.8,
+      "x": 110.07,
+      "y": 77.48,
+      "z": 17.6,
+      "confidence": 0.808,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 30.0,
+      "x": 111.51,
+      "y": 77.36,
+      "z": 17.72,
+      "confidence": 0.832,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 30.2,
+      "x": 112.6,
+      "y": 76.34,
+      "z": 16.38,
+      "confidence": 0.805,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 30.4,
+      "x": 114.24,
+      "y": 73.65,
+      "z": 16.33,
+      "confidence": 0.846,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 30.6,
+      "x": 115.97,
+      "y": 72.29,
+      "z": 15.55,
+      "confidence": 0.815,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 31.0,
+      "x": 117.99,
+      "y": 71.37,
+      "z": 14.54,
+      "confidence": 0.828,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 31.2,
+      "x": 119.78,
+      "y": 71.0,
+      "z": 14.3,
+      "confidence": 0.793,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 31.4,
+      "x": 119.74,
+      "y": 70.71,
+      "z": 14.44,
+      "confidence": 0.79,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 31.6,
+      "x": 121.66,
+      "y": 68.51,
+      "z": 14.05,
+      "confidence": 0.829,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 32.2,
+      "x": 124.87,
+      "y": 65.43,
+      "z": 13.5,
+      "confidence": 0.793,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 32.4,
+      "x": 126.3,
+      "y": 63.41,
+      "z": 13.19,
+      "confidence": 0.835,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 32.6,
+      "x": 128.31,
+      "y": 62.39,
+      "z": 13.28,
+      "confidence": 0.822,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 32.8,
+      "x": 126.63,
+      "y": 61.21,
+      "z": 13.25,
+      "confidence": 0.814,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 33.0,
+      "x": 126.16,
+      "y": 61.55,
+      "z": 13.39,
+      "confidence": 0.8,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 33.2,
+      "x": 124.33,
+      "y": 59.46,
+      "z": 13.38,
+      "confidence": 0.833,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 33.4,
+      "x": 124.46,
+      "y": 59.66,
+      "z": 14.06,
+      "confidence": 0.81,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 33.8,
+      "x": 121.9,
+      "y": 56.61,
+      "z": 14.26,
+      "confidence": 0.834,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 34.0,
+      "x": 120.08,
+      "y": 55.45,
+      "z": 14.58,
+      "confidence": 0.822,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 34.2,
+      "x": 116.92,
+      "y": 54.53,
+      "z": 14.71,
+      "confidence": 0.832,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 34.4,
+      "x": 116.8,
+      "y": 53.91,
+      "z": 15.25,
+      "confidence": 0.829,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 34.6,
+      "x": 116.51,
+      "y": 54.79,
+      "z": 15.17,
+      "confidence": 0.844,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 34.8,
+      "x": 114.38,
+      "y": 54.23,
+      "z": 15.27,
+      "confidence": 0.823,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 35.4,
+      "x": 111.49,
+      "y": 60.2,
+      "z": 15.95,
+      "confidence": 0.856,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 35.6,
+      "x": 110.57,
+      "y": 58.99,
+      "z": 16.19,
+      "confidence": 0.845,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 36.2,
+      "x": 106.36,
+      "y": 62.49,
+      "z": 17.51,
+      "confidence": 0.828,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 36.4,
+      "x": 103.81,
+      "y": 65.24,
+      "z": 17.08,
+      "confidence": 0.86,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 36.8,
+      "x": 102.12,
+      "y": 65.69,
+      "z": 18.08,
+      "confidence": 0.865,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 37.0,
+      "x": 101.11,
+      "y": 65.37,
+      "z": 18.27,
+      "confidence": 0.858,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 37.2,
+      "x": 100.04,
+      "y": 68.14,
+      "z": 18.69,
+      "confidence": 0.822,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 37.4,
+      "x": 99.3,
+      "y": 68.79,
+      "z": 18.59,
+      "confidence": 0.842,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 37.6,
+      "x": 98.04,
+      "y": 70.99,
+      "z": 19.53,
+      "confidence": 0.839,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 37.8,
+      "x": 95.55,
+      "y": 70.73,
+      "z": 19.47,
+      "confidence": 0.817,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 38.0,
+      "x": 95.03,
+      "y": 72.43,
+      "z": 19.94,
+      "confidence": 0.866,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 38.2,
+      "x": 96.62,
+      "y": 72.95,
+      "z": 19.81,
+      "confidence": 0.847,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 38.4,
+      "x": 97.1,
+      "y": 74.11,
+      "z": 19.55,
+      "confidence": 0.836,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 38.8,
+      "x": 99.87,
+      "y": 75.91,
+      "z": 19.26,
+      "confidence": 0.856,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 39.0,
+      "x": 100.16,
+      "y": 76.76,
+      "z": 19.03,
+      "confidence": 0.844,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 39.2,
+      "x": 101.99,
+      "y": 77.39,
+      "z": 18.86,
+      "confidence": 0.825,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 39.4,
+      "x": 102.72,
+      "y": 78.71,
+      "z": 18.52,
+      "confidence": 0.848,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 39.6,
+      "x": 105.24,
+      "y": 79.18,
+      "z": 18.39,
+      "confidence": 0.798,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 39.8,
+      "x": 106.14,
+      "y": 81.44,
+      "z": 17.83,
+      "confidence": 0.8,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 40.0,
+      "x": 106.6,
+      "y": 80.48,
+      "z": 17.77,
+      "confidence": 0.802,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 40.2,
+      "x": 108.5,
+      "y": 80.19,
+      "z": 17.52,
+      "confidence": 0.82,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 40.4,
+      "x": 108.43,
+      "y": 79.42,
+      "z": 17.19,
+      "confidence": 0.838,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 40.6,
+      "x": 109.38,
+      "y": 78.44,
+      "z": 16.78,
+      "confidence": 0.791,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 40.8,
+      "x": 110.7,
+      "y": 78.59,
+      "z": 16.69,
+      "confidence": 0.844,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 41.0,
+      "x": 112.92,
+      "y": 75.62,
+      "z": 15.85,
+      "confidence": 0.834,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 41.4,
+      "x": 115.81,
+      "y": 71.89,
+      "z": 15.75,
+      "confidence": 0.809,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 42.0,
+      "x": 120.49,
+      "y": 68.08,
+      "z": 16.5,
+      "confidence": 0.804,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 42.2,
+      "x": 123.1,
+      "y": 66.13,
+      "z": 17.82,
+      "confidence": 0.825,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 42.4,
+      "x": 125.92,
+      "y": 64.86,
+      "z": 18.89,
+      "confidence": 0.812,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 42.6,
+      "x": 129.16,
+      "y": 63.03,
+      "z": 19.95,
+      "confidence": 0.799,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 42.8,
+      "x": 131.65,
+      "y": 60.37,
+      "z": 21.46,
+      "confidence": 0.801,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 43.0,
+      "x": 133.91,
+      "y": 58.81,
+      "z": 22.27,
+      "confidence": 0.786,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 43.2,
+      "x": 136.46,
+      "y": 56.87,
+      "z": 23.38,
+      "confidence": 0.816,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 43.4,
+      "x": 137.86,
+      "y": 54.68,
+      "z": 24.63,
+      "confidence": 0.821,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 43.6,
+      "x": 139.97,
+      "y": 52.58,
+      "z": 25.73,
+      "confidence": 0.786,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 43.8,
+      "x": 141.99,
+      "y": 50.28,
+      "z": 26.55,
+      "confidence": 0.783,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 44.0,
+      "x": 145.17,
+      "y": 48.12,
+      "z": 27.79,
+      "confidence": 0.819,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 44.6,
+      "x": 153.01,
+      "y": 41.69,
+      "z": 31.22,
+      "confidence": 0.813,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 45.0,
+      "x": 157.82,
+      "y": 37.73,
+      "z": 33.23,
+      "confidence": 0.772,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 45.2,
+      "x": 160.34,
+      "y": 34.97,
+      "z": 34.5,
+      "confidence": 0.764,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 45.4,
+      "x": 163.11,
+      "y": 32.81,
+      "z": 35.05,
+      "confidence": 0.777,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 45.6,
+      "x": 164.38,
+      "y": 32.19,
+      "z": 36.77,
+      "confidence": 0.779,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 46.2,
+      "x": 172.35,
+      "y": 25.6,
+      "z": 39.91,
+      "confidence": 0.768,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 46.6,
+      "x": 178.34,
+      "y": 22.03,
+      "z": 41.83,
+      "confidence": 0.759,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 46.8,
+      "x": 180.2,
+      "y": 19.46,
+      "z": 43.3,
+      "confidence": 0.778,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 47.2,
+      "x": 184.66,
+      "y": 16.18,
+      "z": 45.47,
+      "confidence": 0.73,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 47.4,
+      "x": 187.58,
+      "y": 13.8,
+      "z": 46.23,
+      "confidence": 0.735,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 47.6,
+      "x": 189.21,
+      "y": 8.92,
+      "z": 47.8,
+      "confidence": 0.74,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 47.8,
+      "x": 193.66,
+      "y": 7.34,
+      "z": 48.39,
+      "confidence": 0.761,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 48.0,
+      "x": 194.76,
+      "y": 2.36,
+      "z": 50.02,
+      "confidence": 0.716,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 48.2,
+      "x": 196.85,
+      "y": 1.7,
+      "z": 50.79,
+      "confidence": 0.708,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 48.4,
+      "x": 199.07,
+      "y": -3.97,
+      "z": 52.37,
+      "confidence": 0.725,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 48.6,
+      "x": 201.65,
+      "y": -6.57,
+      "z": 53.43,
+      "confidence": 0.73,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 48.8,
+      "x": 202.66,
+      "y": -8.51,
+      "z": 54.63,
+      "confidence": 0.698,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 49.2,
+      "x": 210.01,
+      "y": -15.71,
+      "z": 56.46,
+      "confidence": 0.682,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 49.8,
+      "x": 216.4,
+      "y": -24.38,
+      "z": 59.59,
+      "confidence": 0.719,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 50.0,
+      "x": 219.03,
+      "y": -27.61,
+      "z": 60.71,
+      "confidence": 0.702,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 50.2,
+      "x": 221.48,
+      "y": -31.21,
+      "z": 61.85,
+      "confidence": 0.69,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 50.4,
+      "x": 223.86,
+      "y": -33.68,
+      "z": 62.95,
+      "confidence": 0.715,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 50.6,
+      "x": 226.31,
+      "y": -36.28,
+      "z": 63.92,
+      "confidence": 0.701,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 51.0,
+      "x": 234.87,
+      "y": -47.92,
+      "z": 66.54,
+      "confidence": 0.688,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 51.2,
+      "x": 240.3,
+      "y": -55.9,
+      "z": 67.67,
+      "confidence": 0.655,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 51.4,
+      "x": 244.89,
+      "y": -62.5,
+      "z": 68.47,
+      "confidence": 0.661,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 52.0,
+      "x": 257.68,
+      "y": -84.64,
+      "z": 72.16,
+      "confidence": 0.598,
+      "track_id": 1,
+      "label": "drone"
+    },
+    {
+      "t": 52.2,
+      "x": 264.42,
+      "y": -90.25,
+      "z": 72.68,
+      "confidence": 0.619,
+      "track_id": 1,
+      "label": "drone"
+    }
+  ]
+}

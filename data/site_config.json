@@ -1,0 +1,35 @@
+{
+  "site_name": "FAST-NUCES Islamabad Campus (H-11/4)",
+  "map_center": [
+    33.65645,
+    73.01641
+  ],
+  "map_zoom": 16,
+  "ground_alt_msl": 510.0,
+  "sensor_site": {
+    "name": "AeroSense sensor mast",
+    "lat": 33.6555484,
+    "lon": 73.0173803,
+    "height_agl": 15.0
+  },
+  "sensors": {
+    "camera": {
+      "fov_deg": 60,
+      "range_m": 700
+    },
+    "radar": {
+      "heading_deg": 0.0,
+      "range_m": 1000,
+      "file": "data/radar/radar_tracks.json"
+    },
+    "lidar": {
+      "heading_deg": 0.0,
+      "range_m": 300,
+      "file": "data/lidar/lidar_tracks.json"
+    },
+    "audio": {
+      "file": "data/audio/audio_detections.json"
+    }
+  },
+  "note": "Campus polygon is approximate. Adjust it in the dashboard planner over satellite imagery."
+}

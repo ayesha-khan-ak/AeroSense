@@ -3,256 +3,219 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:,">
 <title>AeroSense — Multimodal AI Drone Environment Perception</title>
 <style>
 :root {
-  --bg: #070d14;
-  --panel: #0d1724;
-  --panel2: #09111a;
-  --line: #1b2a3a;
-  --text: #e1eaf2;
-  --muted: #788d9f;
-  --blue: #1479ff;
-  --teal: #00f2fe;
-  --green: #39d98a;
-  --red: #ff4757;
-  --amber: #ffa502;
-  --blue-glow: rgba(20, 121, 255, 0.35);
-  --green-glow: rgba(57, 217, 138, 0.35);
+  --bg: #070d14; --panel: #0d1724; --panel2: #09111a; --line: #1b2a3a;
+  --text: #e1eaf2; --muted: #788d9f; --blue: #1479ff; --teal: #00f2fe;
+  --green: #39d98a; --red: #ff4757; --amber: #ffa502; --orange: #ff7f50; --purple: #c039ff;
+  --blue-glow: rgba(20, 121, 255, 0.35); --green-glow: rgba(57, 217, 138, 0.35);
 }
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: Inter, "Segoe UI", Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+button, input, select { font-family: inherit; }
 
-#loginOverlay {
-  position: fixed; inset: 0; z-index: 9999;
-  background: radial-gradient(circle at 50% 30%, #0d1f36 0%, #050a10 100%);
-  display: flex; align-items: center; justify-content: center; padding: 20px;
-}
-.login-card {
-  background: var(--panel); border: 1px solid #1f364d; border-radius: 12px;
-  width: 100%; max-width: 400px; padding: 32px; box-shadow: 0 12px 40px rgba(0,0,0,0.6);
-  text-align: center; position: relative; overflow: hidden;
-}
-.login-card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, var(--blue), var(--teal), var(--green));
-}
-.login-brand-icon {
-  width: 50px; height: 50px; border-radius: 12px; background: #0f2b45;
-  border: 1px solid #1e4b75; color: var(--teal); font-size: 26px;
-  display: grid; place-items: center; margin: 0 auto 12px auto;
-  box-shadow: 0 0 20px var(--blue-glow);
-}
+/* ---------- login ---------- */
+#loginOverlay { position: fixed; inset: 0; z-index: 9999; background: radial-gradient(circle at 50% 30%, #0d1f36 0%, #050a10 100%); display: flex; align-items: center; justify-content: center; padding: 20px; }
+.login-card { background: var(--panel); border: 1px solid #1f364d; border-radius: 12px; width: 100%; max-width: 400px; padding: 32px; box-shadow: 0 12px 40px rgba(0,0,0,0.6); text-align: center; position: relative; overflow: hidden; }
+.login-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--blue), var(--teal), var(--green)); }
+.login-brand-icon { width: 50px; height: 50px; border-radius: 12px; background: #0f2b45; border: 1px solid #1e4b75; color: var(--teal); font-size: 26px; display: grid; place-items: center; margin: 0 auto 12px auto; box-shadow: 0 0 20px var(--blue-glow); }
 .login-title { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: 0.5px; }
 .login-subtitle { font-size: 11px; color: var(--muted); margin-top: 4px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
 .form-group { text-align: left; margin-bottom: 16px; }
 .form-group label { display: block; font-size: 11px; font-weight: 700; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-.form-control {
-  width: 100%; background: #060c14; border: 1px solid var(--line); border-radius: 7px;
-  padding: 10px 12px; color: white; font-size: 13px; outline: none; transition: border-color 0.2s;
-}
+.form-control { width: 100%; background: #060c14; border: 1px solid var(--line); border-radius: 7px; padding: 10px 12px; color: white; font-size: 13px; outline: none; transition: border-color 0.2s; }
 .form-control:focus { border-color: var(--blue); box-shadow: 0 0 8px var(--blue-glow); }
-.login-btn {
-  width: 100%; padding: 12px; background: linear-gradient(135deg, var(--blue), #0056c6);
-  border: 0; border-radius: 7px; color: white; font-weight: 700; font-size: 13px;
-  cursor: pointer; margin-top: 8px; box-shadow: 0 4px 15px var(--blue-glow); transition: transform 0.1s, opacity 0.2s;
-}
-.login-btn:hover { opacity: 0.95; }
-.login-btn:active { transform: scale(0.99); }
+.login-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, var(--blue), #0056c6); border: 0; border-radius: 7px; color: white; font-weight: 700; font-size: 13px; cursor: pointer; margin-top: 8px; box-shadow: 0 4px 15px var(--blue-glow); }
 #loginError { display: none; color: var(--red); font-size: 11px; font-weight: 700; margin-top: 12px; background: rgba(255, 71, 87, 0.1); border: 1px solid rgba(255, 71, 87, 0.3); padding: 8px; border-radius: 6px; }
 
-#drawerOverlay {
-  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); z-index: 1000;
-  opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(3px);
-}
+/* ---------- drawer ---------- */
+#drawerOverlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(3px); }
 #drawerOverlay.open { opacity: 1; pointer-events: auto; }
-#drawer {
-  position: fixed; top: 0; left: 0; bottom: 0; width: 290px;
-  background: var(--panel); border-right: 1px solid var(--line); z-index: 1001;
-  transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  display: flex; flex-direction: column; padding: 20px;
-}
+#drawer { position: fixed; top: 0; left: 0; bottom: 0; width: 290px; background: var(--panel); border-right: 1px solid var(--line); z-index: 1001; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; padding: 20px; }
 #drawer.open { transform: translateX(0); }
 .drawer-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
 .drawer-brand { font-weight: 800; font-size: 16px; color: var(--teal); display: flex; align-items: center; gap: 8px; }
 .close-drawer { background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; }
 .drawer-nav { display: flex; flex-direction: column; gap: 6px; flex: 1; overflow-y: auto; }
-.nav-item {
-  display: flex; align-items: center; justify-content: space-between; padding: 11px 12px; border-radius: 6px;
-  color: var(--muted); text-decoration: none; font-size: 12px; font-weight: 600; cursor: pointer;
-  transition: all 0.2s; border: 1px solid transparent;
-}
-.nav-item-left { display: flex; align-items: center; gap: 12px; }
+.nav-item { display: flex; align-items: center; justify-content: space-between; padding: 11px 12px; border-radius: 6px; color: var(--muted); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
 .nav-item:hover, .nav-item.active { background: #122438; color: var(--teal); border-color: #1f3f61; }
-.nav-item .icon { font-size: 15px; width: 20px; text-align: center; }
 .nav-badge { font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 10px; background: var(--red); color: white; }
 .drawer-footer { padding-top: 16px; border-top: 1px solid var(--line); font-size: 10px; color: var(--muted); display: flex; justify-content: space-between; align-items: center; }
 .logout-btn { background: #2a1215; border: 1px solid #5a1e24; color: var(--red); padding: 5px 10px; border-radius: 5px; font-size: 10px; font-weight: 700; cursor: pointer; }
 
+/* ---------- header ---------- */
 .app-container { padding: 10px 14px; min-height: 100vh; display: flex; flex-direction: column; }
-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
 .brand { display: flex; align-items: center; gap: 10px; }
-.hamburger-btn {
-  background: var(--panel); border: 1px solid var(--line); color: var(--teal);
-  width: 36px; height: 36px; border-radius: 8px; font-size: 18px; cursor: pointer;
-  display: grid; place-items: center; transition: background 0.2s;
-}
-.hamburger-btn:hover { background: #16263b; }
-.brand-mark { width: 36px; height: 36px; border-radius: 8px; display: grid; place-items: center; background: #0e293a; border: 1px solid #1a4f6e; color: var(--teal); font-size: 20px; box-shadow: 0 0 10px rgba(0, 242, 254, 0.2); }
+.hamburger-btn { background: var(--panel); border: 1px solid var(--line); color: var(--teal); width: 36px; height: 36px; border-radius: 8px; font-size: 18px; cursor: pointer; display: grid; place-items: center; }
+.brand-mark { width: 36px; height: 36px; border-radius: 8px; display: grid; place-items: center; background: #0e293a; border: 1px solid #1a4f6e; color: var(--teal); font-size: 20px; }
 h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
-
-.live-pill { display: flex; align-items: center; gap: 7px; padding: 6px 12px; border: 1px solid #1c523b; border-radius: 20px; background: #0a2118; color: var(--green); font-size: 10px; font-weight: 800; white-space: nowrap; box-shadow: 0 0 10px var(--green-glow); }
-.dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
+.sub-brand { font-size: 10px; color: var(--muted); letter-spacing: .4px; }
+.header-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.live-pill { display: flex; align-items: center; gap: 7px; padding: 6px 12px; border: 1px solid #1c523b; border-radius: 20px; background: #0a2118; color: var(--green); font-size: 10px; font-weight: 800; white-space: nowrap; }
+.live-pill.warn { border-color: #5a4210; background: #211a08; color: var(--amber); }
+.live-pill.bad { border-color: #5a1e24; background: #2a1215; color: var(--red); }
+.dot { width: 7px; height: 7px; background: currentColor; border-radius: 50%; box-shadow: 0 0 8px currentColor; animation: pulse 2s infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-
-#status { font-size: 11px; color: var(--muted); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-#status::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--blue); }
+#status { font-size: 11px; color: var(--muted); margin-bottom: 8px; min-height: 14px; }
 
 .view-section { display: none; flex: 1; }
 .view-section.active { display: flex; flex-direction: column; }
 
-.layout { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(250px, 0.72fr); gap: 10px; flex: 1; align-items: stretch; }
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px; display: flex; flex-direction: column; }
+/* ---------- overview layout ---------- */
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 310px); gap: 10px; flex: 1; align-items: start; }
+.main-col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.feeds { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 10px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px; display: flex; flex-direction: column; min-width: 0; }
 .card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
 .card-title { font-size: 11px; letter-spacing: 1.2px; color: var(--teal); font-weight: 800; text-transform: uppercase; }
-.small-tag { font-size: 9px; font-weight: 700; color: var(--muted); background: #060d15; border: 1px solid var(--line); border-radius: 4px; padding: 3px 6px; }
+.small-tag { font-size: 9px; font-weight: 700; color: var(--muted); background: #060d15; border: 1px solid var(--line); border-radius: 4px; padding: 3px 6px; white-space: nowrap; }
+.small-tag.ok { color: var(--green); border-color: #1c523b; }
+.small-tag.warn { color: var(--amber); border-color: #5a4210; }
+.small-tag.bad { color: var(--red); border-color: #5a1e24; }
 
-#videoWrap {
-  flex: 0 0 auto;
-  width: 100%;
-  height: 470px;
-  min-height: 0;
-  background: #020508;
-  border: 1px solid #152230;
-  border-radius: 6px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
+#videoWrap { width: 100%; height: 380px; background: #020508; border: 1px solid #152230; border-radius: 6px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 #frame { display: none; width: 100%; height: 100%; object-fit: contain; }
 #placeholder { max-width: 280px; text-align: center; padding: 20px; color: var(--muted); font-size: 11px; line-height: 1.6; }
 #box { position: absolute; border: 2px solid var(--red); display: none; pointer-events: none; box-shadow: 0 0 12px rgba(255, 71, 87, 0.6); }
 #boxLabel { position: absolute; left: -2px; top: -16px; white-space: nowrap; background: var(--red); color: white; padding: 1px 5px; font-size: 8px; line-height: 12px; font-weight: 800; }
+#droneTypeOverlay { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.7); border: 1px solid var(--teal); border-radius: 5px; padding: 4px 8px; font-size: 10px; font-weight: 700; color: var(--teal); display: none; z-index: 2; }
 .frame-meta { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 10px; margin-top: 6px; font-family: monospace; }
 
-.right-col {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.map-box { position: relative; width: 100%; height: 380px; border: 1px solid #152230; border-radius: 6px; overflow: hidden; background: #06101a; }
+.map-ctrl { position: absolute; top: 8px; right: 8px; display: flex; flex-direction: column; gap: 4px; z-index: 5; }
+.map-ctrl button, .map-btn { background: rgba(7,13,20,.88); border: 1px solid #24415a; color: var(--text); border-radius: 5px; font-size: 11px; font-weight: 700; padding: 5px 8px; cursor: pointer; min-width: 28px; }
+.map-ctrl button:hover, .map-btn:hover { border-color: var(--teal); color: var(--teal); }
+.map-ctrl button.on { color: var(--teal); border-color: var(--teal); }
+.map-legend { position: absolute; left: 8px; top: 8px; z-index: 5; background: rgba(7,13,20,.85); border: 1px solid #1b2a3a; border-radius: 6px; padding: 6px 8px; font-size: 9px; color: var(--muted); line-height: 1.6; }
+.sw { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.map-coords { position: absolute; right: 8px; bottom: 18px; z-index: 5; font: 9px monospace; color: #cfd8e3; background: rgba(0,0,0,.5); padding: 2px 5px; border-radius: 3px; }
 
-  height: 600px;
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding-right: 6px;
-  padding-bottom: 8px;
-}
+/* telemetry strip */
+.strip { display: grid; grid-template-columns: 210px minmax(0, 1fr) minmax(0, 1.2fr); gap: 10px; }
+.threat-box { border-radius: 6px; padding: 10px; background: var(--panel2); border: 1px solid #162636; display: flex; flex-direction: column; gap: 6px; height: 100%; }
+.threat-level { font-size: 22px; font-weight: 900; letter-spacing: 1px; }
+.threat-reason { font-size: 10px; color: var(--text); line-height: 1.4; min-height: 28px; }
+.threat-action { font-size: 9.5px; color: var(--muted); line-height: 1.4; border-top: 1px solid #162636; padding-top: 6px; }
+.tel-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.tel { background: var(--panel2); border: 1px solid #162636; border-radius: 5px; padding: 5px 7px; }
+.tel .k { font-size: 8.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+.tel .v { font: 700 13px monospace; color: #fff; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#altChart { width: 100%; height: 132px; display: block; background: var(--panel2); border: 1px solid #162636; border-radius: 5px; }
 
-.right-col > * {
-  flex-shrink: 0;
-}
-
-.right-col::-webkit-scrollbar {
-  width: 7px;
-}
-
-.right-col::-webkit-scrollbar-track {
-  background: #09111a;
-  border-radius: 10px;
-}
-
-.right-col::-webkit-scrollbar-thumb {
-  background: #191c26;
-  border-radius: 10px;
-}
-
-/* GEO-FENCE ZONE MONITORING */
-.geofence-card { padding: 9px; gap: 7px; }
-.geofence-controls { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
-.geofence-select { width: 100%; background: #060c14; color: var(--text); border: 1px solid #24415a; border-radius: 6px; padding: 8px 9px; font-size: 11px; outline: none; }
-.geofence-select:focus { border-color: var(--blue); }
-.geofence-status { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 9px; border-radius: 6px; background: var(--panel2); border: 1px solid #162636; }
-.zone-state { font-size: 10px; font-weight: 800; letter-spacing: .4px; color: var(--green); }
-.zone-state.alert { color: var(--red); }
-.zone-detail { color: var(--muted); font-size: 9px; line-height: 1.4; }
-.geofence-last-event { font-size: 10px; font-weight: 700; color: var(--text); }
-.zone-type-badge { border: 1px solid #24415a; color: var(--teal); border-radius: 4px; padding: 3px 5px; font-size: 8px; font-weight: 800; white-space: nowrap; }
-.zone-type-badge.restricted { color: var(--red); border-color: #6b2932; background: rgba(255,71,87,.08); }
-@media(max-width:760px){ .layout { grid-template-columns: 1fr; } .right-col { height: auto; padding-bottom: 0; } }
-
+/* right column */
+.right-col { display: flex; flex-direction: column; gap: 8px; max-height: calc(100vh - 90px); min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 4px; }
+.right-col > * { flex-shrink: 0; }
+.right-col::-webkit-scrollbar { width: 7px; }
+.right-col::-webkit-scrollbar-track { background: #09111a; border-radius: 10px; }
+.right-col::-webkit-scrollbar-thumb { background: #1d2a3a; border-radius: 10px; }
 .sensor-card { padding: 8px; }
 .sensor-heading { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
 .sensor-name { font-size: 11px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 6px; }
 .sensor-icon { width: 20px; height: 20px; display: grid; place-items: center; border-radius: 5px; background: #0d2838; color: var(--teal); font-size: 11px; }
-
-/* 360 CIRCULAR RADAR */
-.radar-visual { height: 210px; background: var(--panel2); border: 1px solid #162636; border-radius: 6px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-.radar-svg { width: 100%; height: 100%; max-height: 200px; display: block; }
+.radar-visual { height: 200px; background: var(--panel2); border: 1px solid #162636; border-radius: 6px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.radar-svg { width: 100%; height: 100%; max-height: 196px; display: block; }
 .radar-sweep-line { transform-origin: 100px 100px; animation: sweep360 3.5s linear infinite; }
 @keyframes sweep360 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-/* SPECTROGRAM */
-.spectro-visual { height: 85px; background: var(--panel2); border: 1px solid #162636; border-radius: 6px; overflow: hidden; position: relative; }
+.sensor-note { font-size: 9px; color: var(--muted); margin-top: 5px; line-height: 1.4; }
+.spectro-visual { height: 70px; background: var(--panel2); border: 1px solid #162636; border-radius: 6px; overflow: hidden; position: relative; }
 .spectro-svg { width: 100%; height: 100%; display: block; }
-
-/* LIDAR DISTANCE DISPLAY */
-.lidar-reading { height: 65px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; background: var(--panel2); border: 1px solid #162636; border-radius: 6px; }
-.distance { font-size: 26px; line-height: 1; font-weight: 800; color: #fff; letter-spacing: -1px; font-family: monospace; }
+.lidar-reading { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; background: var(--panel2); border: 1px solid #162636; border-radius: 6px; }
+.distance { font-size: 24px; line-height: 1; font-weight: 800; color: #fff; letter-spacing: -1px; font-family: monospace; }
 .distance small { font-size: 11px; color: var(--teal); font-weight: 600; margin-left: 3px; }
 .lidar-sub { font-size: 9px; color: var(--muted); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
 .lidar-bars { display: flex; align-items: flex-end; gap: 3px; height: 26px; }
-.lidar-bars span { display: block; width: 4px; background: #145366; border-radius: 2px; }
+.lidar-bars span { display: block; width: 4px; background: #145366; border-radius: 2px; transition: height .3s; }
 
-/* EVENT LOG */
-.event-card { flex: 1; min-height: 110px; }
-#log { height: 90px; overflow-y: auto; background: #050a0f; border: 1px solid #13202e; border-radius: 5px; padding: 6px; font: 9px/1.3 Consolas, monospace; }
+/* MMAUD class probs */
+.mmaud-probs { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; }
+.prob-row { display: flex; align-items: center; gap: 6px; font-size: 9px; }
+.prob-name { width: 50px; color: var(--muted); text-align: right; }
+.prob-bar-bg { flex: 1; height: 8px; background: #0a1520; border-radius: 4px; overflow: hidden; }
+.prob-bar { height: 100%; border-radius: 4px; transition: width 0.3s; }
+.prob-val { width: 34px; font-family: monospace; font-weight: 700; font-size: 9px; }
+.mmaud-size { font-size: 10px; font-weight: 700; margin-top: 4px; padding: 3px 8px; border-radius: 4px; display: inline-block; }
+.mmaud-size.small { background: #0b2a1e; color: var(--green); border: 1px solid #1c523b; }
+.mmaud-size.medium { background: #211a08; color: var(--amber); border: 1px solid #5a4210; }
+.mmaud-size.large { background: #2a1215; color: var(--red); border: 1px solid #5a1e24; }
+.mmaud-det-status { font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; }
+
+.zone-row { display: grid; grid-template-columns: 8px minmax(0, 1fr) auto; gap: 7px; align-items: center; padding: 6px 7px; border-radius: 5px; background: var(--panel2); border: 1px solid #162636; margin-top: 5px; }
+.zone-row .zn { font-size: 10px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.zone-row .zd { font-size: 9px; color: var(--muted); }
+.zone-row .zs { font-size: 9px; font-weight: 800; }
+.zone-row.in { border-color: #6b2932; background: rgba(255,71,87,.08); }
+.link-line { font-size: 9.5px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+
+.event-card { min-height: 110px; }
+#log { height: 140px; overflow-y: auto; background: #050a0f; border: 1px solid #13202e; border-radius: 5px; padding: 6px; font: 9px/1.35 Consolas, monospace; }
 .log-drone { color: #ff6b81; margin-bottom: 2px; }
 .log-clear { color: #8ba2b8; margin-bottom: 2px; }
 .log-system { color: var(--teal); margin-bottom: 2px; }
+.log-warn { color: var(--amber); margin-bottom: 2px; }
 
-.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 12px; }
+/* other views */
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 12px; }
 .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; }
 .metric-card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; position: relative; overflow: hidden; }
 .metric-card::after { content:''; position:absolute; bottom:0; left:0; right:0; height:2px; background:var(--teal); }
-.metric-val { font-size: 28px; font-weight: 800; color: #fff; font-family: monospace; margin-top: 4px; }
+.metric-val { font-size: 26px; font-weight: 800; color: #fff; font-family: monospace; margin-top: 4px; }
 .metric-lbl { font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-
-.action-btn { background: var(--red); border: none; padding: 10px 16px; color: white; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 11px; transition: opacity 0.2s; }
-.action-btn:hover { opacity: 0.9; }
+.action-btn { background: var(--red); border: none; padding: 10px 16px; color: white; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 11px; }
 .action-btn.secondary { background: var(--panel2); border: 1px solid var(--line); color: var(--text); }
-
+.action-btn.teal { background: #0b3a4a; border: 1px solid #1a6e8a; color: var(--teal); }
+.action-btn:disabled { opacity: .45; cursor: not-allowed; }
 .full-event-table { width: 100%; border-collapse: collapse; font-size: 11px; text-align: left; }
-.full-event-table th { padding: 10px; background: #08111c; color: var(--teal); font-weight: 800; border-bottom: 1px solid var(--line); text-transform: uppercase; font-size: 10px; }
-.full-event-table td { padding: 10px; border-bottom: 1px solid #142233; color: var(--text); font-family: monospace; }
+.full-event-table th { padding: 9px; background: #08111c; color: var(--teal); font-weight: 800; border-bottom: 1px solid var(--line); text-transform: uppercase; font-size: 10px; position: sticky; top: 0; }
+.full-event-table td { padding: 8px 9px; border-bottom: 1px solid #142233; color: var(--text); font-family: monospace; vertical-align: top; }
 .full-event-table tr:hover { background: #101e30; }
-
-.unintegrated-card {
-  background: var(--panel); border: 1px dashed var(--line); border-radius: 8px; padding: 32px;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  text-align: center; flex: 1; color: var(--muted);
-}
-.unintegrated-card .icon { font-size: 32px; margin-bottom: 12px; color: var(--amber); }
+.lvl-chip { font-weight: 800; font-size: 10px; padding: 2px 6px; border-radius: 4px; border: 1px solid currentColor; }
+.unintegrated-card { background: var(--panel); border: 1px dashed var(--line); border-radius: 8px; padding: 32px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; flex: 1; color: var(--muted); }
 .unintegrated-card h3 { font-size: 14px; color: #fff; margin-bottom: 6px; }
-.unintegrated-card p { font-size: 11px; max-width: 400px; line-height: 1.5; margin-bottom: 12px; }
+.unintegrated-card p { font-size: 11px; max-width: 520px; line-height: 1.6; margin-bottom: 12px; }
+.kv { display: grid; grid-template-columns: 170px 1fr; gap: 6px 10px; font-size: 11px; padding: 10px; }
+.kv .k { color: var(--muted); }
+.kv .v { font-family: monospace; }
 
-#alertBanner { display: none; position: fixed; right: 14px; top: 14px; z-index: 100; background: var(--red); color: white; padding: 8px 14px; border-radius: 6px; font-size: 11px; font-weight: 800; box-shadow: 0 4px 20px rgba(255, 71, 87, 0.5); letter-spacing: 0.5px; }
+/* planner */
+.planner { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 10px; flex: 1; }
+.planner .map-box { height: calc(100vh - 110px); min-height: 460px; }
+.plan-side { display: flex; flex-direction: column; gap: 8px; max-height: calc(100vh - 110px); overflow-y: auto; padding-right: 4px; }
+.tabs { display: flex; gap: 4px; }
+.tab { flex: 1; padding: 8px; text-align: center; font-size: 11px; font-weight: 800; border-radius: 6px; border: 1px solid var(--line); background: var(--panel2); color: var(--muted); cursor: pointer; }
+.tab.active { color: var(--teal); border-color: #1f3f61; background: #122438; }
+.zcard { background: var(--panel2); border: 1px solid #162636; border-left: 3px solid var(--red); border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+.zcard.editing { border-color: var(--teal); box-shadow: 0 0 0 1px var(--teal) inset; }
+.zcard input, .zcard select, .wp-table input, .side-input { background: #060c14; border: 1px solid #24415a; border-radius: 4px; color: var(--text); font-size: 11px; padding: 5px 6px; width: 100%; outline: none; }
+.zrow { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+.zrow label, .lbl { font-size: 8.5px; color: var(--muted); text-transform: uppercase; display: block; margin-bottom: 2px; letter-spacing: .4px; }
+.btn-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.btn-sm { background: #0b1a28; border: 1px solid #24415a; color: var(--text); border-radius: 4px; font-size: 10px; font-weight: 700; padding: 5px 8px; cursor: pointer; }
+.btn-sm:hover { border-color: var(--teal); color: var(--teal); }
+.btn-sm.danger { color: var(--red); border-color: #5a1e24; }
+.btn-sm.primary { background: #0b3a4a; color: var(--teal); border-color: #1a6e8a; }
+.btn-sm.on { background: var(--teal); color: #031018; }
+.hint { font-size: 10px; color: var(--muted); line-height: 1.5; background: var(--panel2); border: 1px dashed #24415a; border-radius: 6px; padding: 8px; }
+.wp-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+.wp-table td, .wp-table th { padding: 3px; border-bottom: 1px solid #142233; text-align: left; }
+.wp-table th { color: var(--muted); font-size: 9px; font-weight: 700; }
+.dirty-flag { color: var(--amber); font-size: 10px; font-weight: 800; }
+
+#alertBanner { display: none; position: fixed; right: 14px; top: 14px; z-index: 100; background: var(--red); color: white; padding: 8px 14px; border-radius: 6px; font-size: 11px; font-weight: 800; box-shadow: 0 4px 20px rgba(255, 71, 87, 0.5); letter-spacing: 0.5px; max-width: 420px; }
 #alertBanner.show { display: block; }
+#toast { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); background: #0b3a4a; border: 1px solid #1a6e8a; color: var(--teal); padding: 8px 14px; border-radius: 6px; font-size: 11px; font-weight: 700; z-index: 200; display: none; }
 
-@media(max-width:760px){
-  body { overflow-y: auto; }
-  .layout { grid-template-columns: 1fr; }
-  #videoWrap { height: 45vh; min-height: 240px; }
-}
+@media (max-width: 1250px) { .feeds { grid-template-columns: 1fr; } .strip { grid-template-columns: 1fr 1fr; } .strip > :last-child { grid-column: 1 / -1; } }
+@media (max-width: 900px) { .layout, .planner { grid-template-columns: 1fr; } .right-col, .plan-side { max-height: none; } .strip { grid-template-columns: 1fr; } #videoWrap, .map-box { height: 300px; } }
 </style>
 </head>
 <body>
 
 <div id="loginOverlay">
   <div class="login-card">
-    <div class="login-brand-icon">⌁</div>
+    <div class="login-brand-icon"><svg viewBox="0 0 40 40" width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 4L6 14v12l14 10 14-10V14L20 4z" stroke="#00f2fe" stroke-width="1.8" fill="rgba(0,242,254,0.08)"/><path d="M20 12l-6 4v3l6 4 6-4v-3l-6-4z" fill="rgba(0,242,254,0.25)" stroke="#00f2fe" stroke-width="1.2"/><circle cx="20" cy="18" r="2.5" fill="#00f2fe"/><path d="M14 18h-4M26 18h4M20 12V8M20 24v4" stroke="#00f2fe" stroke-width="1" opacity="0.6"/><path d="M11 11l3 3M29 11l-3 3M11 25l3-3M29 25l-3-3" stroke="#00f2fe" stroke-width="0.8" opacity="0.4"/></svg></div>
     <div class="login-title">AeroSense</div>
     <div class="login-subtitle">Multimodal Drone Environment Perception & Monitoring System</div>
     <form onsubmit="handleLogin(event)">
@@ -273,32 +236,18 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
 <div id="drawerOverlay" onclick="toggleMenu()"></div>
 <aside id="drawer">
   <div class="drawer-head">
-    <div class="drawer-brand"><span>⌁</span> AeroSense Menu</div>
+    <div class="drawer-brand"><svg viewBox="0 0 40 40" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 4L6 14v12l14 10 14-10V14L20 4z" stroke="#00f2fe" stroke-width="1.8" fill="rgba(0,242,254,0.08)"/><path d="M20 12l-6 4v3l6 4 6-4v-3l-6-4z" fill="rgba(0,242,254,0.25)" stroke="#00f2fe" stroke-width="1.2"/><circle cx="20" cy="18" r="2.5" fill="#00f2fe"/><path d="M14 18h-4M26 18h4M20 12V8M20 24v4" stroke="#00f2fe" stroke-width="1" opacity="0.6"/></svg> AeroSense Menu</div>
     <button class="close-drawer" onclick="toggleMenu()">✕</button>
   </div>
   <nav class="drawer-nav">
-    <div class="nav-item active" onclick="switchView('overview')">
-      <div class="nav-item-left">Overview & Live Monitoring</div>
-    </div>
-    <div class="nav-item" onclick="switchView('env3d')">
-      <div class="nav-item-left">3D Environment</div>
-    </div>
-    <div class="nav-item" onclick="switchView('sensorFusion')">
-      <div class="nav-item-left">Sensor Fusion</div>
-    </div>
-    <div class="nav-item" onclick="switchView('drones')">
-      <div class="nav-item-left">Drones</div>
-    </div>
-    <div class="nav-item" onclick="switchView('alerts')">
-      <div class="nav-item-left">Alerts & Events</div>
-      <span class="nav-badge" id="alertNavCount">0</span>
-    </div>
-    <div class="nav-item" onclick="switchView('command')">
-      <div class="nav-item-left">Command & Control</div>
-    </div>
-    <div class="nav-item" onclick="switchView('analytics')">
-      <div class="nav-item-left">Analytics</div>
-    </div>
+    <div class="nav-item active" data-view="overview" onclick="switchView('overview')">Overview & Live Monitoring</div>
+    <div class="nav-item" data-view="planner" onclick="switchView('planner')">Mission & Geo-fence Planner</div>
+    <div class="nav-item" data-view="sensorFusion" onclick="switchView('sensorFusion')">Sensor Fusion</div>
+    <div class="nav-item" data-view="drones" onclick="switchView('drones')">Tracked Targets</div>
+    <div class="nav-item" data-view="alerts" onclick="switchView('alerts')"><span>Alerts & Events</span><span class="nav-badge" id="alertNavCount">0</span></div>
+    <div class="nav-item" data-view="command" onclick="switchView('command')">Command & Control</div>
+    <div class="nav-item" data-view="analytics" onclick="switchView('analytics')">Analytics</div>
+    <div class="nav-item" data-view="env3d" onclick="switchView('env3d')">3D Environment</div>
   </nav>
   <div class="drawer-footer">
     <span>OPERATOR: ADMIN</span>
@@ -310,41 +259,114 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
   <header>
     <div class="brand">
       <button class="hamburger-btn" onclick="toggleMenu()" aria-label="Open menu">☰</button>
-      <div class="brand-mark">⌁</div>
-      <div><h1>AeroSense</h1></div>
+      <div class="brand-mark"><svg viewBox="0 0 40 40" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 4L6 14v12l14 10 14-10V14L20 4z" stroke="#00f2fe" stroke-width="1.8" fill="rgba(0,242,254,0.08)"/><path d="M20 12l-6 4v3l6 4 6-4v-3l-6-4z" fill="rgba(0,242,254,0.25)" stroke="#00f2fe" stroke-width="1.2"/><circle cx="20" cy="18" r="2.5" fill="#00f2fe"/><path d="M14 18h-4M26 18h4M20 12V8M20 24v4" stroke="#00f2fe" stroke-width="1" opacity="0.6"/></svg></div>
+      <div><h1>AeroSense</h1><div class="sub-brand" id="siteName">FAST-NUCES Islamabad Campus</div></div>
     </div>
-    <div class="live-pill"><span class="dot"></span> SYSTEM DASHBOARD</div>
+    <div class="header-right">
+      <div class="live-pill warn" id="linkPill"><span class="dot"></span> <span id="linkPillText">MAVLINK: WAITING</span></div>
+      <div class="live-pill" id="threatPill"><span class="dot"></span> <span id="threatPillText">THREAT: CLEAR</span></div>
+    </div>
   </header>
 
   <div id="alertBanner"></div>
+  <div id="toast"></div>
   <div id="status" role="status" aria-live="polite"></div>
 
   <!-- VIEW 1: OVERVIEW & LIVE MONITORING -->
   <main id="view-overview" class="view-section active">
     <div class="layout">
-      <!-- LEFT: CAMERA FEED -->
-      <section class="card">
-        <div class="card-head">
-          <div class="card-title">PRIMARY CAMERA FEED</div>
-          <span class="small-tag" id="feedTag" style="color:var(--teal)">STREAM LIVE</span>
-        </div>
-        <div id="videoWrap">
-          <div id="placeholder">Connecting to AeroSense backend server...</div>
-          <img id="frame" alt="Live camera detection frame">
-          <div id="box"><div id="boxLabel">DRONE DETECTED</div></div>
-        </div>
-        <div class="frame-meta">
-          <span id="frameInfo">Live Stream Active</span>
-        </div>
-      </section>
+      <div class="main-col">
+        <div class="feeds">
+          <section class="card">
+            <div class="card-head">
+              <div class="card-title">Primary Camera Feed</div>
+              <span class="small-tag" id="feedTag">CONNECTING</span>
+            </div>
+            <div id="videoWrap">
+              <div id="placeholder">Connecting to AeroSense backend server...</div>
+              <img id="frame" alt="Live camera detection frame">
+              <div id="box"><div id="boxLabel">DRONE DETECTED</div></div>
+              <div id="droneTypeOverlay"></div>
+            </div>
+            <div class="frame-meta">
+              <span id="frameInfo">Waiting for stream</span>
+              <span id="camConf">—</span>
+            </div>
+          </section>
 
-      <!-- RIGHT: SENSORS (RADAR, SPECTROGRAM & LIDAR DISTANCE 0.0m) -->
+          <section class="card">
+            <div class="card-head">
+              <div class="card-title">Campus Airspace · Live</div>
+              <span class="small-tag" id="mapTag">NO TELEMETRY</span>
+            </div>
+            <div class="map-box" id="mapLive">
+              <div class="map-legend">
+                <div><span class="sw" style="background:#c039ff"></span>No-fly core</div>
+                <div><span class="sw" style="background:#ff4757"></span>Restricted / Radar det.</div>
+                <div><span class="sw" style="background:#ffa502"></span>Monitoring buffer</div>
+                <div><span class="sw" style="background:#39d98a"></span>Avia LiDAR det.</div>
+                <div><span class="sw" style="background:#00f2fe"></span>Mid360 LiDAR / Sensor mast</div>
+                <div><span class="sw" style="background:rgba(255,255,255,.7)"></span>Mission waypoints</div>
+                <div>◇ Sensor target &nbsp; ▲ MAVLink drone</div>
+              </div>
+              <div class="map-ctrl">
+                <button onclick="liveMap.zoomBy(1)" title="Zoom in">+</button>
+                <button onclick="liveMap.zoomBy(-1)" title="Zoom out">−</button>
+                <button id="followBtn" onclick="toggleFollow()" title="Follow drone">◎</button>
+                <button onclick="fitScenario(liveMap)" title="Show whole scenario">⌂</button>
+                <button onclick="cycleBasemap(liveMap, this)" title="Basemap">SAT</button>
+              </div>
+              <div class="map-coords" id="liveCoords"></div>
+            </div>
+            <div class="frame-meta">
+              <span id="mapInfo">Telemetry: waiting for MAVLink on UDP 14445</span>
+              <span id="trackCount"></span>
+            </div>
+          </section>
+        </div>
+
+        <div class="strip">
+          <div class="threat-box" id="threatBox">
+            <div class="zone-detail" style="font-size:9px;color:var(--muted);letter-spacing:.6px">THREAT ASSESSMENT</div>
+            <div class="threat-level" id="threatLevel" style="color:var(--green)">CLEAR</div>
+            <div class="threat-reason" id="threatReason">No target in protected airspace.</div>
+            <div class="threat-action" id="threatAction">Continue surveillance.</div>
+          </div>
+          <div class="card" style="padding:8px">
+            <div class="card-head"><div class="card-title">Drone Telemetry (MAVLink)</div><span class="small-tag" id="telSrc">—</span></div>
+            <div class="tel-grid">
+              <div class="tel"><div class="k">Latitude</div><div class="v" id="tLat">—</div></div>
+              <div class="tel"><div class="k">Longitude</div><div class="v" id="tLon">—</div></div>
+              <div class="tel"><div class="k">Altitude AGL</div><div class="v" id="tAlt">—</div></div>
+              <div class="tel"><div class="k">Ground speed</div><div class="v" id="tGs">—</div></div>
+              <div class="tel"><div class="k">Climb rate</div><div class="v" id="tClimb">—</div></div>
+              <div class="tel"><div class="k">Heading</div><div class="v" id="tHdg">—</div></div>
+              <div class="tel"><div class="k">Range / bearing (mast)</div><div class="v" id="tRange">—</div></div>
+              <div class="tel"><div class="k">Time to breach</div><div class="v" id="tTtb">—</div></div>
+              <div class="tel"><div class="k">GPS / battery</div><div class="v" id="tGps">—</div></div>
+            </div>
+          </div>
+          <div class="card" style="padding:8px">
+            <div class="card-head"><div class="card-title">Altitude Profile vs Zone Ceilings</div><span class="small-tag">LAST 2 MIN</span></div>
+            <canvas id="altChart"></canvas>
+          </div>
+        </div>
+      </div>
+
       <aside class="right-col">
-        <!-- 360 CIRCULAR RADAR -->
+        <section class="card sensor-card geofence-card" id="geofencePanel">
+          <div class="sensor-heading">
+            <div class="sensor-name"><span class="sensor-icon">⌖</span> 3D Geo-fence · Zones</div>
+            <span class="small-tag" id="zoneTag">ZONE MONITOR</span>
+          </div>
+          <div id="zoneList"><div class="zone-detail" style="font-size:10px;color:var(--muted)">Loading zones…</div></div>
+          <div class="link-line" id="linkLine">MAVLink: waiting for telemetry on UDP 14445.</div>
+        </section>
+
         <section class="card sensor-card">
           <div class="sensor-heading">
-            <div class="sensor-name"><span class="sensor-icon">⌁</span> Radar · 360° Field Sweep</div>
-            <span class="small-tag" style="color:var(--teal)">STANDBY</span>
+            <div class="sensor-name"><span class="sensor-icon">◉</span> Radar · MMAUD</div>
+            <span class="small-tag" id="radarTag">NO MODEL OUTPUT</span>
           </div>
           <div class="radar-visual">
             <svg class="radar-svg" viewBox="0 0 200 200">
@@ -354,131 +376,216 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
                   <stop offset="100%" stop-color="#00f2fe" stop-opacity="0.0"/>
                 </linearGradient>
               </defs>
-              <circle cx="100" cy="100" r="20" fill="none" stroke="#183147" stroke-width="1"/>
-              <circle cx="100" cy="100" r="45" fill="none" stroke="#183147" stroke-width="1"/>
-              <circle cx="100" cy="100" r="70" fill="none" stroke="#183147" stroke-width="1"/>
-              <circle cx="100" cy="100" r="92" fill="none" stroke="#1f3d59" stroke-width="1"/>
-              <line x1="100" y1="8" x2="100" y2="192" stroke="#183147" stroke-width="1"/>
-              <line x1="8" y1="100" x2="192" y2="100" stroke="#183147" stroke-width="1"/>
+              <circle cx="100" cy="100" r="23" fill="none" stroke="#183147"/>
+              <circle cx="100" cy="100" r="46" fill="none" stroke="#183147"/>
+              <circle cx="100" cy="100" r="69" fill="none" stroke="#183147"/>
+              <circle cx="100" cy="100" r="92" fill="none" stroke="#1f3d59"/>
+              <line x1="100" y1="8" x2="100" y2="192" stroke="#183147"/>
+              <line x1="8" y1="100" x2="192" y2="100" stroke="#183147"/>
               <text x="100" y="16" fill="#00f2fe" font-size="7" font-weight="bold" text-anchor="middle">N</text>
               <text x="100" y="190" fill="#607d94" font-size="7" text-anchor="middle">S</text>
               <text x="12" y="102" fill="#607d94" font-size="7">W</text>
               <text x="184" y="102" fill="#607d94" font-size="7">E</text>
+              <text x="103" y="74" fill="#3e5a72" font-size="5.5" id="ringLabel">500 m</text>
               <g class="radar-sweep-line">
                 <line x1="100" y1="100" x2="100" y2="8" stroke="#00f2fe" stroke-width="1.5"/>
                 <polygon points="100,100 100,8 150,30" fill="url(#radarSweepGrad)"/>
               </g>
-              <circle cx="140" cy="65" r="3" fill="#ff4757"/>
-              <circle cx="140" cy="65" r="7" fill="none" stroke="#ff4757" opacity="0.6"/>
-              <circle cx="75" cy="130" r="2.5" fill="#39d98a"/>
+              <g id="radarBlips"></g>
             </svg>
           </div>
+          <div id="radarMmaudInfo" style="display:none">
+            <div class="mmaud-probs" id="radarProbs"></div>
+          </div>
+          <div class="sensor-note" id="radarNote">◆ green = MAVLink target. ● red = radar detections. Place frontend_demo_feed.json in data/ for MMAUD radar data.</div>
         </section>
 
-        <!-- ML SPECTROGRAM -->
         <section class="card sensor-card">
           <div class="sensor-heading">
-            <div class="sensor-name"><span class="sensor-icon">▥</span> Audio · ML Spectrogram</div>
-            <span class="small-tag">STANDBY</span>
-          </div>
-          <div class="spectro-visual">
-            <svg class="spectro-svg" viewBox="0 0 320 85" preserveAspectRatio="none">
-              <rect width="320" height="85" fill="#060c14"/>
-              <g stroke="#142638" stroke-width="0.8">
-                <path d="M0 20H320M0 40H320M0 60H320"/>
-                <path d="M60 0V85M120 0V85M180 0V85M240 0V85M300 0V85"/>
-              </g>
-              <path d="M0 60 L20 58 L40 62 L60 40 L80 50 L100 25 L120 35 L140 18 L160 30 L180 50 L200 42 L220 60 L240 52 L260 38 L280 48 L300 58 L320 60 L320 85 L0 85Z" fill="#0a4358" opacity="0.6"/>
-              <path d="M0 40 L30 42 L60 20 L90 28 L120 12 L150 22 L180 38 L210 28 L240 18 L270 32 L300 25 L320 28" fill="none" stroke="#00f2fe" stroke-width="1.8"/>
-            </svg>
-          </div>
-        </section>
-
-        <!-- LIDAR DISTANCE READING (0.0m) -->
-        <section class="card sensor-card">
-          <div class="sensor-heading">
-            <div class="sensor-name"><span class="sensor-icon">↕</span> LiDAR · Target Distance</div>
-            <span class="small-tag">STANDBY</span>
+            <div class="sensor-name"><span class="sensor-icon">↕</span> LiDAR · Avia + Mid360</div>
+            <span class="small-tag" id="lidarTag">NO MODEL OUTPUT</span>
           </div>
           <div class="lidar-reading">
             <div>
-              <div class="distance" id="lidarValue">0.0<small>m</small></div>
-              <div class="lidar-sub">Measured Distance</div>
+              <div class="distance" id="lidarValue">—<small>m</small></div>
+              <div class="lidar-sub" id="lidarSub">LiDAR measured range</div>
             </div>
-            <div class="lidar-bars">
-              <span style="height:8px"></span>
-              <span style="height:14px"></span>
-              <span style="height:22px; background:var(--teal)"></span>
-              <span style="height:18px; background:var(--teal)"></span>
-              <span style="height:26px; background:var(--teal)"></span>
-              <span style="height:12px"></span>
+            <div class="lidar-bars" id="lidarBars">
+              <span style="height:6px"></span><span style="height:6px"></span><span style="height:6px"></span>
+              <span style="height:6px"></span><span style="height:6px"></span><span style="height:6px"></span>
             </div>
+          </div>
+          <div id="lidarMmaudInfo" style="display:none">
+            <div style="display:flex;gap:8px;margin-top:6px;font-size:9px">
+              <span>Avia (upward): <span id="lidarAviaStatus" class="mmaud-det-status" style="color:var(--muted)">—</span></span>
+              <span>Mid360 (360°): <span id="lidarMid360Status" class="mmaud-det-status" style="color:var(--muted)">—</span></span>
+            </div>
+            <div class="mmaud-probs" id="lidarProbs"></div>
           </div>
         </section>
 
-        <!-- GEO-FENCING -->
-        <section class="card sensor-card geofence-card" id="geofencePanel">
+        <section class="card sensor-card">
           <div class="sensor-heading">
-            <div class="sensor-name"><span class="sensor-icon">⌖</span> Geo-fencing</div>
-            <span class="small-tag">ZONE MONITOR</span>
+            <div class="sensor-name"><span class="sensor-icon">▥</span> Audio · Acoustic Classifier</div>
+            <span class="small-tag" id="audioTag">NO MODEL OUTPUT</span>
           </div>
-          <div class="geofence-controls">
-            <label for="zoneSelect" class="zone-detail">Select zone to monitor</label>
-            <select id="zoneSelect" class="geofence-select" onchange="handleZoneChange()">
-              <option value="monitoring">Monitoring Zone</option>
-              <option value="restricted">Restricted Zone</option>
-            </select>
+          <div class="spectro-visual">
+            <svg class="spectro-svg" viewBox="0 0 320 70" preserveAspectRatio="none" id="audioSvg">
+              <rect width="320" height="70" fill="#060c14"/>
+              <g stroke="#142638" stroke-width="0.8"><path d="M0 18H320M0 36H320M0 54H320"/><path d="M64 0V70M128 0V70M192 0V70M256 0V70"/></g>
+              <g id="audioBars"></g>
+            </svg>
           </div>
-          <div class="geofence-status">
-            <div>
-              <div class="zone-detail">ZONE STATUS</div>
-              <div id="zoneState" class="zone-state">NO DRONE IN ZONE</div>
-            </div>
-            <span id="zoneTypeBadge" class="zone-type-badge">MONITORING</span>
-          </div>
-          <div>
-            <div class="zone-detail">LATEST MOVEMENT</div>
-            <div id="zoneLastEvent" class="geofence-last-event">Waiting for camera detection…</div>
-          </div>
-          <div class="zone-detail" id="zoneNote">Entry and exit events are logged once per transition. Camera-only mode uses the selected zone as a demo assignment until location/zone coordinates are integrated.</div>
+          <div class="sensor-note" id="audioNote">Audio not in MMAUD feed. Waiting for data/audio/audio_detections.json</div>
         </section>
 
-        <!-- EVENT LOG HISTORY -->
+        <!-- MMAUD Fusion panel -->
+        <section class="card sensor-card" id="mmaudFusionPanel" style="display:none">
+          <div class="sensor-heading">
+            <div class="sensor-name"><span class="sensor-icon">◉</span> MMAUD Fusion</div>
+            <span class="small-tag" id="fusionTag">—</span>
+          </div>
+          <div id="fusionContent">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:4px">Placeholder fusion (average of sensors)</div>
+            <div style="display:flex;gap:10px;align-items:center">
+              <span id="fusionDetected" style="font-size:13px;font-weight:800">—</span>
+              <span id="fusionSize" class="mmaud-size" style="display:none"></span>
+            </div>
+            <div class="mmaud-probs" id="fusionProbs"></div>
+            <div class="sensor-note" style="margin-top:6px;color:var(--amber)">⚠ Placeholder fusion = simple average. Real fusion (Kalman filter) planned.</div>
+          </div>
+        </section>
+
         <section class="card event-card">
           <div class="card-head">
-            <div class="card-title">EVENT LOG HISTORY</div>
+            <div class="card-title">Event Log History</div>
             <span class="small-tag" id="eventCount">0 EVENTS</span>
           </div>
-          <div id="log">
-            <div class="log-system">System booted. Connecting to WebSocket server stream...</div>
-          </div>
+          <div id="log"><div class="log-system">System booted. Connecting to WebSocket server stream...</div></div>
         </section>
       </aside>
     </div>
   </main>
 
-  <!-- VIEW 2: 3D ENVIRONMENT -->
-  <main id="view-env3d" class="view-section">
-    <div class="unintegrated-card">
-      <h3>3D Spatial Environment — Not Integrated</h3>
-      <p>3D Spatial Mapping requires LiDAR & Radar coordinate telemetry, which are currently not integrated in the backend.</p>
+  <!-- VIEW 2: MISSION & GEO-FENCE PLANNER -->
+  <main id="view-planner" class="view-section">
+    <div class="planner">
+      <section class="card">
+        <div class="card-head">
+          <div class="card-title">Mission & Geo-fence Planner · FAST Campus</div>
+          <span class="small-tag" id="planModeTag">VIEW</span>
+        </div>
+        <div class="map-box" id="mapPlan">
+          <div class="map-ctrl">
+            <button onclick="planMap.zoomBy(1)">+</button>
+            <button onclick="planMap.zoomBy(-1)">−</button>
+            <button onclick="fitCampus(planMap)" title="Show campus">⌂</button>
+            <button onclick="cycleBasemap(planMap, this)">SAT</button>
+          </div>
+          <div class="map-coords" id="planCoords"></div>
+        </div>
+      </section>
+      <aside class="plan-side">
+        <div class="tabs">
+          <div class="tab active" id="tabZones" onclick="planTab('zones')">Geo-fence zones</div>
+          <div class="tab" id="tabMission" onclick="planTab('mission')">Mission (QGC .plan)</div>
+        </div>
+
+        <div id="paneZones" style="display:flex;flex-direction:column;gap:8px">
+          <div class="hint">
+            Each zone = polygon + altitude band (m above ground). <b>Edit shape</b> shows white vertex
+            handles: drag them onto the real campus boundary on the satellite image, drag a small
+            midpoint handle to add a vertex, double-click a vertex to delete it. <b>+ New zone</b>: click
+            points on the map, then <b>Finish</b>.
+          </div>
+          <div class="btn-row">
+            <button class="btn-sm" id="newZoneBtn" onclick="startDrawZone()">+ New zone</button>
+            <button class="btn-sm primary" id="finishZoneBtn" onclick="finishDrawZone()" style="display:none">Finish</button>
+            <button class="btn-sm" id="cancelDrawBtn" onclick="cancelDraw()" style="display:none">Cancel</button>
+            <span style="flex:1"></span>
+            <span class="dirty-flag" id="zonesDirty"></span>
+          </div>
+          <div id="zoneEditor" style="display:flex;flex-direction:column;gap:8px"></div>
+          <div class="btn-row">
+            <button class="btn-sm primary" onclick="saveZones()">Save zones</button>
+            <button class="btn-sm" onclick="revertZones()">Revert</button>
+            <a class="btn-sm" href="/api/zones" target="_blank" style="text-decoration:none">View JSON</a>
+          </div>
+        </div>
+
+        <div id="paneMission" style="display:none;flex-direction:column;gap:8px">
+          <div class="hint">
+            Waypoints use QGroundControl's <b>.plan</b> format (altitude = m above home). The virtual drone
+            (<code>sim_drone.py</code> / <code>server.py --sim</code>) reloads the mission automatically when
+            you save. <b>Download .plan</b> → open in QGroundControl (Plan → Open) on any PC that has it.
+            <b>Import .plan</b> → load a mission drawn in QGroundControl.
+          </div>
+          <div class="btn-row">
+            <button class="btn-sm" id="addWpBtn" onclick="toggleAddWp()">+ Add waypoints (click map)</button>
+            <button class="btn-sm danger" onclick="clearWps()">Clear</button>
+            <span style="flex:1"></span><span class="dirty-flag" id="missionDirty"></span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <div><span class="lbl">Cruise speed (m/s)</span><input class="side-input" id="cruiseSpeed" type="number" min="1" max="30" step="0.5" value="12" oninput="markMissionDirty()"></div>
+            <div><span class="lbl">New waypoint alt (m)</span><input class="side-input" id="newWpAlt" type="number" min="5" max="500" value="80"></div>
+          </div>
+          <table class="wp-table"><thead><tr><th>#</th><th>Lat</th><th>Lon</th><th>Alt m</th><th></th></tr></thead><tbody id="wpBody"></tbody></table>
+          <div class="btn-row">
+            <button class="btn-sm primary" onclick="saveMission()">Save mission</button>
+            <button class="btn-sm" onclick="revertMission()">Revert</button>
+          </div>
+          <div class="btn-row">
+            <a class="btn-sm" href="/api/export/plan" style="text-decoration:none">⬇ Download QGC .plan</a>
+            <label class="btn-sm" style="cursor:pointer">⬆ Import QGC .plan<input type="file" accept=".plan,.json" style="display:none" onchange="importPlan(this)"></label>
+          </div>
+        </div>
+      </aside>
     </div>
   </main>
 
   <!-- VIEW 3: SENSOR FUSION -->
   <main id="view-sensorFusion" class="view-section">
-    <div class="unintegrated-card">
-      <div class="icon">⌁</div>
-      <h3>Sensor Fusion Engine — Not Integrated</h3>
-      <p>Multimodal sensor fusion engine currently operating in single-stream mode (Camera feed active, secondary hardware offline).</p>
-      <span class="small-tag" style="color:var(--amber)">SINGLE SENSOR MODE ACTIVE</span>
+    <div class="grid-2" style="margin-bottom:10px">
+      <div class="card">
+        <div class="card-head"><div class="card-title">Sensor Status & Health</div><span class="small-tag" id="fusionMode">—</span></div>
+        <table class="full-event-table"><thead><tr><th>Sensor</th><th>Source</th><th>Status</th><th>Latest</th></tr></thead>
+          <tbody id="fusionBody"></tbody></table>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Classification Correlation</div><span class="small-tag" id="corrTag">—</span></div>
+        <div id="classCorrelation" style="padding:8px;font-size:11px;line-height:1.7;color:var(--text)">
+          <div style="color:var(--muted)">Waiting for sensor data…</div>
+        </div>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-bottom:10px">
+      <div class="card">
+        <div class="card-head"><div class="card-title">Sensor Position Correlation</div></div>
+        <div id="sensorPosCorr" style="padding:8px;font-size:11px;line-height:1.7;color:var(--text)">
+          <div style="color:var(--muted)">Waiting for multi-sensor position data…</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Fusion Pipeline</div></div>
+        <div style="font-size:11px;line-height:1.7;padding:8px;color:var(--text)">
+          <div style="margin-bottom:6px"><b style="color:var(--teal)">1.</b> <b>Position fusion</b> — MAVLink GPS + radar xyz + LiDAR xyz → lat/lon via sensor mast transform</div>
+          <div style="margin-bottom:6px"><b style="color:var(--teal)">2.</b> <b>3D Geo-fence</b> — polygon + altitude band check at 5 Hz on both MAVLink and sensor positions</div>
+          <div style="margin-bottom:6px"><b style="color:var(--teal)">3.</b> <b>Camera confirm</b> — YOLO detection validates radar/LiDAR when target in FoV</div>
+          <div style="margin-bottom:6px"><b style="color:var(--teal)">4.</b> <b>MMAUD classify</b> — radar + avia + mid360 class probabilities → weighted average fusion</div>
+          <div style="margin-bottom:6px"><b style="color:var(--teal)">5.</b> <b>Audio flag</b> — acoustic signature raises secondary detection flag</div>
+          <div style="margin-bottom:6px"><b style="color:var(--teal)">6.</b> <b>Threat assessment</b> — max(MAVLink geofence, sensor geofence) → fused threat level</div>
+          <div style="color:var(--amber);font-size:10px">⚠ Current fusion = simple average. Kalman filter track-level fusion planned for v2.</div>
+        </div>
+      </div>
     </div>
   </main>
 
-  <!-- VIEW 4: DRONES -->
+  <!-- VIEW 4: TRACKED TARGETS -->
   <main id="view-drones" class="view-section">
-    <div class="unintegrated-card">
-      <h3>Drone Threat Database — Not Integrated</h3>
+    <div class="card" style="flex:1">
+      <div class="card-head"><div class="card-title">Tracked Targets</div></div>
+      <table class="full-event-table"><thead><tr><th>Track</th><th>Source</th><th>Position</th><th>Alt AGL</th><th>Speed</th><th>Threat</th></tr></thead>
+        <tbody id="targetsBody"><tr><td colspan="6" style="text-align:center;color:var(--muted)">No targets yet.</td></tr></tbody></table>
     </div>
   </main>
 
@@ -486,24 +593,14 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
   <main id="view-alerts" class="view-section">
     <div class="card" style="flex:1">
       <div class="card-head">
-        <div class="card-title">REAL-TIME CAMERA DETECTION EVENTS LOG</div>
-        <span class="small-tag" id="fullAlertCount" style="color:var(--teal)">0 DRONE DETECTED EVENTS</span>
+        <div class="card-title">Alerts & Events (stored in SQLite)</div>
+        <span class="small-tag" id="fullAlertCount">0 EVENTS</span>
       </div>
-      <div style="overflow-x:auto; flex:1;">
+      <div style="overflow:auto; flex:1; max-height: calc(100vh - 140px)">
         <table class="full-event-table">
-          <thead>
-            <tr>
-              <th>Timestamp</th>
-              <th>Detection Source</th>
-              <th>Target Event Type</th>
-              <th>Confidence Score</th>
-              <th>Status</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Time</th><th>Source</th><th>Event</th><th>Zone</th><th>Level</th><th>Details</th><th>Camera</th></tr></thead>
           <tbody id="fullEventTableBody">
-            <tr>
-              <td colspan="5" style="text-align:center; color:var(--muted); padding:20px;">No drone threat events logged yet. Start feed to stream detection telemetry.</td>
-            </tr>
+            <tr><td colspan="7" style="text-align:center; color:var(--muted); padding:20px;">No events logged yet.</td></tr>
           </tbody>
         </table>
       </div>
@@ -515,370 +612,1402 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
     <div class="grid-2" style="margin-bottom:12px;">
       <div class="card">
         <div class="card-head">
-          <div class="card-title">REAL-TIME THREAT DEFENSE STATUS</div>
+          <div class="card-title">Real-time Threat Status</div>
           <span class="small-tag" id="c2StatusBadge" style="color:var(--green)">CLEAR PERIMETER</span>
         </div>
-        <div style="padding:16px; font-family:monospace; font-size:12px;">
-          <div style="margin-bottom:8px;">Optical Tracking Target: <span id="c2TargetLock" style="color:var(--muted)">NONE</span></div>
-          <div style="margin-bottom:8px;">Confidence Lock Rating: <span id="c2ConfVal" style="color:var(--muted)">0%</span></div>
-          <div>Defensive Readiness Level: <span style="color:var(--teal)">DEFCON 4 (MONITORING)</span></div>
+        <div style="padding:12px; font-family:monospace; font-size:12px; line-height:2">
+          <div>Threat level: <span id="c2Level" style="color:var(--green)">CLEAR</span></div>
+          <div>Optical tracking: <span id="c2TargetLock" style="color:var(--muted)">NONE</span></div>
+          <div>Camera confidence: <span id="c2ConfVal" style="color:var(--muted)">0%</span></div>
+          <div>Target: <span id="c2Target" style="color:var(--muted)">—</span></div>
+          <div>Sensor classification: <span id="c2SensorClass" style="color:var(--muted)">—</span></div>
+          <div>Camera drone type: <span id="c2CamType" style="color:var(--muted)">—</span></div>
+          <div>Sensor geofence: <span id="c2SensorGeo" style="color:var(--muted)">—</span></div>
+          <div>Active sensors: <span id="c2ActiveSensors" style="color:var(--muted)">0</span></div>
+          <div>Recommended action: <span id="c2Action" style="color:var(--teal)">Continue surveillance.</span></div>
         </div>
       </div>
-
       <div class="card">
-        <div class="card-head"><div class="card-title">AUTOMATED DEFENSE PROTOCOLS</div></div>
-        <div style="padding:12px; font-size:11px; display:flex; flex-direction:column; gap:8px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; background:#060d17; padding:8px; border-radius:4px;">
-            <span>Auto PTZ Camera Tracking</span>
-            <span style="color:var(--green); font-weight:bold;">ENABLED</span>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; background:#060d17; padding:8px; border-radius:4px;">
-            <span>Acoustic Jammer Readiness</span>
-            <span style="color:var(--amber); font-weight:bold;">STANDBY</span>
-          </div>
-        </div>
+        <div class="card-head"><div class="card-title">Response Protocol by Level</div></div>
+        <table class="full-event-table"><tbody>
+          <tr><td><span class="lvl-chip" style="color:#39d98a">CLEAR</span></td><td>Continue surveillance — all sensors passive</td></tr>
+          <tr><td><span class="lvl-chip" style="color:#ffa502">ADVISORY</span></td><td>Track target, log observation, correlate sensors</td></tr>
+          <tr><td><span class="lvl-chip" style="color:#ff7f50">WARNING</span></td><td>Alert security desk, slew camera, confirm with radar + LiDAR</td></tr>
+          <tr><td><span class="lvl-chip" style="color:#ff4757">BREACH</span></td><td>Notify security, record evidence, classify drone type, locate operator</td></tr>
+          <tr><td><span class="lvl-chip" style="color:#c039ff">CRITICAL</span></td><td>Full sensor lock · recommend lockdown · clear academic block</td></tr>
+        </tbody></table>
       </div>
     </div>
-
-    <div class="card" style="flex:1;">
-      <div class="card-head"><div class="card-title">MANUAL COUNTERMEASURE ACTIONS</div></div>
-      <div style="padding:16px; display:flex; flex-wrap:wrap; gap:12px;">
-        <button class="action-btn" onclick="triggerJammerAction()">ENGAGE DIRECTIONAL JAMMER</button>
-        <button class="action-btn secondary" onclick="triggerPtzLock()">LOCK PTZ CAMERA ON TARGET</button>
-        <button class="action-btn secondary" onclick="triggerSecurityAlert()">DISPATCH SECURITY PROTOCOL</button>
+    <div class="grid-2" style="margin-bottom:12px;">
+      <div class="card">
+        <div class="card-head"><div class="card-title">Operator Actions (simulated — logged for audit)</div></div>
+        <div style="padding:12px; display:flex; flex-wrap:wrap; gap:12px;">
+          <button class="action-btn teal" onclick="operatorAction('Slew PTZ camera to target bearing')">SLEW CAMERA TO TARGET</button>
+          <button class="action-btn secondary" onclick="operatorAction('Security team notified')">NOTIFY SECURITY TEAM</button>
+          <button class="action-btn secondary" onclick="operatorAction('Evidence snapshot recorded')">RECORD EVIDENCE</button>
+          <button class="action-btn" onclick="operatorAction('Lockdown recommendation issued')">ISSUE LOCKDOWN RECOMMENDATION</button>
+        </div>
+        <div class="sensor-note" style="padding:0 12px 10px">AeroSense is a detection &amp; decision-support system. It does not physically intercept or jam drones.</div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Sensor Correlation Summary</div><span class="small-tag" id="c2CorrBadge">—</span></div>
+        <div id="c2CorrSummary" style="padding:12px;font-size:11px;line-height:1.8;color:var(--text)">
+          <div style="color:var(--muted)">Waiting for sensor data…</div>
+        </div>
       </div>
     </div>
   </main>
 
+  <!-- VIEW 7: ANALYTICS -->
   <main id="view-analytics" class="view-section">
-    <div class="grid-3" style="margin-bottom:12px;">
-      <div class="metric-card">
-        <div class="metric-lbl">Total Frames Processed</div>
-        <div class="metric-val" id="statFramesProcessed">0</div>
+    <div class="grid-3">
+      <div class="metric-card"><div class="metric-lbl">Camera frames processed</div><div class="metric-val" id="statFramesProcessed">0</div></div>
+      <div class="metric-card"><div class="metric-lbl">Camera drone detections</div><div class="metric-val" style="color:var(--red)" id="statDroneCount">0</div></div>
+      <div class="metric-card"><div class="metric-lbl">Latest camera confidence</div><div class="metric-val" style="color:var(--teal)" id="statLatestConf">0%</div></div>
+      <div class="metric-card"><div class="metric-lbl">Geo-fence breaches</div><div class="metric-val" style="color:var(--red)" id="statBreaches">0</div></div>
+      <div class="metric-card"><div class="metric-lbl">Highest threat level</div><div class="metric-val" id="statMaxLevel">CLEAR</div></div>
+      <div class="metric-card"><div class="metric-lbl">MAVLink packets</div><div class="metric-val" id="statPackets">0</div></div>
+    </div>
+    <div class="grid-3">
+      <div class="metric-card"><div class="metric-lbl">Radar detections (MMAUD)</div><div class="metric-val" style="color:var(--red)" id="statRadarDets">0</div></div>
+      <div class="metric-card"><div class="metric-lbl">LiDAR detections (Avia+Mid360)</div><div class="metric-val" style="color:var(--green)" id="statLidarDets">0</div></div>
+      <div class="metric-card"><div class="metric-lbl">Audio detections</div><div class="metric-val" style="color:var(--amber)" id="statAudioDets">0</div></div>
+      <div class="metric-card"><div class="metric-lbl">Sensor-camera type match</div><div class="metric-val" style="color:var(--teal)" id="statTypeMatch">—</div></div>
+      <div class="metric-card"><div class="metric-lbl">Current drone type (camera)</div><div class="metric-val" style="color:var(--teal)" id="statCurDroneType">—</div></div>
+      <div class="metric-card"><div class="metric-lbl">Current drone type (radar)</div><div class="metric-val" style="color:var(--red)" id="statCurRadarType">—</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><div class="card-title">Link & Stream Status</div></div>
+        <div class="kv">
+          <div class="k">WebSocket</div><div class="v" id="statWsState">DISCONNECTED</div>
+          <div class="k">MAVLink source</div><div class="v" id="statMavSrc">—</div>
+          <div class="k">MAVLink rate</div><div class="v" id="statMavRate">—</div>
+          <div class="k">Vehicle</div><div class="v" id="statVehicle">—</div>
+          <div class="k">MMAUD feed</div><div class="v" id="statMmaud">—</div>
+        </div>
       </div>
-      <div class="metric-card">
-        <div class="metric-lbl">Camera Drone Detections</div>
-        <div class="metric-val" style="color:var(--red)" id="statDroneCount">0</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-lbl">Latest Confidence Rating</div>
-        <div class="metric-val" style="color:var(--teal)" id="statLatestConf">0%</div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Classification History</div></div>
+        <div id="classHistory" style="padding:8px;font-size:11px;line-height:1.7;color:var(--text);max-height:180px;overflow-y:auto">
+          <div style="color:var(--muted)">Classification log will appear as sensors detect targets…</div>
+        </div>
       </div>
     </div>
+  </main>
 
-    <div class="card" style="flex:1;">
-      <div class="card-head"><div class="card-title">CAMERA STREAM LATENCY & STATUS</div></div>
-      <div style="padding:16px; font-family:monospace; font-size:12px; color:var(--text); display:flex; flex-direction:column; gap:12px;">
-        <div>WebSocket Connection State: <span id="statWsState" style="color:var(--green)">CONNECTED</span></div>
-        <div>Primary Sensor Status: <span style="color:var(--teal)">OPTICAL CAMERA ACTIVE</span></div>
-        <div>Secondary Sensor Status: <span style="color:var(--amber)">NOT INTEGRATED</span></div>
-        <div>Bounding Box Overlay: <span style="color:var(--green)">ENABLED</span></div>
+  <!-- VIEW 8: 3D ENVIRONMENT -->
+  <main id="view-env3d" class="view-section">
+    <div class="grid-2" style="margin-bottom:10px">
+      <div class="card" style="min-height:380px">
+        <div class="card-head"><div class="card-title">3D Airspace Visualization</div><span class="small-tag" id="env3dTag">ISOMETRIC</span></div>
+        <canvas id="env3dCanvas" style="width:100%;height:340px;background:#030810;border-radius:6px;border:1px solid #152230"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">3D Altitude & Zone Status</div></div>
+        <div style="padding:10px;font-size:11px;line-height:1.8;color:var(--text)">
+          <div style="margin-bottom:10px">
+            <div style="color:var(--muted);font-size:9px;letter-spacing:1px;margin-bottom:4px">TARGET ALTITUDE PROFILE</div>
+            <div id="env3dAltBar" style="position:relative;height:180px;background:#060d15;border:1px solid var(--line);border-radius:4px;overflow:hidden;display:flex;flex-direction:column-reverse">
+              <!-- zone bands and altitude marker rendered by JS -->
+            </div>
+          </div>
+          <div id="env3dInfo" style="font-family:monospace;font-size:11px;line-height:1.8">
+            <div>Drone altitude: <span id="env3dAlt" style="color:var(--teal)">—</span></div>
+            <div>Zone ceilings: <span id="env3dCeilings" style="color:var(--muted)">—</span></div>
+            <div>Vertical clearance: <span id="env3dClearance" style="color:var(--green)">—</span></div>
+            <div>Sensor range: <span id="env3dRange" style="color:var(--muted)">—</span></div>
+          </div>
+        </div>
       </div>
     </div>
   </main>
 </div>
 
+<script src="/static/aeromap.js"></script>
 <script>
-let ws = null;
-let lastFrame = null;
-let eventCount = 0;
-let totalFrames = 0;
-let droneDetectionsCount = 0;
-let latestConfidence = 0;
-let droneCurrentlyInZone = false;
-let previousZone = 'monitoring';
-let lastZoneTransitionKey = '';
-let previousDroneDetected = false;
+"use strict";
 const $ = id => document.getElementById(id);
+const LEVEL_NAMES = ["CLEAR", "ADVISORY", "WARNING", "BREACH", "CRITICAL"];
+const LEVEL_COLORS = ["#39d98a", "#ffa502", "#ff7f50", "#ff4757", "#c039ff"];
+const KIND_COLORS = { monitoring: "#ffa502", restricted: "#ff4757", critical: "#c039ff" };
+const PROB_COLORS = { Avata: "#00f2fe", M300: "#ff4757", Mavic2: "#39d98a", Mavic3: "#ffa502", Pham4: "#c039ff" };
 
+let ws = null, liveMap = null, planMap = null, follow = false;
+const ST = {
+  site: null, zones: [], mission: null, tel: null, geofence: null, sensors: {},
+  mmaud: null, mmaudAvailable: false, sensorGeofence: null, sensorTrack: [],
+  track: [], alt: [], sensorAlt: [], lastFrame: null, framesSeen: 0, droneCount: 0, latestConf: 0,
+  prevCamDrone: null, eventCount: 0, breaches: 0, maxLevel: 0, lastLevel: 0, allEvents: [],
+};
+const PL = { tab: "zones", zones: [], editing: null, drawing: null, wps: [], addingWps: false,
+             zonesDirty: false, missionDirty: false };
+
+// ============================================================ helpers ==
+function setStatus(t) { $("status").textContent = t; }
+function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]); }
+function toast(msg, ms = 2500) { const t = $("toast"); t.textContent = msg; t.style.display = "block"; clearTimeout(t._h); t._h = setTimeout(() => t.style.display = "none", ms); }
+function fmt(v, d = 1, unit = "") { return v === null || v === undefined || Number.isNaN(v) ? "—" : `${Number(v).toFixed(d)}${unit}`; }
+function addLog(text, type = "system") {
+  const line = document.createElement("div");
+  line.className = { drone: "log-drone", clear: "log-clear", warn: "log-warn" }[type] || "log-system";
+  line.textContent = `${new Date().toLocaleTimeString()}  ${text}`;
+  const log = $("log"); log.appendChild(line);
+  while (log.children.length > 300) log.removeChild(log.firstChild);
+  log.scrollTop = log.scrollHeight;
+  ST.eventCount++;
+  $("eventCount").textContent = `${ST.eventCount} EVENT${ST.eventCount === 1 ? "" : "S"}`;
+}
+function beep() {
+  try {
+    const ac = beep.ac || (beep.ac = new (window.AudioContext || window.webkitAudioContext)());
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = "square"; o.frequency.value = 880; g.gain.value = 0.04;
+    o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + 0.25);
+  } catch (_) {}
+}
+function centroid(poly) { let a = 0, b = 0; poly.forEach(p => { a += p[0]; b += p[1]; }); return [a / poly.length, b / poly.length]; }
+function campusPoints() { return ST.zones.filter(z => z.kind !== "monitoring").flatMap(z => z.polygon); }
+function fitCampus(map) { const pts = campusPoints(); if (pts.length) map.fitBounds(pts, 40); }
+function fitScenario(map) {
+  const pts = ST.zones.flatMap(z => z.polygon).concat(((ST.mission || {}).waypoints || []).map(w => [w.lat, w.lon]));
+  if (pts.length) map.fitBounds(pts, 20);
+}
+function cycleBasemap(map, btn) {
+  const order = ["satellite", "streets", "none"], label = { satellite: "SAT", streets: "MAP", none: "OFF" };
+  const next = order[(order.indexOf(map.basemap) + 1) % order.length];
+  map.setBasemap(next); btn.textContent = label[next];
+}
+function toggleFollow() { follow = !follow; $("followBtn").classList.toggle("on", follow); }
+async function api(method, url, body) {
+  const r = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.error || `HTTP ${r.status}`);
+  return data;
+}
+
+// ======================================================== MMAUD helpers ==
+function renderProbBars(containerId, classProbs) {
+  const el = $(containerId); if (!el) return;
+  if (!classProbs || !Object.keys(classProbs).length) { el.innerHTML = ""; return; }
+  // Sort by probability descending, show top 2
+  const sorted = Object.entries(classProbs).sort((a, b) => b[1] - a[1]).slice(0, 2);
+  el.innerHTML = sorted.map(([name, prob]) => {
+    const pct = Math.round(prob * 100);
+    const col = PROB_COLORS[name] || "#788d9f";
+    return `<div class="prob-row">
+      <span class="prob-name">${esc(name)}</span>
+      <div class="prob-bar-bg"><div class="prob-bar" style="width:${pct}%;background:${col}"></div></div>
+      <span class="prob-val" style="color:${col}">${pct}%</span>
+    </div>`;
+  }).join("");
+}
+
+// ======================================================== map layers ==
+function drawZones(ctx, map, zones, highlightId) {
+  const order = { monitoring: 0, restricted: 1, critical: 2 };
+  [...zones].sort((a, b) => order[a.kind] - order[b.kind]).forEach(z => {
+    const col = z.color || KIND_COLORS[z.kind];
+    const inside = ST.geofence && ST.geofence.zones.find(r => r.id === z.id && r.inside);
+    AeroDraw.polygon(ctx, map, z.polygon, {
+      stroke: col, width: z.id === highlightId ? 3 : 2, fill: col + (z.kind === "monitoring" ? (inside ? "22" : "10") : (inside ? "55" : "26")),
+      dash: z.kind === "monitoring" ? [6, 5] : [],
+    });
+    if (map.zoom >= 14.5) {
+      const c = centroid(z.polygon);
+      const lbl = `${z.name} · ${Math.round(z.min_alt)}–${Math.round(z.max_alt)} m`;
+      let q = map.project(c[0], c[1]);
+      if (z.kind !== "critical") {
+        const top = Math.min(...z.polygon.map(p => map.project(p[0], p[1]).y));
+        q = { x: q.x, y: top + 12 };
+      }
+      AeroDraw.label(ctx, q.x, q.y, lbl, { color: col, align: "center", font: "bold 9px Segoe UI" });
+    }
+  });
+}
+function drawMission(ctx, map, wps, opts = {}) {
+  if (!wps || !wps.length) return;
+  AeroDraw.polyline(ctx, map, wps.map(w => [w.lat, w.lon]), { stroke: opts.stroke || "rgba(255,255,255,.45)", width: opts.width || 1.5, dash: [5, 4] });
+  wps.forEach((w, i) => {
+    const q = AeroDraw.dot(ctx, map, w.lat, w.lon, { r: opts.r || 3, fill: opts.fill || "rgba(255,255,255,.7)", stroke: opts.dotStroke });
+    if (opts.labels) AeroDraw.label(ctx, q.x + 7, q.y - 9, `${i + 1} · ${Math.round(w.alt)} m`, { font: "bold 9px Segoe UI", color: "#fff" });
+  });
+}
+function drawSensorSite(ctx, map, withWedge) {
+  const s = ST.site && ST.site.sensor_site; if (!s) return;
+  const cam = (ST.site.sensors || {}).camera || {};
+  const tel = ST.tel;
+  if (withWedge && tel && tel.relative) {
+    AeroDraw.wedge(ctx, map, s.lat, s.lon, tel.relative.bearing_deg, cam.fov_deg || 60,
+      Math.min(cam.range_m || 700, Math.max(80, tel.relative.range_m * 1.15)),
+      ST.camConfirmed ? { fill: "rgba(255,71,87,.15)", stroke: "rgba(255,71,87,.8)" } : {});
+  }
+  AeroDraw.circleM(ctx, map, s.lat, s.lon, cam.range_m || 700, { stroke: "rgba(0,242,254,.22)" });
+  const q = map.project(s.lat, s.lon);
+  ctx.fillStyle = "#00f2fe"; ctx.strokeStyle = "#031018"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.rect(q.x - 6, q.y - 6, 12, 12); ctx.fill(); ctx.stroke();
+  if (map.zoom >= 15.5) AeroDraw.label(ctx, q.x + 9, q.y + 10, "Sensor mast", { color: "#00f2fe", font: "bold 9px Segoe UI" });
+}
+function drawSensorDetections(ctx, map) {
+  // Draw sensor track (from radar/LiDAR geofence-checked positions)
+  const st = ST.sensorTrack;
+  if (st.length > 1) {
+    for (let i = 1; i < st.length; i++) {
+      const a = map.project(st[i-1][0], st[i-1][1]), b = map.project(st[i][0], st[i][1]);
+      const lvlCol = LEVEL_COLORS[st[i][3] || 0];
+      ctx.strokeStyle = lvlCol; ctx.lineWidth = 2.5; ctx.globalAlpha = 0.25 + 0.75 * i / st.length;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+    ctx.globalAlpha = 1; ctx.setLineDash([]);
+    // Draw sensor "drone" marker at the latest sensor position
+    const last = st[st.length - 1];
+    const slvl = ST.sensorGeofence ? ST.sensorGeofence.level : 0;
+    const q = map.project(last[0], last[1]);
+    const col = LEVEL_COLORS[slvl];
+    // Diamond marker for sensor target
+    ctx.beginPath();
+    ctx.moveTo(q.x, q.y - 10); ctx.lineTo(q.x + 8, q.y); ctx.lineTo(q.x, q.y + 10); ctx.lineTo(q.x - 8, q.y);
+    ctx.closePath(); ctx.fillStyle = col; ctx.globalAlpha = 0.85; ctx.fill();
+    ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; ctx.stroke(); ctx.globalAlpha = 1;
+    AeroDraw.label(ctx, q.x + 14, q.y - 10,
+      `SENSOR · ${LEVEL_NAMES[slvl]} · ${last[2].toFixed(0)} m AGL`,
+      { color: col, border: col, font: "bold 10px Segoe UI" });
+  }
+
+  // Draw individual sensor detection blips (legacy and MMAUD)
+  const styles = { radar: "#ff4757", lidar: "#39d98a" };
+  for (const [name, col] of Object.entries(styles)) {
+    const s = ST.sensors[name];
+    (s && s.detections || []).forEach(d => {
+      if (d.lat !== undefined) {
+        AeroDraw.dot(ctx, map, d.lat, d.lon, { r: 5, fill: col, stroke: "#fff", width: 1.5 });
+      }
+    });
+  }
+
+  // MMAUD sensor blips (radar=red, avia=green, mid360=cyan)
+  if (ST.mmaudAvailable && ST.mmaud) {
+    const mm = ST.mmaud;
+    const mmStyles = { radar: "#ff4757", avia: "#39d98a", mid360: "#00f2fe" };
+    for (const [key, col] of Object.entries(mmStyles)) {
+      const s = mm[key];
+      if (s && s.detected && s.position && s.position.lat != null) {
+        AeroDraw.dot(ctx, map, s.position.lat, s.position.lon, { r: 6, fill: col, stroke: "#fff", width: 1.5 });
+        if (map.zoom >= 15) {
+          const q = map.project(s.position.lat, s.position.lon);
+          const lbl = key === "radar" ? `RADAR ${s.position.range ? s.position.range.toFixed(0) + "m" : ""}` :
+                      key === "avia" ? `AVIA ${s.position.range ? s.position.range.toFixed(0) + "m" : ""}` :
+                      `MID360 ${s.position.range ? s.position.range.toFixed(0) + "m" : ""}`;
+          AeroDraw.label(ctx, q.x + 10, q.y + 5, lbl, { color: col, font: "bold 8px Segoe UI" });
+        }
+      }
+    }
+  }
+}
+function drawTrackAndDrone(ctx, map) {
+  // MAVLink drone track
+  const tr = ST.track;
+  for (let i = 1; i < tr.length; i++) {
+    const a = map.project(tr[i - 1][0], tr[i - 1][1]), b = map.project(tr[i][0], tr[i][1]);
+    ctx.strokeStyle = LEVEL_COLORS[tr[i][3] || 0]; ctx.lineWidth = 2.5; ctx.globalAlpha = 0.35 + 0.65 * i / tr.length;
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+
+  // MAVLink drone icon
+  const d = ST.tel && ST.tel.drone;
+  if (d) {
+    const lvl = ST.geofence ? ST.geofence.level : 0;
+    const q = map.project(d.lat, d.lon);
+    const col = ST.tel.link === "OK" ? LEVEL_COLORS[lvl] : "#788d9f";
+    AeroDraw.drone(ctx, q.x, q.y, d.heading, col);
+    AeroDraw.label(ctx, q.x + 18, q.y - 10, `UAV ${ST.tel.sysid ?? ""} · ${d.alt_rel.toFixed(0)} m AGL · ${(d.groundspeed || 0).toFixed(1)} m/s`, { color: col, border: col });
+  }
+
+  // Draw mission waypoints with labels on live map too
+  if (ST.mission && ST.mission.waypoints && ST.mission.waypoints.length) {
+    const wps = ST.mission.waypoints;
+    // Draw connecting line
+    ctx.strokeStyle = "rgba(255,255,255,.5)"; ctx.lineWidth = 1.5; ctx.setLineDash([5, 4]);
+    ctx.beginPath();
+    wps.forEach((w, i) => {
+      const q = map.project(w.lat, w.lon);
+      i === 0 ? ctx.moveTo(q.x, q.y) : ctx.lineTo(q.x, q.y);
+    });
+    ctx.stroke(); ctx.setLineDash([]);
+    // Draw waypoint dots with labels
+    wps.forEach((w, i) => {
+      const q = map.project(w.lat, w.lon);
+      ctx.beginPath(); ctx.arc(q.x, q.y, 4, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(255,255,255,.8)"; ctx.fill();
+      ctx.strokeStyle = "#031018"; ctx.lineWidth = 1.5; ctx.stroke();
+      if (map.zoom >= 15) {
+        AeroDraw.label(ctx, q.x + 7, q.y - 7, `WP${i + 1} · ${Math.round(w.alt)}m`, { font: "bold 8px Segoe UI", color: "rgba(255,255,255,.7)" });
+      }
+    });
+  }
+}
+
+function initMaps() {
+  const c = ST.site.map_center, z = ST.site.map_zoom || 16;
+  if (!liveMap) {
+    liveMap = new AeroMap("mapLive", { center: c, zoom: z, basemap: "satellite" });
+    liveMap.addLayer((ctx, m) => drawZones(ctx, m, ST.zones));
+    liveMap.addLayer((ctx, m) => drawSensorSite(ctx, m, true));
+    liveMap.addLayer(drawSensorDetections);
+    liveMap.addLayer(drawTrackAndDrone);  // also draws mission waypoints
+    liveMap.on("mousemove", e => $("liveCoords").textContent = `${e.latlng[0].toFixed(6)}, ${e.latlng[1].toFixed(6)}`);
+    liveMap.on("pan", () => { if (follow) toggleFollow(); });
+  }
+  if (!planMap) {
+    planMap = new AeroMap("mapPlan", { center: c, zoom: z, basemap: "satellite" });
+    planMap.addLayer((ctx, m) => drawZones(ctx, m, PL.zones, PL.editing));
+    planMap.addLayer(drawPlannerEdit);
+    planMap.addLayer((ctx, m) => drawSensorSite(ctx, m, false));
+    planMap.addLayer((ctx, m) => { if (PL.tab === "mission") drawMission(ctx, m, PL.wps, { r: 6, labels: true, fill: "#00f2fe", dotStroke: "#031018", stroke: "#00f2fe", width: 2 }); });
+    planMap.on("mousemove", e => $("planCoords").textContent = `${e.latlng[0].toFixed(6)}, ${e.latlng[1].toFixed(6)}`);
+    planMap.on("click", onPlanClick);
+    planMap.on("dblclick", onPlanDblClick);
+    planMap.dragHandler = { hitTest: planHitTest, onDrag: planDrag, onDragEnd: () => renderZoneEditor() };
+  }
+  setTimeout(() => { fitScenario(liveMap); fitCampus(planMap); }, 50);
+}
+
+// ===================================================== websocket ==
 function websocketUrl() {
   if (location.protocol === "http:" || location.protocol === "https:") {
-    const scheme = location.protocol === "https:" ? "wss:" : "ws:";
-    return `${scheme}//${location.host}/ws`;
+    return `${location.protocol === "https:" ? "wss:" : "ws:"}//${location.host}/ws`;
   }
   return "ws://127.0.0.1:8000/ws";
 }
-
-function setStatus(text) { $("status").textContent = text; }
-
-function addLog(text, type="system") {
-  const line = document.createElement("div");
-  line.className = type === "drone" ? "log-drone" : type === "clear" ? "log-clear" : "log-system";
-  line.textContent = text;
-  $("log").appendChild(line);
-  $("log").scrollTop = $("log").scrollHeight;
-  eventCount++;
-  $("eventCount").textContent = `${eventCount} EVENT${eventCount === 1 ? "" : "S"}`;
+function connectServer() {
+  if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
+  $("feedTag").textContent = "CONNECTING";
+  try { ws = new WebSocket(websocketUrl()); } catch (e) { setStatus("Could not open WebSocket connection."); return; }
+  const conn = ws;
+  conn.onopen = () => { if (ws !== conn) return; $("feedTag").textContent = "CONNECTED"; $("statWsState").textContent = "CONNECTED"; setStatus(""); addLog("Connected to AeroSense server."); };
+  conn.onmessage = ev => {
+    if (ws !== conn) return;
+    let msg; try { msg = JSON.parse(ev.data); } catch (_) { return; }
+    switch (msg.type) {
+      case "hello": onHello(msg); break;
+      case "frame": displayFrame(msg); break;
+      case "telemetry": onTelemetry(msg); break;
+      case "event": onEvent(msg.event, true); break;
+      case "zones": ST.zones = msg.zones; if (!PL.zonesDirty) loadPlannerZones(); renderZoneList(); break;
+      case "mission": ST.mission = msg.mission; if (!PL.missionDirty) loadPlannerMission(); break;
+      case "error": setStatus(msg.message); addLog(msg.message, "warn"); break;
+    }
+  };
+  conn.onerror = () => { if (ws === conn) { setStatus("Connection error · make sure server.py is running."); $("statWsState").textContent = "ERROR"; } };
+  conn.onclose = () => {
+    if (ws !== conn) return;
+    setStatus("Disconnected from server — retrying in 3 s…");
+    $("feedTag").textContent = "FEED OFFLINE"; $("statWsState").textContent = "DISCONNECTED";
+    setTimeout(() => { if (ws === conn && $("loginOverlay").style.display === "none") { ws = null; connectServer(); } }, 3000);
+  };
 }
 
-function updateFullEventLogTable(msg) {
-  if (!msg.drone) return;
-  
-  const tbody = $("fullEventTableBody");
-  if (droneDetectionsCount === 1) tbody.innerHTML = "";
-  
-  const timeStr = new Date().toLocaleTimeString();
-  const conf = Math.round((msg.confidence || 0) * 100);
-  
-  const row = document.createElement("tr");
-  row.innerHTML = `
-    <td>${timeStr}</td>
-    <td style="color:var(--teal)">CAMERA / GEO-FENCE</td>
-    <td style="color:var(--red); font-weight:bold;">${$("zoneSelect").value === "restricted" ? "RESTRICTED ZONE ENTRY" : "MONITORING ZONE ENTRY"}</td>
-    <td>${conf}%</td>
-    <td><span style="color:var(--red); font-weight:bold;">ALERT LOCK</span></td>
-  `;
-  tbody.insertBefore(row, tbody.firstChild);
+function onHello(msg) {
+  ST.site = msg.site; ST.zones = msg.zones; ST.mission = msg.mission;
+  ST.track = msg.track || [];
+  ST.sensorTrack = msg.sensor_track || [];
+  ST.mmaudAvailable = !!msg.mmaud_available;
+  $("siteName").textContent = ST.site.site_name;
+  const rr = ((ST.site.sensors || {}).radar || {}).range_m || 1000;
+  $("ringLabel").textContent = `${Math.round(rr / 2)} m`;
+  initMaps();
+  loadPlannerZones(); loadPlannerMission(); renderZoneList();
+  ST.allEvents = [];
+  (msg.events || []).slice().reverse().forEach(e => onEvent(e, false));
+  addLog(`Site: ${ST.site.site_name} · ${ST.zones.length} geo-fence zones · mission ${ST.mission.file || ""}`);
+  if (ST.mmaudAvailable) addLog("MMAUD feed loaded — radar/LiDAR data active.");
 }
 
+// ====================================================== camera feed ==
 function drawBox(box, img) {
   const el = $("box");
   if (!box || !img.naturalWidth || !img.naturalHeight) { el.style.display = "none"; return; }
   const scale = Math.min(img.clientWidth / img.naturalWidth, img.clientHeight / img.naturalHeight);
   const dw = img.naturalWidth * scale, dh = img.naturalHeight * scale;
-  const ox = img.offsetLeft + (img.clientWidth - dw) / 2;
-  const oy = img.offsetTop + (img.clientHeight - dh) / 2;
+  const ox = img.offsetLeft + (img.clientWidth - dw) / 2, oy = img.offsetTop + (img.clientHeight - dh) / 2;
   const [x, y, w, h] = box;
-  el.style.left = `${ox + x * scale}px`;
-  el.style.top = `${oy + y * scale}px`;
-  el.style.width = `${w * scale}px`;
-  el.style.height = `${h * scale}px`;
-  el.style.display = "block";
+  Object.assign(el.style, { left: `${ox + x * scale}px`, top: `${oy + y * scale}px`, width: `${w * scale}px`, height: `${h * scale}px`, display: "block" });
 }
-
-
-function currentZoneLabel() {
-  return $("zoneSelect").value === "restricted" ? "Restricted Zone" : "Monitoring Zone";
-}
-
-function handleZoneChange() {
-  const zone = $("zoneSelect").value;
-  previousZone = zone;
-  $("zoneTypeBadge").textContent = zone === "restricted" ? "RESTRICTED" : "MONITORING";
-  $("zoneTypeBadge").classList.toggle("restricted", zone === "restricted");
-  $("zoneState").classList.remove("alert");
-
-  // Changing the monitored zone resets its local occupancy state so the next
-  // detected frame is treated as a fresh entry into the selected demo zone.
-  droneCurrentlyInZone = false;
-  $("zoneState").textContent = "NO DRONE IN ZONE";
-  $("zoneLastEvent").textContent = `Monitoring switched to ${currentZoneLabel()}`;
-  $("zoneNote").textContent = zone === "restricted"
-    ? "Restricted-zone entry raises a high-priority alert. Camera-only mode assigns detections to the selected demo zone until location/zone coordinates are integrated."
-    : "Monitoring-zone entry is logged as an observation. Camera-only mode assigns detections to the selected demo zone until location/zone coordinates are integrated.";
-  addLog(`Geo-fence: monitoring changed to ${currentZoneLabel()}`, "system");
-
-  if (lastFrame && lastFrame.drone === true) {
-    processGeofenceTransition(true, lastFrame);
-  }
-}
-
-function processGeofenceTransition(droneDetected, msg) {
-  const zone = $("zoneSelect").value;
-  const zoneLabel = currentZoneLabel();
-
-  if (droneDetected && !droneCurrentlyInZone) {
-    droneCurrentlyInZone = true;
-    const movement = `DRONE ENTERED ${zoneLabel.toUpperCase()}`;
-    $("zoneState").textContent = zone === "restricted" ? "RESTRICTED ZONE BREACH" : "DRONE IN MONITORING ZONE";
-    $("zoneState").classList.toggle("alert", zone === "restricted");
-    $("zoneLastEvent").textContent = `${new Date().toLocaleTimeString()} · ${movement}`;
-    addLog(zone === "restricted" ? `GEO-FENCE ALERT — ${movement}` : `Geo-fence — ${movement}`, zone === "restricted" ? "drone" : "system");
-
-    if (zone === "restricted") {
-      $("alertBanner").textContent = `RESTRICTED ZONE BREACH · ${Math.round((msg.confidence || 0) * 100)}% CONFIDENCE`;
-      $("alertBanner").classList.add("show");
-    }
-    lastZoneTransitionKey = `${zone}:in`;
-  } else if (!droneDetected && droneCurrentlyInZone) {
-    droneCurrentlyInZone = false;
-    const movement = `DRONE EXITED ${zoneLabel.toUpperCase()}`;
-    $("zoneState").textContent = "NO DRONE IN ZONE";
-    $("zoneState").classList.remove("alert");
-    $("zoneLastEvent").textContent = `${new Date().toLocaleTimeString()} · ${movement}`;
-    addLog(`Geo-fence — ${movement}`, "clear");
-    if (zone === "restricted") $("alertBanner").classList.remove("show");
-    lastZoneTransitionKey = `${zone}:out`;
-  }
-}
-
 function displayFrame(msg) {
-  lastFrame = msg;
-  totalFrames++;
-  
+  ST.lastFrame = msg; ST.framesSeen++;
   const img = $("frame");
-  img.onload = () => {
-    if (lastFrame === msg && msg.drone === true && msg.box) drawBox(msg.box, img);
-    else if (lastFrame === msg) $("box").style.display = "none";
-  };
-  img.src = msg.image;
-  img.style.display = "block";
-  $("placeholder").style.display = "none";
-  
-  $("frameInfo").textContent = `Live Stream Active`;
-  $("feedTag").textContent = `STREAM LIVE`;
+  img.onload = () => { if (ST.lastFrame === msg && msg.drone === true && msg.box) drawBox(msg.box, img); else if (ST.lastFrame === msg) $("box").style.display = "none"; };
+  img.src = msg.image; img.style.display = "block"; $("placeholder").style.display = "none";
 
-  if (msg.lidar_distance !== undefined) {
-    $("lidarValue").innerHTML = `${msg.lidar_distance}<small>m</small>`;
+  // Show drone type overlay on camera feed
+  const dto = $("droneTypeOverlay");
+  if (msg.drone_type) {
+    dto.textContent = `${msg.drone_type}`;
+    dto.style.display = "block";
+  } else {
+    dto.style.display = "none";
   }
 
-  processGeofenceTransition(msg.drone === true, msg);
-
+  $("frameInfo").textContent = `Frame ${msg.index + 1}/${msg.total} · ${msg.drone_type || ""} · ${msg.frame_name}`;
+  $("feedTag").textContent = "STREAM LIVE"; $("feedTag").className = "small-tag ok";
   if (msg.drone === true) {
-    const isNewDetection = !previousDroneDetected;
-    previousDroneDetected = true;
-    droneDetectionsCount++;
-    latestConfidence = Math.round((msg.confidence || 0) * 100);
-    
-    $("alertBanner").textContent = $("zoneSelect").value === "restricted" ? `RESTRICTED ZONE BREACH · ${latestConfidence}% CONFIDENCE` : `DRONE DETECTED · ${latestConfidence}% CONFIDENCE`;
-    $("alertBanner").classList.add("show");
-    $("boxLabel").textContent = `DRONE ${latestConfidence}%`;
-    
-    // Command & Control Real-time Update
-    $("c2StatusBadge").textContent = "TARGET INTRUSION ALERT";
-    $("c2StatusBadge").style.color = "var(--red)";
-    $("c2TargetLock").textContent = "PRIMARY OPTICAL CAMERA LOCKED";
-    $("c2TargetLock").style.color = "var(--red)";
-    $("c2ConfVal").textContent = `${latestConfidence}%`;
-    $("c2ConfVal").style.color = "var(--teal)";
-
-    if (isNewDetection) {
-      addLog(`Target Alert — DRONE DETECTED (${latestConfidence}%)`, "drone");
-      updateFullEventLogTable(msg);
-    }
+    ST.droneCount++; ST.latestConf = Math.round((msg.confidence || 0) * 100);
+    $("boxLabel").textContent = `DRONE ${ST.latestConf}%`;
+    $("camConf").textContent = `YOLO: drone ${ST.latestConf}% · ${msg.drone_type || ""}`;
+    $("c2TargetLock").textContent = "PRIMARY OPTICAL CAMERA LOCKED"; $("c2TargetLock").style.color = "var(--red)";
+    $("c2ConfVal").textContent = `${ST.latestConf}%`; $("c2ConfVal").style.color = "var(--teal)";
+    if (ST.camLogged !== true) { addLog(`Camera — DRONE DETECTED (${ST.latestConf}%) · type: ${msg.drone_type || "unknown"}`, "drone"); ST.camLogged = true; }
+    ST.camMiss = 0;
   } else {
-    previousDroneDetected = false;
-    if ($("zoneSelect").value !== "restricted" || !droneCurrentlyInZone) $("alertBanner").classList.remove("show");
-    $("box").style.display = "none";
-    
-    $("c2StatusBadge").textContent = "CLEAR PERIMETER";
-    $("c2StatusBadge").style.color = "var(--green)";
-    $("c2TargetLock").textContent = "NONE";
-    $("c2TargetLock").style.color = "var(--muted)";
-    $("c2ConfVal").textContent = "0%";
-    
-    addLog(`Stream status — Clear`, "clear");
+    $("box").style.display = "none"; $("camConf").textContent = `YOLO: no drone · ${msg.drone_type || ""}`;
+    $("c2TargetLock").textContent = "NONE"; $("c2TargetLock").style.color = "var(--muted)"; $("c2ConfVal").textContent = "0%";
+    ST.camMiss = (ST.camMiss || 0) + 1;
+    if (ST.camLogged === true && ST.camMiss >= 10) { addLog("Camera — target lost", "clear"); ST.camLogged = false; }
+  }
+  ST.prevCamDrone = msg.drone === true;
+  $("statFramesProcessed").textContent = ST.framesSeen;
+  $("statDroneCount").textContent = ST.droneCount;
+  $("statLatestConf").textContent = `${ST.latestConf}%`;
+}
+
+// ===================================================== telemetry ==
+
+/** Pick the best sensor-detected lat/lon/alt from a telemetry message. */
+function _bestSensorPos(m) {
+  // Try MMAUD sensors (fusion > radar > mid360 > avia)
+  if (m.mmaud) {
+    for (const key of ["fusion", "radar", "mid360", "avia"]) {
+      const s = m.mmaud[key];
+      if (s && s.detected && s.position && s.position.lat != null) {
+        return [s.position.lat, s.position.lon, s.position.alt || 0];
+      }
+    }
+  }
+  // Fallback: legacy sensor detections
+  if (m.sensors) {
+    for (const name of ["radar", "lidar"]) {
+      const s = m.sensors[name];
+      if (s && s.detections && s.detections.length) {
+        const d = s.detections[0];
+        if (d.lat != null) return [d.lat, d.lon, d.alt || 0];
+      }
+    }
+  }
+  return null;
+}
+
+function onTelemetry(m) {
+  ST.tel = m;
+  if (m.sensors) ST.sensors = m.sensors;
+  if (m.mmaud) ST.mmaud = m.mmaud;
+  if (m.mmaud_status) ST.mmaudAvailable = m.mmaud_status.available;
+  if (m.sensor_geofence) ST.sensorGeofence = m.sensor_geofence;
+  const g = m.geofence; ST.geofence = g;
+  ST.camConfirmed = !!(g && g.camera_confirmed);
+  const ok = m.link === "OK";
+  // header pills
+  const lp = $("linkPill");
+  lp.className = "live-pill " + (ok ? "" : (m.link === "LOST" ? "bad" : "warn"));
+  $("linkPillText").textContent = ok ? `MAVLINK: ${m.autopilot || "VEHICLE"} ${m.rate_hz} Hz` : `MAVLINK: ${m.link}`;
+  const lvl = g ? g.level : 0;
+  // Sensor geofence level (independent of MAVLink)
+  const sLvl = ST.sensorGeofence ? ST.sensorGeofence.level : 0;
+  // Effective threat = max of MAVLink geofence and sensor geofence
+  const effLvl = Math.max(lvl, sLvl);
+  const tp = $("threatPill");
+  tp.className = "live-pill " + (effLvl >= 3 ? "bad" : effLvl >= 1 ? "warn" : "");
+  $("threatPillText").textContent = `THREAT: ${LEVEL_NAMES[effLvl]}`;
+
+  const d = m.drone;
+  if (d && ok) {
+    const last = ST.track[ST.track.length - 1];
+    if (!last || Math.abs(last[0] - d.lat) + Math.abs(last[1] - d.lon) > 2e-6) ST.track.push([d.lat, d.lon, d.alt_rel, lvl]);
+    if (ST.track.length > 600) ST.track.splice(0, ST.track.length - 600);
+    ST.alt.push({ t: Date.now(), alt: d.alt_rel, lvl });
+    while (ST.alt.length && Date.now() - ST.alt[0].t > 120000) ST.alt.shift();
+    if (follow) liveMap.setView([d.lat, d.lon]);
   }
 
-  // Update Analytics Numbers
-  $("statFramesProcessed").textContent = totalFrames;
-  $("statDroneCount").textContent = droneDetectionsCount;
-  $("statLatestConf").textContent = `${latestConfidence}%`;
-  $("alertNavCount").textContent = droneDetectionsCount;
-  $("fullAlertCount").textContent = `${droneDetectionsCount} DRONE DETECTED EVENTS`;
-}
-
-function connectServer() {
-  if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) return;
-  $("feedTag").textContent = "CONNECTING";
-  
-  try { ws = new WebSocket(websocketUrl()); }
-  catch (e) { setStatus("Could not open WebSocket connection."); return; }
-  
-  const connection = ws;
-  connection.onopen = () => { 
-    if (ws !== connection) return; 
-    $("feedTag").textContent = "CONNECTED"; 
-    $("statWsState").textContent = "ACTIVE / CONNECTED";
-    addLog("Connected to AeroSense server WebSocket."); 
-  };
-  
-  connection.onmessage = event => {
-    if (ws !== connection) return;
-    let msg;
-    try { msg = JSON.parse(event.data); } catch (_) { return; }
-    if (msg.type === "error") { setStatus(msg.message); addLog(msg.message); return; }
-    if (msg.type === "frame") displayFrame(msg);
-    if (msg.type === "end") {
-      setStatus("Stream replay finished");
-      $("feedTag").textContent = "REPLAY COMPLETE";
-      addLog("Stream replay finished.");
+  // Build sensor track from radar/LiDAR detections (for map drawing)
+  const sensorPos = _bestSensorPos(m);
+  if (sensorPos) {
+    const last = ST.sensorTrack[ST.sensorTrack.length - 1];
+    if (!last || Math.abs(last[0] - sensorPos[0]) + Math.abs(last[1] - sensorPos[1]) > 1e-6) {
+      ST.sensorTrack.push([sensorPos[0], sensorPos[1], sensorPos[2], sLvl]);
     }
-  };
-  
-  connection.onerror = () => { 
-    if (ws === connection) {
-      setStatus("Connection error · Ensure FastAPI backend server is running."); 
-      $("statWsState").textContent = "ERROR";
-    }
-  };
-  connection.onclose = () => {
-    if (ws !== connection) return;
-    setStatus("Disconnected from server");
-    $("feedTag").textContent = "FEED OFFLINE";
-    $("statWsState").textContent = "DISCONNECTED";
-  };
-}
-
-// STRICT AUTHENTICATION LOGIC
-function handleLogin(e) {
-  e.preventDefault();
-  const email = $("loginEmail").value.trim();
-  const password = $("loginPass").value.trim();
-  const errorEl = $("loginError");
-
-  if (email === "admin@gmail.com" && password === "12345678") {
-    errorEl.style.display = "none";
-    $("loginOverlay").style.display = "none";
-    connectServer();
+    if (ST.sensorTrack.length > 400) ST.sensorTrack.splice(0, ST.sensorTrack.length - 400);
+    // Sensor altitude for chart
+    ST.sensorAlt.push({ t: Date.now(), alt: sensorPos[2], lvl: sLvl });
+    while (ST.sensorAlt.length && Date.now() - ST.sensorAlt[0].t > 120000) ST.sensorAlt.shift();
+    // Auto-follow sensor target if no MAVLink
+    if (!d && follow && liveMap) liveMap.setView([sensorPos[0], sensorPos[1]]);
+  }
+  // Map tag: show sensor status even without MAVLink
+  const hasSensorDet = sLvl > 0;
+  if (ok) {
+    $("mapTag").textContent = `LIVE · ${LEVEL_NAMES[effLvl]}`;
+    $("mapTag").className = "small-tag " + (effLvl >= 3 ? "bad" : effLvl ? "warn" : "ok");
+  } else if (hasSensorDet) {
+    $("mapTag").textContent = `SENSOR · ${LEVEL_NAMES[sLvl]}`;
+    $("mapTag").className = "small-tag " + (sLvl >= 3 ? "bad" : "warn");
   } else {
-    errorEl.style.display = "block";
+    $("mapTag").textContent = m.link === "LOST" ? "LINK LOST" : "NO TELEMETRY";
+    $("mapTag").className = "small-tag warn";
   }
+  $("mapInfo").textContent = ok ? `MAVLink ${m.source} · sysid ${m.sysid} · ${m.packets} pkts` : (hasSensorDet ? "Sensor detection active (no MAVLink)" : "Telemetry: waiting for MAVLink on UDP 14445 (run server.py --sim or sim_drone.py)");
+  $("trackCount").textContent = (ST.track.length || ST.sensorTrack.length) ? `${ST.track.length + ST.sensorTrack.length} track pts` : "";
+
+  // telemetry strip
+  $("telSrc").textContent = ok ? `${m.autopilot || ""} · ${m.armed ? "ARMED" : "DISARMED"}` : m.link;
+  $("tLat").textContent = d ? d.lat.toFixed(6) : "—";
+  $("tLon").textContent = d ? d.lon.toFixed(6) : "—";
+  $("tAlt").textContent = d ? `${d.alt_rel.toFixed(1)} m` : "—";
+  $("tGs").textContent = d ? `${d.groundspeed.toFixed(1)} m/s` : "—";
+  $("tClimb").textContent = d ? `${d.climb >= 0 ? "+" : ""}${d.climb.toFixed(1)} m/s` : "—";
+  $("tHdg").textContent = d && d.heading !== null ? `${d.heading.toFixed(0)}°` : "—";
+  $("tRange").textContent = m.relative ? `${m.relative.range_m.toFixed(0)} m / ${m.relative.bearing_deg.toFixed(0)}°` : "—";
+  $("tTtb").textContent = g && g.time_to_breach_s ? `${g.time_to_breach_s.toFixed(0)} s` : "—";
+  $("tGps").textContent = m.gps_fix ? `${m.gps_fix >= 3 ? "3D" : "2D"} ${m.sats ?? ""}sat · ${m.battery ?? "—"}%` : "—";
+
+  // threat box — uses fused geofence (MAVLink + sensor combined)
+  const effCol = LEVEL_COLORS[effLvl];
+  const sGeo = ST.sensorGeofence;
+  if (ok || effLvl > 0) {
+    $("threatLevel").textContent = LEVEL_NAMES[effLvl];
+    $("threatLevel").style.color = effCol;
+  } else {
+    $("threatLevel").textContent = "NO LINK";
+    $("threatLevel").style.color = "var(--muted)";
+  }
+  $("threatBox").style.borderColor = effLvl ? effCol : "#162636";
+  // Reasons: combine MAVLink + sensor reasons
+  let reasons = [];
+  if (g && g.reasons && g.reasons.length) reasons = reasons.concat(g.reasons);
+  if (sGeo && sGeo.reasons && sGeo.reasons.length) reasons = reasons.concat(sGeo.reasons.map(r => `[Sensor] ${r}`));
+  if (reasons.length) {
+    $("threatReason").textContent = reasons.slice(0, 3).join(" · ");
+  } else if (!ok && !hasSensorDet) {
+    $("threatReason").textContent = "No telemetry — waiting for MAVLink or sensor data.";
+  } else {
+    $("threatReason").textContent = "No target in protected airspace.";
+  }
+  const bestGeo = g || sGeo;
+  $("threatAction").textContent = bestGeo ? (bestGeo.recommended_action + (bestGeo.camera_confirmed ? "  ✔ camera-confirmed" : "")) : "Continue surveillance.";
+
+  // C2 view
+  $("c2Level").textContent = LEVEL_NAMES[effLvl]; $("c2Level").style.color = effCol;
+  $("c2StatusBadge").textContent = effLvl >= 3 ? "INTRUSION ALERT" : effLvl ? "TARGET UNDER WATCH" : "CLEAR PERIMETER";
+  $("c2StatusBadge").style.color = effCol;
+  $("c2Target").textContent = d ? `${d.lat.toFixed(5)}, ${d.lon.toFixed(5)} · ${d.alt_rel.toFixed(0)} m AGL` : (sGeo && sGeo.level > 0 ? "Sensor-detected target (no MAVLink position)" : "—");
+  $("c2Action").textContent = bestGeo ? bestGeo.recommended_action : "Continue surveillance.";
+
+  // analytics
+  ST.maxLevel = Math.max(ST.maxLevel, effLvl);
+  $("statMaxLevel").textContent = LEVEL_NAMES[ST.maxLevel]; $("statMaxLevel").style.color = LEVEL_COLORS[ST.maxLevel];
+  $("statPackets").textContent = m.packets;
+  $("statMavSrc").textContent = m.source || "—";
+  $("statMavRate").textContent = ok ? `${m.rate_hz} msg/s` : m.link;
+  $("statVehicle").textContent = m.sysid ? `sysid ${m.sysid} · ${m.autopilot} · ${m.armed ? "armed" : "disarmed"}` : "—";
+  $("statMmaud").textContent = ST.mmaudAvailable ? `ACTIVE · ${(m.mmaud_status || {}).windows || 0} windows` : "NOT LOADED";
+
+  if (effLvl < 3 && ST.lastLevel >= 3) $("alertBanner").classList.remove("show");
+  ST.lastLevel = effLvl;
+
+  renderZoneList(); renderRadar(); renderLidarAudio(); renderMmaud(); renderAltChart(); renderFusion(); renderTargets(); renderC2Extra(); renderAnalyticsExtra(); renderEnv3d(); renderSensorCorrelation();
+  liveMap && liveMap.requestRender();
 }
 
-function logout() {
-  if (ws) ws.close();
-  $("loginOverlay").style.display = "flex";
-  $("loginEmail").value = "";
-  $("loginPass").value = "";
-  $("loginError").style.display = "none";
+function renderZoneList() {
+  // Merge zone statuses from MAVLink geofence AND sensor geofence
+  const mavRows = ST.geofence ? ST.geofence.zones : null;
+  const senRows = ST.sensorGeofence ? ST.sensorGeofence.zones : null;
+  $("zoneList").innerHTML = ST.zones.map(z => {
+    const mr = mavRows && mavRows.find(x => x.id === z.id);
+    const sr = senRows && senRows.find(x => x.id === z.id);
+    // Use whichever shows the drone inside, or fallback to MAVLink, then sensor
+    const r = (mr && mr.inside) ? mr : (sr && sr.inside) ? sr : mr || sr;
+    const col = z.color || KIND_COLORS[z.kind];
+    let state = "—", sc = "var(--muted)", src = "";
+    if (r) {
+      if (r.inside) {
+        state = "INSIDE";
+        sc = col;
+        src = (sr && sr.inside && !(mr && mr.inside)) ? " [sensor]" : "";
+      }
+      else if (r.vertical === "ABOVE") { state = `ABOVE +${r.ceiling_margin_m.toFixed(0)} m`; sc = "var(--amber)"; }
+      else { state = `${r.distance_m.toFixed(0)} m OUT`; sc = "var(--green)"; }
+    }
+    return `<div class="zone-row ${r && r.inside ? "in" : ""}"><span class="sw" style="background:${col};width:8px;height:26px"></span>
+      <div><div class="zn">${esc(z.name)}</div><div class="zd">${z.kind.toUpperCase()} · ${z.min_alt.toFixed(0)}–${z.max_alt.toFixed(0)} m AGL</div></div>
+      <div class="zs" style="color:${sc}">${state}${src}</div></div>`;
+  }).join("");
+  const t = ST.tel;
+  const sensorActive = ST.sensorGeofence && ST.sensorGeofence.level > 0;
+  if (t && t.link === "OK") {
+    $("linkLine").textContent = `MAVLink ${t.source} · ${t.rate_hz} msg/s · ${t.autopilot || ""} sysid ${t.sysid}` + (sensorActive ? " + sensor fusion active" : "");
+  } else if (sensorActive) {
+    $("linkLine").textContent = "Sensor detection active — geofence running on radar/LiDAR positions.";
+  } else {
+    $("linkLine").textContent = "MAVLink: waiting for telemetry on UDP 14445.";
+  }
+  const inside = (mavRows && mavRows.some(r => r.inside)) || (senRows && senRows.some(r => r.inside));
+  $("zoneTag").textContent = inside ? "TARGET INSIDE" : (sensorActive ? "SENSOR ACTIVE" : "ZONE MONITOR");
+  $("zoneTag").className = "small-tag " + (inside ? "bad" : sensorActive ? "warn" : "");
 }
 
-function triggerJammerAction() {
-  alert("Countermeasure Dispatched: Directional Jammer sequence triggered.");
-  addLog("C2 Action: Manual Directional Jammer Dispatched", "drone");
+function renderRadar() {
+  const R = ((ST.site && ST.site.sensors || {}).radar || {}).range_m || 1000;
+  const toXY = (rangeM, az, el) => { const g = rangeM * Math.cos((el || 0) * Math.PI / 180); const r = Math.min(1, g / R) * 92; return [100 + r * Math.sin(az * Math.PI / 180), 100 - r * Math.cos(az * Math.PI / 180)]; };
+  let html = "";
+  const rad = ST.sensors.radar;
+  (rad && rad.detections || []).forEach(d => { const [x, y] = toXY(d.range, d.azimuth, d.elevation); html += `<circle cx="${x}" cy="${y}" r="3" fill="#ff4757"/><circle cx="${x}" cy="${y}" r="7" fill="none" stroke="#ff4757" opacity=".6"/>`; });
+  const rel = ST.tel && ST.tel.relative;
+  if (rel && ST.tel.link === "OK") {
+    const [x, y] = toXY(rel.range_m, rel.bearing_deg, rel.elevation_deg);
+    html += `<rect x="${x - 3.5}" y="${y - 3.5}" width="7" height="7" transform="rotate(45 ${x} ${y})" fill="#39d98a"/>`;
+  }
+  $("radarBlips").innerHTML = html;
+  const tag = $("radarTag");
+  if (rad && rad.available) { tag.textContent = `LIVE · ${rad.detections.length} DET`; tag.className = "small-tag ok"; }
+  else { tag.textContent = "NO MODEL OUTPUT"; tag.className = "small-tag warn"; $("radarNote").title = rad ? rad.message : ""; }
 }
 
-function triggerPtzLock() {
-  alert("Camera Control: Lock PTZ centered on detected target box.");
-  addLog("C2 Action: PTZ Camera Locked on target coordinates", "system");
+function renderLidarAudio() {
+  const li = ST.sensors.lidar;
+  if (li && li.available) {
+    $("lidarTag").textContent = "LIVE"; $("lidarTag").className = "small-tag ok";
+    const near = (li.detections || []).reduce((m, d) => (!m || d.range < m.range) ? d : m, null);
+    $("lidarValue").innerHTML = near ? `${near.range.toFixed(1)}<small>m</small>` : `—<small>m</small>`;
+    const bars = $("lidarBars").children;
+    for (let i = 0; i < bars.length; i++) bars[i].style.height = near ? `${6 + Math.random() * 20}px` : "6px";
+  } else {
+    $("lidarTag").textContent = "NO MODEL OUTPUT"; $("lidarTag").className = "small-tag warn";
+    $("lidarValue").innerHTML = `—<small>m</small>`;
+  }
+  const rel = ST.tel && ST.tel.relative;
+  $("lidarSub").textContent = rel ? `LiDAR range · MAVLink slant ${rel.range_m.toFixed(0)} m` : "LiDAR measured range";
+
+  const au = ST.sensors.audio;
+  let bars = "";
+  if (au && au.available) {
+    const det = (au.detections || []).find(d => d.drone);
+    $("audioTag").textContent = det ? `DRONE ${Math.round(det.confidence * 100)}%` : "LISTENING";
+    $("audioTag").className = "small-tag " + (det ? "bad" : "ok");
+    $("audioNote").textContent = det ? `Acoustic signature: ${det.label || "drone"}` : "No drone signature in current window.";
+    for (let i = 0; i < 40; i++) { const h = det ? 10 + Math.random() * 50 * det.confidence : 3 + Math.random() * 8; bars += `<rect x="${i * 8 + 1}" y="${70 - h}" width="6" height="${h}" fill="${det ? "#ff4757" : "#0a4358"}"/>`; }
+  } else {
+    $("audioTag").textContent = "NO MODEL OUTPUT"; $("audioTag").className = "small-tag warn";
+    $("audioNote").textContent = au ? au.message : "Audio not in MMAUD feed. Waiting for data/audio/audio_detections.json";
+  }
+  $("audioBars").innerHTML = bars;
 }
 
-function triggerSecurityAlert() {
-  alert("Security Notice: Threat dispatch notification sent to security teams.");
-  addLog("C2 Action: Perimeter Intrusion Dispatch alert sent", "system");
-}
-
-function toggleMenu() {
-  $("drawer").classList.toggle("open");
-  $("drawerOverlay").classList.toggle("open");
-}
-
-function switchView(viewId) {
-  const views = document.querySelectorAll('.view-section');
-  views.forEach(v => v.classList.remove('active'));
-
-  const selectedView = $(`view-${viewId}`);
-  if (selectedView) {
-    selectedView.classList.add('active');
+function renderMmaud() {
+  const mm = ST.mmaud;
+  if (!mm) {
+    $("mmaudFusionPanel").style.display = "none";
+    $("radarMmaudInfo").style.display = "none";
+    $("lidarMmaudInfo").style.display = "none";
+    return;
   }
 
-  const navItems = document.querySelectorAll('.nav-item');
-  navItems.forEach(item => {
-    if (item.getAttribute('onclick').includes(viewId)) {
-      item.classList.add('active');
+  // Radar MMAUD data
+  const radar = mm.radar;
+  $("radarMmaudInfo").style.display = "block";
+  if (radar && radar.detected) {
+    $("radarNote").textContent = `Radar: DETECTED · ${radar.top_types.map(t => `${t.type} ${t.prob}%`).join(", ") || "classifying…"}`;
+    renderProbBars("radarProbs", radar.class_probs);
+  } else {
+    $("radarNote").textContent = "Radar: no detection in current window";
+    $("radarProbs").innerHTML = "";
+  }
+
+  // LiDAR MMAUD data (avia + mid360)
+  const avia = mm.avia, mid360 = mm.mid360;
+  $("lidarMmaudInfo").style.display = "block";
+  $("lidarAviaStatus").textContent = avia && avia.detected ? "DETECTED" : "—";
+  $("lidarAviaStatus").style.color = avia && avia.detected ? "var(--green)" : "var(--muted)";
+  $("lidarMid360Status").textContent = mid360 && mid360.detected ? "DETECTED" : "—";
+  $("lidarMid360Status").style.color = mid360 && mid360.detected ? "var(--green)" : "var(--muted)";
+  // Show mid360 class probs (better for detection) or avia
+  const lidarForProbs = mid360 && mid360.detected ? mid360 : (avia && avia.detected ? avia : null);
+  if (lidarForProbs) {
+    renderProbBars("lidarProbs", lidarForProbs.class_probs);
+  } else {
+    $("lidarProbs").innerHTML = "";
+  }
+
+  // Fusion panel
+  const fusion = mm.fusion;
+  $("mmaudFusionPanel").style.display = "block";
+  if (fusion && fusion.detected) {
+    $("fusionDetected").textContent = "DRONE DETECTED";
+    $("fusionDetected").style.color = "var(--red)";
+    $("fusionTag").textContent = "DETECTED"; $("fusionTag").className = "small-tag bad";
+    // Show size
+    const sizeEl = $("fusionSize");
+    if (fusion.size) {
+      sizeEl.textContent = fusion.size.toUpperCase();
+      sizeEl.className = `mmaud-size ${fusion.size}`;
+      sizeEl.style.display = "inline-block";
     } else {
-      item.classList.remove('active');
+      sizeEl.style.display = "none";
     }
+    // Show fusion class probs (top 2)
+    renderProbBars("fusionProbs", fusion.class_probs);
+  } else {
+    $("fusionDetected").textContent = "NO DETECTION";
+    $("fusionDetected").style.color = "var(--muted)";
+    $("fusionTag").textContent = "CLEAR"; $("fusionTag").className = "small-tag";
+    $("fusionSize").style.display = "none";
+    $("fusionProbs").innerHTML = "";
+  }
+}
+
+function renderAltChart() {
+  const cv = $("altChart"); if (!cv.offsetWidth) return;
+  const dpr = window.devicePixelRatio || 1, W = cv.offsetWidth, H = cv.offsetHeight;
+  if (cv.width !== Math.round(W * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  const ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+  const pad = { l: 34, r: 8, t: 8, b: 16 };
+  const ceilings = ST.zones.map(z => ({ v: z.max_alt, c: z.color || KIND_COLORS[z.kind], n: z.kind }));
+  const allAlts = [...ST.alt.map(a => a.alt), ...ST.sensorAlt.map(a => a.alt)];
+  const maxAlt = Math.max(60, ...ceilings.map(c => c.v), ...allAlts) * 1.1;
+  const y = v => pad.t + (H - pad.t - pad.b) * (1 - v / maxAlt);
+  const now = Date.now(), x = t => pad.l + (W - pad.l - pad.r) * (1 - (now - t) / 120000);
+  ctx.font = "9px Segoe UI"; ctx.fillStyle = "#788d9f"; ctx.textAlign = "right"; ctx.textBaseline = "middle";
+  for (let v = 0; v <= maxAlt; v += 50) { ctx.fillText(`${v}`, pad.l - 4, y(v)); ctx.strokeStyle = "#13202e"; ctx.beginPath(); ctx.moveTo(pad.l, y(v)); ctx.lineTo(W - pad.r, y(v)); ctx.stroke(); }
+  ceilings.forEach(c => { ctx.strokeStyle = c.c; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(pad.l, y(c.v)); ctx.lineTo(W - pad.r, y(c.v)); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = c.c; ctx.textAlign = "left"; ctx.fillText(`${c.n} ceiling ${c.v.toFixed(0)} m`, pad.l + 4, y(c.v) - 6); });
+  // MAVLink altitude line (solid)
+  for (let i = 1; i < ST.alt.length; i++) {
+    const a = ST.alt[i - 1], b = ST.alt[i];
+    ctx.strokeStyle = LEVEL_COLORS[b.lvl]; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(x(a.t), y(a.alt)); ctx.lineTo(x(b.t), y(b.alt)); ctx.stroke();
+  }
+  // Sensor altitude line (dashed, slightly thinner)
+  if (ST.sensorAlt.length > 1) {
+    ctx.setLineDash([4, 3]);
+    for (let i = 1; i < ST.sensorAlt.length; i++) {
+      const a = ST.sensorAlt[i - 1], b = ST.sensorAlt[i];
+      ctx.strokeStyle = LEVEL_COLORS[b.lvl]; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.8;
+      ctx.beginPath(); ctx.moveTo(x(a.t), y(a.alt)); ctx.lineTo(x(b.t), y(b.alt)); ctx.stroke();
+    }
+    ctx.setLineDash([]); ctx.globalAlpha = 1;
+  }
+  ctx.fillStyle = "#788d9f"; ctx.textAlign = "left"; ctx.fillText("−2 min", pad.l, H - 6); ctx.textAlign = "right";
+  ctx.fillText(ST.sensorAlt.length ? "now · m AGL (― MAVLink  ┈ Sensor)" : "now · m AGL", W - pad.r, H - 6);
+}
+
+function renderFusion() {
+  const t = ST.tel || {}, s = ST.sensors || {};
+  const row = (name, src, status, ok, latest) => `<tr><td>${name}</td><td>${src}</td><td style="color:${ok ? "var(--green)" : "var(--amber)"}">${status}</td><td>${latest}</td></tr>`;
+
+  let sensorRows = "";
+  if (ST.mmaudAvailable && ST.mmaud) {
+    // MMAUD mode: show per-sensor status from MMAUD data
+    const mm = ST.mmaud;
+    sensorRows =
+      row("RADAR", "MMAUD feed", mm.radar && mm.radar.detected ? "DETECTED" : "SCANNING", !!(mm.radar && mm.radar.detected),
+        mm.radar && mm.radar.detected ? mm.radar.top_types.map(t => `${t.type} ${t.prob}%`).join(", ") : "—") +
+      row("AVIA (LiDAR↑)", "MMAUD feed", mm.avia && mm.avia.detected ? "DETECTED" : "SCANNING", !!(mm.avia && mm.avia.detected),
+        mm.avia && mm.avia.detected && mm.avia.position ? `${mm.avia.position.range.toFixed(0)} m` : "—") +
+      row("MID360 (LiDAR 360°)", "MMAUD feed", mm.mid360 && mm.mid360.detected ? "DETECTED" : "SCANNING", !!(mm.mid360 && mm.mid360.detected),
+        mm.mid360 && mm.mid360.detected && mm.mid360.position ? `${mm.mid360.position.range.toFixed(0)} m` : "—") +
+      row("FUSION", "MMAUD placeholder", mm.fusion && mm.fusion.detected ? "DETECTED" : "CLEAR", !!(mm.fusion && mm.fusion.detected),
+        mm.fusion && mm.fusion.detected ? `${mm.fusion.size || "?"} · ${mm.fusion.top_types.map(t => `${t.type} ${t.prob}%`).join(", ")}` : "—");
+  } else {
+    // Legacy mode
+    const sens = n => s[n] ? row(n.toUpperCase(), `data/${n}/…json`, s[n].available ? "REPLAYING" : "NO MODEL OUTPUT", s[n].available, esc(s[n].message)) : "";
+    sensorRows = sens("radar") + sens("lidar") + sens("audio");
+  }
+
+  // Geofence status row
+  const sGeo = ST.sensorGeofence;
+  const geoRow = row("GEOFENCE", "zones + fusion",
+    sGeo ? `${sGeo.level_name} (sensor)` : (ST.geofence ? ST.geofence.level_name : "WAITING"),
+    !!(ST.geofence || sGeo),
+    sGeo && sGeo.reasons && sGeo.reasons.length ? sGeo.reasons[0] : (ST.geofence && ST.geofence.reasons && ST.geofence.reasons.length ? ST.geofence.reasons[0] : "—"));
+
+  $("fusionBody").innerHTML =
+    row("CAMERA (YOLO)", "detections JSON", ST.framesSeen ? "STREAMING" : "WAITING", !!ST.framesSeen, ST.prevCamDrone ? `drone ${ST.latestConf}%` : "no drone") +
+    row("MAVLINK", t.source || "udp :14445", t.link || "WAITING", t.link === "OK", t.drone ? `${t.drone.alt_rel.toFixed(0)} m AGL` : "—") +
+    sensorRows +
+    geoRow;
+
+  const nSources = 1 + (t.link === "OK" ? 1 : 0) +
+    (ST.mmaudAvailable ? (ST.mmaud ? [ST.mmaud.radar, ST.mmaud.avia, ST.mmaud.mid360].filter(s => s && s.detected).length : 0) :
+      ["radar", "lidar", "audio"].filter(k => s[k] && s[k].available).length);
+  $("fusionMode").textContent = ST.mmaudAvailable ? `MMAUD · ${nSources} SOURCES` : `${nSources} SOURCE${nSources > 1 ? "S" : ""} ACTIVE`;
+}
+
+function renderTargets() {
+  const t = ST.tel || {};
+  let rows = "";
+
+  // MAVLink target row
+  if (t.drone) {
+    const d = t.drone, lvl = ST.geofence ? ST.geofence.level : 0;
+    rows += `<tr><td>UAV-${t.sysid ?? "?"}</td><td>MAVLink</td><td>${d.lat.toFixed(6)}, ${d.lon.toFixed(6)}</td><td>${d.alt_rel.toFixed(1)} m</td><td>${d.groundspeed.toFixed(1)} m/s</td><td><span class="lvl-chip" style="color:${LEVEL_COLORS[lvl]}">${LEVEL_NAMES[lvl]}</span></td></tr>`;
+  }
+
+  // Legacy sensor detections (radar/lidar models)
+  ["radar", "lidar"].forEach(n => (ST.sensors[n] && ST.sensors[n].detections || []).forEach((x, i) => {
+    const sLvl = ST.sensorGeofence ? ST.sensorGeofence.level : 0;
+    rows += `<tr><td>${n.toUpperCase()}-${x.track_id ?? i + 1}</td><td>${n} model</td><td>${x.lat.toFixed(6)}, ${x.lon.toFixed(6)}</td><td>${x.alt.toFixed(1)} m</td><td>—</td><td><span class="lvl-chip" style="color:${LEVEL_COLORS[sLvl]}">${LEVEL_NAMES[sLvl]}</span> conf ${(x.confidence * 100).toFixed(0)}%</td></tr>`;
+  }));
+
+  // MMAUD sensor-detected targets
+  if (ST.mmaudAvailable && ST.mmaud) {
+    const mm = ST.mmaud;
+    const sLvl = ST.sensorGeofence ? ST.sensorGeofence.level : 0;
+    const sLvlChip = `<span class="lvl-chip" style="color:${LEVEL_COLORS[sLvl]}">${LEVEL_NAMES[sLvl]}</span>`;
+    if (mm.radar && mm.radar.detected && mm.radar.position) {
+      const p = mm.radar.position;
+      rows += `<tr><td>RADAR-MMAUD</td><td>MMAUD radar</td><td>${p.lat ? p.lat.toFixed(6) : "—"}, ${p.lon ? p.lon.toFixed(6) : "—"}</td><td>${p.alt ? p.alt.toFixed(1) : "?"} m</td><td>${p.range ? p.range.toFixed(0) + " m range" : "—"}</td><td>${sLvlChip} ${mm.radar.top_types ? mm.radar.top_types[0].type : ""}</td></tr>`;
+    }
+    if (mm.avia && mm.avia.detected && mm.avia.position) {
+      const p = mm.avia.position;
+      rows += `<tr><td>AVIA-MMAUD</td><td>MMAUD avia</td><td>${p.lat ? p.lat.toFixed(6) : "—"}, ${p.lon ? p.lon.toFixed(6) : "—"}</td><td>${p.alt ? p.alt.toFixed(1) : "?"} m</td><td>${p.range ? p.range.toFixed(0) + " m range" : "—"}</td><td>${sLvlChip}</td></tr>`;
+    }
+    if (mm.mid360 && mm.mid360.detected && mm.mid360.position) {
+      const p = mm.mid360.position;
+      rows += `<tr><td>MID360-MMAUD</td><td>MMAUD mid360</td><td>${p.lat ? p.lat.toFixed(6) : "—"}, ${p.lon ? p.lon.toFixed(6) : "—"}</td><td>${p.alt ? p.alt.toFixed(1) : "?"} m</td><td>${p.range ? p.range.toFixed(0) + " m range" : "—"}</td><td>${sLvlChip}</td></tr>`;
+    }
+  }
+
+  if (!rows) rows = `<tr><td colspan="6" style="text-align:center;color:var(--dim)">No targets detected</td></tr>`;
+  $("targetsBody").innerHTML = rows;
+}
+
+// ============================================ sensor correlation (Sensor Fusion screen) ==
+function renderSensorCorrelation() {
+  const mm = ST.mmaud;
+  const camType = ST.lastFrame ? ST.lastFrame.drone_type : null;
+
+  // Classification Correlation
+  const corrEl = $("classCorrelation");
+  const corrTag = $("corrTag");
+  if (mm && camType) {
+    const sensors = [];
+    if (mm.radar && mm.radar.detected && mm.radar.top_types) sensors.push({ name: "Radar", types: mm.radar.top_types, probs: mm.radar.class_probs });
+    if (mm.avia && mm.avia.detected && mm.avia.top_types) sensors.push({ name: "Avia LiDAR", types: mm.avia.top_types, probs: mm.avia.class_probs });
+    if (mm.mid360 && mm.mid360.detected && mm.mid360.top_types) sensors.push({ name: "Mid360 LiDAR", types: mm.mid360.top_types, probs: mm.mid360.class_probs });
+    if (mm.fusion && mm.fusion.detected && mm.fusion.top_types) sensors.push({ name: "Fusion", types: mm.fusion.top_types, probs: mm.fusion.class_probs });
+
+    // Map MMAUD names to camera names for matching
+    const mmToCamera = { Avata: "Avata", M300: "M300", Mavic2: "Mavic_2", Mavic3: "Mavic_3", Pham4: "Phantom_4" };
+    const cameraToMm = { Avata: "Avata", M300: "M300", Mavic_2: "Mavic2", Mavic_3: "Mavic3", Phantom_4: "Pham4" };
+    const expectedMm = cameraToMm[camType] || camType;
+
+    let html = `<div style="margin-bottom:8px"><b style="color:var(--teal)">Camera feed:</b> <span style="color:#fff;font-weight:700">${esc(camType)}</span> <span style="color:var(--muted)">→ expected sensor class: ${esc(expectedMm)}</span></div>`;
+    let matchCount = 0;
+    sensors.forEach(s => {
+      const topType = s.types[0];
+      const isMatch = topType && topType.type === expectedMm;
+      if (isMatch) matchCount++;
+      const matchCol = isMatch ? "var(--green)" : "var(--red)";
+      const matchIcon = isMatch ? "✔" : "✘";
+      html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="width:100px;color:var(--muted)">${s.name}:</span>
+        <span style="color:${matchCol};font-weight:700">${matchIcon} ${topType ? topType.type : "—"} ${topType ? topType.prob + "%" : ""}</span>
+        ${s.types.length > 1 ? `<span style="color:var(--muted);font-size:10px">(2nd: ${s.types[1].type} ${s.types[1].prob}%)</span>` : ""}
+      </div>`;
+    });
+    if (sensors.length) {
+      const accuracy = Math.round(matchCount / sensors.length * 100);
+      html += `<div style="margin-top:8px;padding:6px 10px;background:rgba(${accuracy > 60 ? "57,217,138" : "255,71,87"},0.1);border:1px solid rgba(${accuracy > 60 ? "57,217,138" : "255,71,87"},0.3);border-radius:4px;font-weight:700;color:${accuracy > 60 ? "var(--green)" : "var(--red)"}">Classification agreement: ${matchCount}/${sensors.length} sensors match camera (${accuracy}%)</div>`;
+      corrTag.textContent = `${accuracy}% MATCH`;
+      corrTag.className = "small-tag " + (accuracy > 60 ? "ok" : "warn");
+    }
+    corrEl.innerHTML = html;
+  } else if (camType) {
+    corrEl.innerHTML = `<div>Camera: <b style="color:#fff">${esc(camType)}</b></div><div style="color:var(--muted);margin-top:4px">Waiting for MMAUD sensor classifications…</div>`;
+    corrTag.textContent = "WAITING"; corrTag.className = "small-tag";
+  }
+
+  // Sensor Position Correlation
+  const posEl = $("sensorPosCorr");
+  if (mm) {
+    let html = "";
+    const positions = [];
+    if (mm.radar && mm.radar.detected && mm.radar.position && mm.radar.position.lat) positions.push({ name: "Radar", ...mm.radar.position });
+    if (mm.avia && mm.avia.detected && mm.avia.position && mm.avia.position.lat) positions.push({ name: "Avia", ...mm.avia.position });
+    if (mm.mid360 && mm.mid360.detected && mm.mid360.position && mm.mid360.position.lat) positions.push({ name: "Mid360", ...mm.mid360.position });
+    if (mm.fusion && mm.fusion.detected && mm.fusion.position && mm.fusion.position.lat) positions.push({ name: "Fusion", ...mm.fusion.position });
+
+    if (positions.length >= 2) {
+      html += `<table class="full-event-table" style="margin-bottom:8px"><thead><tr><th>Sensor</th><th>Lat</th><th>Lon</th><th>Alt m</th><th>Range m</th></tr></thead><tbody>`;
+      positions.forEach(p => {
+        html += `<tr><td style="color:var(--teal)">${p.name}</td><td>${p.lat.toFixed(6)}</td><td>${p.lon.toFixed(6)}</td><td>${(p.alt || 0).toFixed(1)}</td><td>${p.range ? p.range.toFixed(0) : "—"}</td></tr>`;
+      });
+      html += `</tbody></table>`;
+      // Compute spread between sensors
+      const lats = positions.map(p => p.lat), lons = positions.map(p => p.lon);
+      const latSpread = (Math.max(...lats) - Math.min(...lats)) * 111320;
+      const lonSpread = (Math.max(...lons) - Math.min(...lons)) * 111320 * Math.cos(lats[0] * Math.PI / 180);
+      const spread = Math.sqrt(latSpread * latSpread + lonSpread * lonSpread);
+      const tight = spread < 50;
+      html += `<div style="color:${tight ? "var(--green)" : "var(--amber)"};font-weight:700">Position spread: ${spread.toFixed(1)} m ${tight ? "· TIGHT CORRELATION" : "· MODERATE SPREAD"}</div>`;
+    } else if (positions.length === 1) {
+      html = `<div>Only <b>${positions[0].name}</b> reporting position: ${positions[0].lat.toFixed(6)}, ${positions[0].lon.toFixed(6)} at ${(positions[0].alt || 0).toFixed(1)} m</div>`;
+    } else {
+      html = `<div style="color:var(--muted)">No sensor positions available in current window.</div>`;
+    }
+    posEl.innerHTML = html;
+  }
+}
+
+// ============================================ C2 extra fields ==
+function renderC2Extra() {
+  const mm = ST.mmaud;
+  const camType = ST.lastFrame ? ST.lastFrame.drone_type : null;
+  const sGeo = ST.sensorGeofence;
+
+  // Sensor classification
+  if (mm && mm.radar && mm.radar.detected && mm.radar.top_types) {
+    const top = mm.radar.top_types[0];
+    $("c2SensorClass").textContent = `${top.type} (${top.prob}% radar)`;
+    $("c2SensorClass").style.color = PROB_COLORS[top.type] || "var(--teal)";
+  } else {
+    $("c2SensorClass").textContent = "—"; $("c2SensorClass").style.color = "var(--muted)";
+  }
+  // Camera drone type
+  $("c2CamType").textContent = camType || "—";
+  $("c2CamType").style.color = camType ? "var(--teal)" : "var(--muted)";
+  // Sensor geofence
+  if (sGeo && sGeo.level > 0) {
+    $("c2SensorGeo").textContent = `${sGeo.level_name} ${sGeo.reasons && sGeo.reasons.length ? "· " + sGeo.reasons[0] : ""}`;
+    $("c2SensorGeo").style.color = LEVEL_COLORS[sGeo.level];
+  } else {
+    $("c2SensorGeo").textContent = "CLEAR"; $("c2SensorGeo").style.color = "var(--green)";
+  }
+  // Active sensors count
+  let active = 0;
+  if (ST.framesSeen) active++;
+  if (mm) {
+    if (mm.radar && mm.radar.detected) active++;
+    if (mm.avia && mm.avia.detected) active++;
+    if (mm.mid360 && mm.mid360.detected) active++;
+  }
+  if (ST.sensors.audio && ST.sensors.audio.available) active++;
+  $("c2ActiveSensors").textContent = `${active} / 5`;
+  $("c2ActiveSensors").style.color = active >= 3 ? "var(--green)" : active >= 1 ? "var(--amber)" : "var(--muted)";
+
+  // Correlation summary card
+  const corrEl = $("c2CorrSummary");
+  const corrBadge = $("c2CorrBadge");
+  if (mm && camType) {
+    const cameraToMm = { Avata: "Avata", M300: "M300", Mavic_2: "Mavic2", Mavic_3: "Mavic3", Phantom_4: "Pham4" };
+    const expectedMm = cameraToMm[camType] || camType;
+    const radarMatch = mm.radar && mm.radar.detected && mm.radar.top_types && mm.radar.top_types[0].type === expectedMm;
+    const sensorPos = _bestSensorPos({ mmaud: mm });
+    let html = `<div>Camera → <b style="color:#fff">${esc(camType)}</b></div>`;
+    html += `<div>Radar class → <span style="color:${radarMatch ? "var(--green)" : "var(--red)"}">${radarMatch ? "✔ MATCH" : "✘ MISMATCH"} (${mm.radar && mm.radar.top_types ? mm.radar.top_types[0].type : "?"})</span></div>`;
+    html += `<div>Sensor position → ${sensorPos ? `<span style="color:var(--green)">TRACKING (${sensorPos[2].toFixed(0)} m AGL)</span>` : '<span style="color:var(--muted)">NO FIX</span>'}</div>`;
+    html += `<div>Geofence sources → MAVLink ${ST.geofence ? "✔" : "✘"} · Sensor ${sGeo && sGeo.level > 0 ? "✔" : "✘"}</div>`;
+    corrEl.innerHTML = html;
+    corrBadge.textContent = radarMatch ? "CORRELATED" : "DIVERGENT";
+    corrBadge.className = "small-tag " + (radarMatch ? "ok" : "warn");
+  } else {
+    corrEl.innerHTML = `<div style="color:var(--muted)">Waiting for sensor data…</div>`;
+    corrBadge.textContent = "—"; corrBadge.className = "small-tag";
+  }
+}
+
+// ============================================ analytics extra ==
+if (!window._analyticsCounts) window._analyticsCounts = { radar: 0, lidar: 0, audio: 0, classLog: [] };
+function renderAnalyticsExtra() {
+  const mm = ST.mmaud;
+  const ac = window._analyticsCounts;
+  if (mm) {
+    if (mm.radar && mm.radar.detected) ac.radar++;
+    if ((mm.avia && mm.avia.detected) || (mm.mid360 && mm.mid360.detected)) ac.lidar++;
+  }
+  if (ST.sensors.audio && ST.sensors.audio.available) {
+    const det = (ST.sensors.audio.detections || []).find(d => d.drone);
+    if (det) ac.audio++;
+  }
+  $("statRadarDets").textContent = ac.radar;
+  $("statLidarDets").textContent = ac.lidar;
+  $("statAudioDets").textContent = ac.audio;
+
+  const camType = ST.lastFrame ? ST.lastFrame.drone_type : null;
+  $("statCurDroneType").textContent = camType || "—";
+
+  if (mm && mm.radar && mm.radar.detected && mm.radar.top_types) {
+    const radarTop = mm.radar.top_types[0].type;
+    $("statCurRadarType").textContent = radarTop;
+    const cameraToMm = { Avata: "Avata", M300: "M300", Mavic_2: "Mavic2", Mavic_3: "Mavic3", Phantom_4: "Pham4" };
+    const match = camType && cameraToMm[camType] === radarTop;
+    $("statTypeMatch").textContent = match ? "✔ YES" : "✘ NO";
+    $("statTypeMatch").style.color = match ? "var(--green)" : "var(--red)";
+
+    // Log classification
+    const now = new Date().toLocaleTimeString();
+    if (!ac._lastLogTime || Date.now() - ac._lastLogTime > 2000) {
+      ac.classLog.unshift(`${now} — Camera: ${camType || "?"} · Radar: ${radarTop} · ${match ? "MATCH" : "MISMATCH"}`);
+      if (ac.classLog.length > 50) ac.classLog.pop();
+      ac._lastLogTime = Date.now();
+      const logEl = $("classHistory");
+      if (logEl) logEl.innerHTML = ac.classLog.map(l => `<div style="color:${l.includes("MATCH") && !l.includes("MIS") ? "var(--green)" : "var(--red)"};border-bottom:1px solid #152230;padding:2px 0">${esc(l)}</div>`).join("");
+    }
+  } else {
+    $("statCurRadarType").textContent = "—";
+  }
+}
+
+// ============================================ 3D environment view ==
+function renderEnv3d() {
+  const cv = $("env3dCanvas"); if (!cv || !cv.offsetWidth) return;
+  const dpr = window.devicePixelRatio || 1, W = cv.offsetWidth, H = cv.offsetHeight;
+  if (cv.width !== Math.round(W * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  const ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+
+  // Isometric projection helpers
+  const maxAlt = 200;
+  const cx = W / 2, cy = H * 0.75;
+  const scale = Math.min(W, H) / 500;
+  const iso = (x, y, z) => {
+    const sx = (x - y) * 0.866 * scale;
+    const sy = (x + y) * 0.5 * scale - z * scale * 1.5;
+    return [cx + sx, cy + sy];
+  };
+
+  // Draw ground grid
+  ctx.strokeStyle = "#0a1a28"; ctx.lineWidth = 0.5;
+  for (let i = -4; i <= 4; i++) {
+    let [x1, y1] = iso(i * 30, -120, 0); let [x2, y2] = iso(i * 30, 120, 0);
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    [x1, y1] = iso(-120, i * 30, 0); [x2, y2] = iso(120, i * 30, 0);
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  }
+
+  // Draw zone volumes (extruded)
+  const zoneData = [
+    { name: "Buffer", col: "#ffa502", min: 0, max: 120, r: 100 },
+    { name: "Restricted", col: "#ff4757", min: 0, max: 120, r: 60 },
+    { name: "Critical", col: "#c039ff", min: 0, max: 80, r: 30 }
+  ];
+  // Use actual zone data if available
+  if (ST.zones.length >= 3) {
+    ST.zones.forEach((z, i) => {
+      if (i < zoneData.length) {
+        zoneData[i].name = z.name.split(" ")[0];
+        zoneData[i].col = z.color || KIND_COLORS[z.kind];
+        zoneData[i].min = z.min_alt;
+        zoneData[i].max = z.max_alt;
+      }
+    });
+  }
+
+  zoneData.forEach(z => {
+    const hMin = z.min / maxAlt * 80, hMax = z.max / maxAlt * 80;
+    const corners = [[-z.r, -z.r], [z.r, -z.r], [z.r, z.r], [-z.r, z.r]];
+    // Draw floor
+    ctx.beginPath();
+    corners.forEach((c, i) => { const [px, py] = iso(c[0], c[1], hMin); i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py); });
+    ctx.closePath(); ctx.fillStyle = z.col + "08"; ctx.fill(); ctx.strokeStyle = z.col + "40"; ctx.lineWidth = 1; ctx.stroke();
+    // Draw ceiling
+    ctx.beginPath();
+    corners.forEach((c, i) => { const [px, py] = iso(c[0], c[1], hMax); i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py); });
+    ctx.closePath(); ctx.fillStyle = z.col + "12"; ctx.fill(); ctx.strokeStyle = z.col + "60"; ctx.lineWidth = 1; ctx.stroke();
+    // Draw vertical edges
+    ctx.setLineDash([3, 3]); ctx.strokeStyle = z.col + "30";
+    corners.forEach(c => {
+      const [bx, by] = iso(c[0], c[1], hMin); const [tx, ty] = iso(c[0], c[1], hMax);
+      ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(tx, ty); ctx.stroke();
+    });
+    ctx.setLineDash([]);
+    // Label
+    const [lx, ly] = iso(z.r + 5, -z.r, hMax);
+    ctx.fillStyle = z.col; ctx.font = "bold 9px Segoe UI"; ctx.fillText(`${z.name} (${z.max}m)`, lx, ly);
   });
 
-  toggleMenu();
-  addLog(`Navigation: Switched view to ${viewId}`);
+  // Draw sensor mast
+  const [mx, my] = iso(0, 0, 0); const [mtx, mty] = iso(0, 0, 10);
+  ctx.strokeStyle = "#00f2fe"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(mx, my); ctx.lineTo(mtx, mty); ctx.stroke();
+  ctx.fillStyle = "#00f2fe"; ctx.beginPath(); ctx.arc(mtx, mty, 4, 0, Math.PI * 2); ctx.fill();
+
+  // Draw drone if we have sensor position
+  const sensorPos = ST.sensorTrack.length ? ST.sensorTrack[ST.sensorTrack.length - 1] : null;
+  const sLvl = ST.sensorGeofence ? ST.sensorGeofence.level : 0;
+  if (sensorPos) {
+    // Convert lat/lon offset to approximate meters from mast
+    const mastLat = ST.site && ST.site.sensor_site ? ST.site.sensor_site.lat : 33.6555;
+    const mastLon = ST.site && ST.site.sensor_site ? ST.site.sensor_site.lon : 73.0174;
+    const dx = (sensorPos[1] - mastLon) * 111320 * Math.cos(mastLat * Math.PI / 180);
+    const dy = (sensorPos[0] - mastLat) * 111320;
+    const dz = sensorPos[2] / maxAlt * 80;
+    const clampedX = Math.max(-110, Math.min(110, dx / 3));
+    const clampedY = Math.max(-110, Math.min(110, dy / 3));
+    const [drx, dry] = iso(clampedX, clampedY, dz);
+    const col = LEVEL_COLORS[sLvl];
+    // Vertical line to ground
+    const [grx, gry] = iso(clampedX, clampedY, 0);
+    ctx.setLineDash([2, 2]); ctx.strokeStyle = col + "60"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(grx, gry); ctx.lineTo(drx, dry); ctx.stroke(); ctx.setLineDash([]);
+    // Drone icon
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.moveTo(drx, dry - 8); ctx.lineTo(drx + 7, dry); ctx.lineTo(drx, dry + 4); ctx.lineTo(drx - 7, dry); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; ctx.stroke();
+    // Label
+    ctx.fillStyle = col; ctx.font = "bold 10px Segoe UI";
+    const droneLabel = ST.lastFrame && ST.lastFrame.drone_type ? ST.lastFrame.drone_type : "TARGET";
+    ctx.fillText(`${droneLabel} · ${sensorPos[2].toFixed(0)}m AGL`, drx + 12, dry - 4);
+    ctx.fillStyle = "#fff"; ctx.font = "9px Segoe UI";
+    ctx.fillText(`${LEVEL_NAMES[sLvl]}`, drx + 12, dry + 8);
+  }
+
+  // Altitude bar (right panel)
+  const barEl = $("env3dAltBar");
+  if (barEl) {
+    const droneAlt = sensorPos ? sensorPos[2] : (ST.tel && ST.tel.drone ? ST.tel.drone.alt_rel : null);
+    const barMax = Math.max(150, ...ST.zones.map(z => z.max_alt));
+    let barHtml = "";
+    // Zone bands
+    ST.zones.forEach(z => {
+      const col = z.color || KIND_COLORS[z.kind];
+      const bottom = z.min_alt / barMax * 100;
+      const height = (z.max_alt - z.min_alt) / barMax * 100;
+      barHtml += `<div style="position:absolute;bottom:${bottom}%;height:${height}%;left:0;right:0;background:${col}10;border-top:1px solid ${col}60;border-bottom:1px solid ${col}30" title="${z.name}">
+        <span style="position:absolute;right:4px;top:2px;font-size:8px;color:${col}">${z.name.split(" ")[0]} ${z.max_alt}m</span></div>`;
+    });
+    // Drone altitude marker
+    if (droneAlt !== null && droneAlt !== undefined) {
+      const pct = droneAlt / barMax * 100;
+      barHtml += `<div style="position:absolute;bottom:${pct}%;left:0;right:0;height:2px;background:${LEVEL_COLORS[sLvl]};box-shadow:0 0 8px ${LEVEL_COLORS[sLvl]}"></div>`;
+      barHtml += `<div style="position:absolute;bottom:${pct}%;left:4px;font-size:10px;font-weight:700;color:${LEVEL_COLORS[sLvl]};transform:translateY(50%)">▶ ${droneAlt.toFixed(0)}m</div>`;
+    }
+    barEl.innerHTML = barHtml;
+
+    // Info text
+    $("env3dAlt").textContent = droneAlt !== null && droneAlt !== undefined ? `${droneAlt.toFixed(1)} m AGL` : "—";
+    $("env3dCeilings").textContent = ST.zones.map(z => `${z.name.split(" ")[0]}: ${z.max_alt}m`).join(" · ") || "—";
+    if (droneAlt !== null && droneAlt !== undefined && ST.zones.length) {
+      const insideZone = ST.zones.find(z => droneAlt >= z.min_alt && droneAlt <= z.max_alt);
+      if (insideZone) {
+        $("env3dClearance").textContent = `INSIDE ${insideZone.name} (${(insideZone.max_alt - droneAlt).toFixed(0)}m to ceiling)`;
+        $("env3dClearance").style.color = LEVEL_COLORS[sLvl];
+      } else {
+        const nearest = ST.zones.reduce((best, z) => {
+          const d = droneAlt < z.min_alt ? z.min_alt - droneAlt : droneAlt - z.max_alt;
+          return !best || d < best.d ? { d, z } : best;
+        }, null);
+        $("env3dClearance").textContent = nearest ? `${nearest.d.toFixed(0)}m ${droneAlt > nearest.z.max_alt ? "above" : "below"} ${nearest.z.name}` : "—";
+        $("env3dClearance").style.color = "var(--green)";
+      }
+    }
+    const sensorRange = sensorPos && ST.site && ST.site.sensor_site ?
+      Math.sqrt(Math.pow((sensorPos[0] - ST.site.sensor_site.lat) * 111320, 2) + Math.pow((sensorPos[1] - ST.site.sensor_site.lon) * 111320 * Math.cos(ST.site.sensor_site.lat * Math.PI / 180), 2)).toFixed(0) : null;
+    $("env3dRange").textContent = sensorRange ? `${sensorRange} m from mast` : "—";
+  }
 }
 
-window.addEventListener("resize", () => {
-  if (lastFrame && lastFrame.drone && lastFrame.box) drawBox(lastFrame.box, $("frame"));
-});
+// ========================================================== events ==
+function onEvent(e, live) {
+  ST.allEvents.unshift(e);
+  if (ST.allEvents.length > 500) ST.allEvents.pop();
+  const lvl = e.level || 0;
+  if (e.kind === "ZONE_ENTER" && lvl >= 3) ST.breaches++;
+  $("statBreaches").textContent = ST.breaches;
+  const tbody = $("fullEventTableBody");
+  if (ST.allEvents.length === 1) tbody.innerHTML = "";
+  const row = document.createElement("tr");
+  const when = new Date((e.ts || Date.now() / 1000) * 1000).toLocaleTimeString();
+  row.innerHTML = `<td>${when}</td><td style="color:var(--teal)">${esc((e.source || "").toUpperCase())}</td><td>${esc(e.kind)}</td>
+    <td>${esc(e.zone || "")}</td><td><span class="lvl-chip" style="color:${LEVEL_COLORS[lvl]}">${esc(e.level_name || LEVEL_NAMES[lvl])}</span></td>
+    <td style="font-family:inherit">${esc(e.message)}</td><td>${e.camera_confirmed ? "✔" : ""}</td>`;
+  tbody.insertBefore(row, tbody.firstChild);
+  while (tbody.children.length > 500) tbody.removeChild(tbody.lastChild);
+  const alerts = ST.allEvents.filter(x => (x.level || 0) >= 2).length;
+  $("alertNavCount").textContent = alerts;
+  $("fullAlertCount").textContent = `${ST.allEvents.length} EVENTS · ${alerts} ALERTS`;
+  if (!live) return;
+  addLog(e.message, lvl >= 3 ? "drone" : lvl === 2 ? "warn" : (e.kind === "ZONE_EXIT" ? "clear" : "system"));
+  if ((e.kind === "ZONE_ENTER" || e.kind === "LEVEL_CHANGE") && lvl >= 3) {
+    $("alertBanner").textContent = `${LEVEL_NAMES[lvl]} · ${e.message}`;
+    $("alertBanner").style.background = LEVEL_COLORS[lvl];
+    $("alertBanner").classList.add("show");
+    beep();
+  }
+}
+async function operatorAction(action) {
+  try { await api("POST", "/api/operator-action", { action }); toast(`Logged: ${action}`); }
+  catch (e) { toast(`Could not log action: ${e.message}`); }
+}
+
+// ======================================================== planner ==
+const clone = o => JSON.parse(JSON.stringify(o));
+function loadPlannerZones() { PL.zones = clone(ST.zones); PL.editing = null; PL.zonesDirty = false; renderZoneEditor(); planMap && planMap.requestRender(); }
+function loadPlannerMission() {
+  const m = ST.mission || { waypoints: [] };
+  PL.wps = clone(m.waypoints || []).filter(w => w.command !== 22).map(w => ({ lat: w.lat, lon: w.lon, alt: w.alt }));
+  $("cruiseSpeed").value = m.cruise_speed || 12;
+  PL.missionDirty = false; renderWps(); planMap && planMap.requestRender();
+}
+function markZonesDirty() { PL.zonesDirty = true; $("zonesDirty").textContent = "● unsaved"; }
+function markMissionDirty() { PL.missionDirty = true; $("missionDirty").textContent = "● unsaved"; }
+function planTab(t) {
+  PL.tab = t; cancelDraw(); PL.addingWps = false; $("addWpBtn").classList.remove("on");
+  $("tabZones").classList.toggle("active", t === "zones"); $("tabMission").classList.toggle("active", t === "mission");
+  $("paneZones").style.display = t === "zones" ? "flex" : "none"; $("paneMission").style.display = t === "mission" ? "flex" : "none";
+  if (t === "mission") { PL.editing = null; planMap && fitScenario(planMap); } else if (planMap) fitCampus(planMap);
+  updatePlanMode(); renderZoneEditor(); planMap && planMap.requestRender();
+}
+function updatePlanMode() {
+  const mode = PL.drawing ? "DRAWING ZONE" : PL.addingWps ? "ADDING WAYPOINTS" : PL.editing ? "EDITING SHAPE" : "VIEW";
+  $("planModeTag").textContent = mode;
+  $("planModeTag").className = "small-tag " + (mode === "VIEW" ? "" : "ok");
+  if (planMap) { planMap.dblClickZoom = mode === "VIEW"; planMap.cursor = mode === "DRAWING ZONE" || mode === "ADDING WAYPOINTS" ? "crosshair" : "grab"; planMap.canvas.style.cursor = planMap.cursor; }
+}
+function renderZoneEditor() {
+  $("zoneEditor").innerHTML = PL.zones.map((z, i) => `
+    <div class="zcard ${PL.editing === z.id ? "editing" : ""}" style="border-left-color:${z.color || KIND_COLORS[z.kind]}">
+      <input value="${esc(z.name)}" oninput="PL.zones[${i}].name=this.value;markZonesDirty()">
+      <div class="zrow">
+        <div><label>Type</label><select onchange="PL.zones[${i}].kind=this.value;PL.zones[${i}].color='';markZonesDirty();renderZoneEditor();planMap.requestRender()">
+          ${["monitoring", "restricted", "critical"].map(k => `<option value="${k}" ${z.kind === k ? "selected" : ""}>${k}</option>`).join("")}</select></div>
+        <div><label>Min alt m</label><input type="number" value="${z.min_alt}" oninput="PL.zones[${i}].min_alt=+this.value;markZonesDirty()"></div>
+        <div><label>Max alt m</label><input type="number" value="${z.max_alt}" oninput="PL.zones[${i}].max_alt=+this.value;markZonesDirty()"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-sm ${PL.editing === z.id ? "on" : ""}" onclick="toggleEditZone('${z.id}')">${PL.editing === z.id ? "Done editing" : "Edit shape"}</button>
+        <span class="zd" style="font-size:9px;color:var(--muted);align-self:center">${z.polygon.length} vertices</span>
+        <span style="flex:1"></span>
+        <button class="btn-sm danger" onclick="deleteZone(${i})">Delete</button>
+      </div>
+    </div>`).join("") || `<div class="hint">No zones. Click "+ New zone".</div>`;
+}
+function toggleEditZone(id) {
+  cancelDraw(); PL.editing = PL.editing === id ? null : id;
+  const z = editingZone(); if (z) planMap.fitBounds(z.polygon, 70);
+  renderZoneEditor(); updatePlanMode(); planMap.requestRender();
+}
+function deleteZone(i) { if (!confirm(`Delete zone "${PL.zones[i].name}"?`)) return; if (PL.editing === PL.zones[i].id) PL.editing = null; PL.zones.splice(i, 1); markZonesDirty(); renderZoneEditor(); planMap.requestRender(); }
+function startDrawZone() { PL.editing = null; PL.drawing = []; $("finishZoneBtn").style.display = ""; $("cancelDrawBtn").style.display = ""; $("newZoneBtn").style.display = "none"; renderZoneEditor(); updatePlanMode(); }
+function cancelDraw() { PL.drawing = null; $("finishZoneBtn").style.display = "none"; $("cancelDrawBtn").style.display = "none"; $("newZoneBtn").style.display = ""; updatePlanMode(); planMap && planMap.requestRender(); }
+function finishDrawZone() {
+  const pts = PL.drawing || [];
+  if (pts.length < 3) { toast("A zone needs at least 3 points"); return; }
+  const id = Math.random().toString(16).slice(2, 10);
+  PL.zones.push({ id, name: `New zone ${PL.zones.length + 1}`, kind: "restricted", polygon: pts, min_alt: 0, max_alt: 120, color: "" });
+  cancelDraw(); PL.editing = id; markZonesDirty(); renderZoneEditor(); updatePlanMode(); planMap.requestRender();
+}
+async function saveZones() {
+  try {
+    const r = await api("PUT", "/api/zones", { zones: PL.zones });
+    ST.zones = r.zones; PL.zonesDirty = false; $("zonesDirty").textContent = ""; loadPlannerZones();
+    toast("Zones saved — geo-fence updated live");
+  } catch (e) { toast(`Save failed: ${e.message}`, 4000); }
+}
+function revertZones() { loadPlannerZones(); $("zonesDirty").textContent = ""; updatePlanMode(); }
+
+function renderWps() {
+  $("wpBody").innerHTML = PL.wps.map((w, i) => `<tr><td>${i + 1}</td><td>${w.lat.toFixed(5)}</td><td>${w.lon.toFixed(5)}</td>
+    <td><input type="number" value="${w.alt}" style="width:60px" oninput="PL.wps[${i}].alt=+this.value;markMissionDirty();planMap.requestRender()"></td>
+    <td><button class="btn-sm danger" onclick="PL.wps.splice(${i},1);markMissionDirty();renderWps();planMap.requestRender()">✕</button></td></tr>`).join("")
+    || `<tr><td colspan="5" style="color:var(--muted)">No waypoints.</td></tr>`;
+}
+function toggleAddWp() { PL.addingWps = !PL.addingWps; $("addWpBtn").classList.toggle("on", PL.addingWps); updatePlanMode(); }
+function clearWps() { if (PL.wps.length && !confirm("Remove all waypoints?")) return; PL.wps = []; markMissionDirty(); renderWps(); planMap.requestRender(); }
+async function saveMission() {
+  if (PL.wps.length < 2) { toast("Mission needs at least 2 waypoints"); return; }
+  try {
+    const r = await api("PUT", "/api/mission", { waypoints: PL.wps, cruise_speed: +$("cruiseSpeed").value || 12 });
+    ST.mission = r.mission; loadPlannerMission(); $("missionDirty").textContent = "";
+    toast("Mission saved — virtual drone will reload it");
+  } catch (e) { toast(`Save failed: ${e.message}`, 4000); }
+}
+function revertMission() { loadPlannerMission(); $("missionDirty").textContent = ""; }
+function importPlan(input) {
+  const f = input.files[0]; if (!f) return;
+  f.text().then(async txt => {
+    let plan; try { plan = JSON.parse(txt); } catch (_) { toast("Not a valid JSON .plan file"); return; }
+    try { const r = await api("PUT", "/api/mission", plan); ST.mission = r.mission; loadPlannerMission(); toast(`Imported ${f.name}`); }
+    catch (e) { toast(`Import failed: ${e.message}`, 4000); }
+    input.value = "";
+  });
+}
+
+// planner map interaction
+function editingZone() { return PL.zones.find(z => z.id === PL.editing); }
+function planHitTest(x, y) {
+  const near = (lat, lon, r) => { const q = planMap.project(lat, lon); return Math.hypot(q.x - x, q.y - y) <= r; };
+  if (PL.tab === "mission") {
+    for (let i = PL.wps.length - 1; i >= 0; i--) if (near(PL.wps[i].lat, PL.wps[i].lon, 9)) return { type: "wp", i };
+    return null;
+  }
+  const z = editingZone(); if (!z) return null;
+  for (let i = 0; i < z.polygon.length; i++) if (near(z.polygon[i][0], z.polygon[i][1], 9)) return { type: "v", i };
+  for (let i = 0; i < z.polygon.length; i++) {
+    const a = z.polygon[i], b = z.polygon[(i + 1) % z.polygon.length];
+    if (near((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, 7)) return { type: "mid", i };
+  }
+  return null;
+}
+function planDrag(obj, lat, lon) {
+  if (obj.type === "wp") { PL.wps[obj.i].lat = lat; PL.wps[obj.i].lon = lon; markMissionDirty(); renderWps(); return; }
+  const z = editingZone(); if (!z) return;
+  if (obj.type === "mid") { z.polygon.splice(obj.i + 1, 0, [lat, lon]); obj.type = "v"; obj.i = obj.i + 1; }
+  z.polygon[obj.i] = [lat, lon]; markZonesDirty();
+}
+function onPlanClick(e) {
+  if (PL.drawing) { PL.drawing.push(e.latlng); planMap.requestRender(); return; }
+  if (PL.tab === "mission" && PL.addingWps && !e.target) {
+    PL.wps.push({ lat: e.latlng[0], lon: e.latlng[1], alt: +$("newWpAlt").value || 80 });
+    markMissionDirty(); renderWps(); planMap.requestRender();
+  }
+}
+function onPlanDblClick(e) {
+  if (PL.drawing) {
+    if (PL.drawing.length > 1) PL.drawing.pop();
+    finishDrawZone(); return;
+  }
+  const z = editingZone(); if (!z) return;
+  const hit = planHitTest(e.x, e.y);
+  if (hit && hit.type === "v" && z.polygon.length > 3) { z.polygon.splice(hit.i, 1); markZonesDirty(); renderZoneEditor(); planMap.requestRender(); }
+}
+function drawPlannerEdit(ctx, map) {
+  const z = editingZone();
+  if (z) {
+    z.polygon.forEach((p, i) => {
+      const b = z.polygon[(i + 1) % z.polygon.length];
+      AeroDraw.dot(ctx, map, (p[0] + b[0]) / 2, (p[1] + b[1]) / 2, { r: 4, fill: "rgba(255,255,255,.55)", stroke: "#031018", width: 1 });
+    });
+    z.polygon.forEach(p => AeroDraw.dot(ctx, map, p[0], p[1], { r: 6, fill: "#fff", stroke: z.color || KIND_COLORS[z.kind], width: 2.5 }));
+  }
+  if (PL.drawing && PL.drawing.length) {
+    AeroDraw.polygon(ctx, map, PL.drawing, { stroke: "#00f2fe", fill: "rgba(0,242,254,.15)", width: 2, dash: [4, 3], closed: PL.drawing.length > 2 });
+    PL.drawing.forEach(p => AeroDraw.dot(ctx, map, p[0], p[1], { r: 5, fill: "#00f2fe", stroke: "#031018" }));
+  }
+}
+
+// ========================================================== app shell ==
+function handleLogin(e) {
+  e.preventDefault();
+  const email = $("loginEmail").value.trim(), password = $("loginPass").value.trim();
+  if (email === "admin@gmail.com" && password === "12345678") {
+    $("loginError").style.display = "none"; $("loginOverlay").style.display = "none";
+    connectServer();
+  } else { $("loginError").style.display = "block"; }
+}
+function logout() {
+  const c = ws; ws = null; if (c) c.close();
+  $("loginOverlay").style.display = "flex"; $("loginEmail").value = ""; $("loginPass").value = ""; $("loginError").style.display = "none";
+}
+function toggleMenu() { $("drawer").classList.toggle("open"); $("drawerOverlay").classList.toggle("open"); }
+function switchView(viewId) {
+  document.querySelectorAll(".view-section").forEach(v => v.classList.remove("active"));
+  const v = $(`view-${viewId}`); if (v) v.classList.add("active");
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.toggle("active", n.dataset.view === viewId));
+  if ($("drawer").classList.contains("open")) toggleMenu();
+  if (viewId === "planner" && planMap) setTimeout(() => planMap.requestRender(), 30);
+}
+window.addEventListener("resize", () => { if (ST.lastFrame && ST.lastFrame.drone && ST.lastFrame.box) drawBox(ST.lastFrame.box, $("frame")); renderAltChart(); });
+window.addEventListener("beforeunload", e => { if (PL.zonesDirty || PL.missionDirty) { e.preventDefault(); e.returnValue = ""; } });
 </script>
 </body>
 </html>

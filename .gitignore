@@ -3,3 +3,8 @@ __pycache__/
 .venv/
 venv/
 .env
+
+# runtime files
+data/aerosense_events.db
+data/**/*.tmp
+.pytest_cache/
