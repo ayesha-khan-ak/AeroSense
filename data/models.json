@@ -1,0 +1,47 @@
+{
+  "radar": {
+    "detector": "detector_radar.pt",
+    "classifier": "classifier_radar.pt",
+    "detection_threshold": 0.35,
+    "window_seconds": 0.1,
+    "points_per_cluster": 64,
+    "calibration_to_leica_frame": {
+      "yaw_deg": 163.75025939941406,
+      "offset": [
+        0.08773780898581934,
+        0.24509360457336637,
+        -0.20396041870117188
+      ]
+    }
+  },
+  "avia": {
+    "detector": "detector_avia.pt",
+    "classifier": "classifier_avia.pt",
+    "detection_threshold": 0.44999999999999996,
+    "window_seconds": 0.3,
+    "points_per_cluster": 128,
+    "calibration_to_leica_frame": {
+      "yaw_deg": 164.286865234375,
+      "offset": [
+        0.24169456894311736,
+        0.38007113873473486,
+        -0.17611122131347656
+      ]
+    }
+  },
+  "mid360": {
+    "detector": "detector_mid360.pt",
+    "classifier": "classifier_mid360.pt",
+    "detection_threshold": 0.75,
+    "window_seconds": 0.1,
+    "points_per_cluster": 64,
+    "calibration_to_leica_frame": {
+      "yaw_deg": 164.84732818603516,
+      "offset": [
+        0.10696926809643781,
+        0.21253745765542753,
+        -0.2544403076171875
+      ]
+    }
+  }
+}

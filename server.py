@@ -235,6 +235,112 @@ class MMAUDFeedReplay:
         }]
 
 
+# ======================================================== fusion engine ====
+
+class FusionEngine:
+    """Multi-sensor fusion: associates detections from all sensors,
+    computes weighted position, tracks which sensors contributed.
+    Generates detection events when state changes."""
+
+    MMAUD_TO_CAMERA = {"Avata": "Avata", "M300": "M300", "Mavic2": "Mavic_2",
+                       "Mavic3": "Mavic_3", "Pham4": "Phantom_4"}
+
+    def __init__(self):
+        self.track_id = 1
+        self.detection_count = 0
+        self.last_drone_type = ""
+        self.was_detected = False
+        self.last_fused = None
+
+    def fuse(self, mmaud_data, camera_state, sensor_enabled):
+        """Fuse all available sensor data into a single detection result.
+        Returns dict with detection info or None if nothing detected."""
+        contributors = []
+        positions = []
+        weights = []
+        class_votes = {}
+
+        if mmaud_data:
+            if sensor_enabled.get("radar", True):
+                r = mmaud_data.get("radar", {})
+                if r.get("detected"):
+                    contributors.append("radar")
+                    if r.get("position"):
+                        positions.append(r["position"])
+                        weights.append(0.7)
+                    for dtype, prob in r.get("class_probs", {}).items():
+                        class_votes[dtype] = class_votes.get(dtype, 0) + prob * 0.5
+
+            if sensor_enabled.get("lidar", True):
+                for lkey in ("avia", "mid360"):
+                    s = mmaud_data.get(lkey, {})
+                    if s.get("detected"):
+                        contributors.append(f"lidar_{lkey}")
+                        w = 1.0 if lkey == "avia" else 0.9
+                        if s.get("position"):
+                            positions.append(s["position"])
+                            weights.append(w)
+
+        if sensor_enabled.get("camera", True) and camera_state.get("drone"):
+            contributors.append("camera")
+            conf = camera_state.get("confidence", 0)
+            drone_type = camera_state.get("drone_type", "")
+            if drone_type:
+                mm_name = {v: k for k, v in self.MMAUD_TO_CAMERA.items()}.get(drone_type, drone_type)
+                class_votes[mm_name] = class_votes.get(mm_name, 0) + conf * 0.8
+
+        if not contributors:
+            result = None
+            if self.was_detected:
+                self.was_detected = False
+                self.last_fused = None
+                return {"detected": False, "event": "TRACK_LOST",
+                        "drone_type": self.last_drone_type, "track_id": self.track_id}
+            self.last_fused = None
+            return None
+
+        fused_pos = None
+        if positions:
+            total_w = sum(weights[:len(positions)])
+            if total_w > 0:
+                fused_pos = {
+                    "lat": round(sum(p["lat"] * w for p, w in zip(positions, weights)) / total_w, 7),
+                    "lon": round(sum(p["lon"] * w for p, w in zip(positions, weights)) / total_w, 7),
+                    "alt": round(sum(p.get("alt", 0) * w for p, w in zip(positions, weights)) / total_w, 1),
+                }
+
+        drone_type = ""
+        confidence = 0.0
+        if class_votes:
+            drone_type = max(class_votes, key=class_votes.get)
+            total_v = sum(class_votes.values())
+            confidence = round(class_votes[drone_type] / total_v, 3) if total_v > 0 else 0
+            drone_type = self.MMAUD_TO_CAMERA.get(drone_type, drone_type)
+
+        self.detection_count += 1
+        event = None
+        if not self.was_detected:
+            event = "NEW_DETECTION"
+            self.was_detected = True
+        elif drone_type and drone_type != self.last_drone_type and self.last_drone_type:
+            event = "TYPE_CHANGE"
+        self.last_drone_type = drone_type
+
+        result = {
+            "detected": True,
+            "track_id": self.track_id,
+            "drone_type": drone_type,
+            "confidence": confidence,
+            "position": fused_pos,
+            "contributing_sensors": contributors,
+            "sensor_count": len(contributors),
+            "class_votes": {k: round(v, 3) for k, v in sorted(class_votes.items(), key=lambda x: -x[1])},
+            "event": event,
+        }
+        self.last_fused = result
+        return result
+
+
 # ======================================================== camera ====
 
 def load_frames_for_type(dtype):
@@ -262,7 +368,7 @@ def load_site():
 # ======================================================== shared state ====
 
 class EventStore:
-    """SQLite event log (built into Python — nothing to install)."""
+    """SQLite event log — events generated only from real detection activity."""
 
     def __init__(self, path: Path):
         self.lock = threading.Lock()
@@ -270,20 +376,43 @@ class EventStore:
         self.db.execute("""CREATE TABLE IF NOT EXISTS events (
             id INTEGER PRIMARY KEY AUTOINCREMENT, ts REAL, kind TEXT, level INTEGER,
             level_name TEXT, zone TEXT, message TEXT, lat REAL, lon REAL, alt REAL,
-            camera_confirmed INTEGER, source TEXT)""")
+            camera_confirmed INTEGER, source TEXT,
+            drone_type TEXT, confidence REAL, contributing_sensors TEXT)""")
         self.db.commit()
+        for col, ctype in [("drone_type", "TEXT"), ("confidence", "REAL"), ("contributing_sensors", "TEXT")]:
+            try:
+                self.db.execute(f"ALTER TABLE events ADD COLUMN {col} {ctype}")
+                self.db.commit()
+            except sqlite3.OperationalError:
+                pass
+
+    def clear_session(self):
+        """Remove all events from previous sessions — fresh start each run."""
+        with self.lock:
+            self.db.execute("DELETE FROM events")
+            try:
+                self.db.execute("DELETE FROM sqlite_sequence WHERE name='events'")
+            except sqlite3.OperationalError:
+                pass
+            self.db.commit()
 
     def add(self, ev: dict, pos: dict | None = None, source: str = "geofence") -> dict:
         pos = pos or {}
         row = {"ts": time.time(), "kind": ev.get("kind", "INFO"), "level": int(ev.get("level", 0)),
                "level_name": ev.get("level_name", LEVELS[int(ev.get("level", 0))]),
                "zone": ev.get("zone", ""), "message": ev.get("message", ""),
-               "lat": pos.get("lat"), "lon": pos.get("lon"), "alt": pos.get("alt_rel"),
-               "camera_confirmed": int(bool(ev.get("camera_confirmed"))), "source": source}
+               "lat": pos.get("lat"), "lon": pos.get("lon"),
+               "alt": pos.get("alt_rel", pos.get("alt")),
+               "camera_confirmed": int(bool(ev.get("camera_confirmed"))), "source": source,
+               "drone_type": ev.get("drone_type", ""),
+               "confidence": ev.get("confidence"),
+               "contributing_sensors": ev.get("contributing_sensors", "")}
         with self.lock:
             cur = self.db.execute(
-                "INSERT INTO events (ts,kind,level,level_name,zone,message,lat,lon,alt,camera_confirmed,source)"
-                " VALUES (:ts,:kind,:level,:level_name,:zone,:message,:lat,:lon,:alt,:camera_confirmed,:source)",
+                "INSERT INTO events (ts,kind,level,level_name,zone,message,lat,lon,alt,camera_confirmed,source,"
+                "drone_type,confidence,contributing_sensors)"
+                " VALUES (:ts,:kind,:level,:level_name,:zone,:message,:lat,:lon,:alt,:camera_confirmed,:source,"
+                ":drone_type,:confidence,:contributing_sensors)",
                 row)
             self.db.commit()
             row["id"] = cur.lastrowid
@@ -292,7 +421,8 @@ class EventStore:
     def recent(self, limit: int = 200) -> list[dict]:
         with self.lock:
             cur = self.db.execute("SELECT id,ts,kind,level,level_name,zone,message,lat,lon,alt,"
-                                  "camera_confirmed,source FROM events ORDER BY id DESC LIMIT ?",
+                                  "camera_confirmed,source,drone_type,confidence,contributing_sensors"
+                                  " FROM events ORDER BY id DESC LIMIT ?",
                                   (limit,))
             cols = [c[0] for c in cur.description]
             return [dict(zip(cols, r)) for r in cur.fetchall()]
@@ -300,7 +430,7 @@ class EventStore:
     def stats(self) -> dict:
         with self.lock:
             rows = self.db.execute("SELECT level_name, COUNT(*) FROM events WHERE kind IN "
-                                   "('ZONE_ENTER','LEVEL_CHANGE') GROUP BY level_name").fetchall()
+                                   "('ZONE_ENTER','LEVEL_CHANGE','DETECTION') GROUP BY level_name").fetchall()
         return {k: v for k, v in rows}
 
 
@@ -408,6 +538,9 @@ class State:
         self.sensor_track: list = []          # track from sensor detections
         self.t0 = time.monotonic()
         self.sim = None
+        self.sensor_enabled = {"radar": True, "lidar": True, "audio": True, "camera": True}
+        self.fusion = FusionEngine()
+        self.data_mode = "DATASET_REPLAY"  # "LIVE" when real hardware connected
 
         # MMAUD feed (preferred) or legacy individual sensor files
         site = self.site["sensor_site"]
@@ -468,6 +601,9 @@ async def camera_loop():
 
     while True:
         for i, item in enumerate(playlist):
+            if not S.sensor_enabled.get("camera", True):
+                await asyncio.sleep(delay)
+                continue
             det = item["det"]
             S.camera = {
                 "drone": bool(det.get("drone")),
@@ -585,6 +721,7 @@ async def telemetry_loop():
                "source": tel.source, "rate_hz": round(tel.rate, 1), "packets": tel.packets,
                "autopilot": tel.autopilot, "sysid": tel.vehicle_sysid, "armed": tel.armed,
                "battery": tel.battery, "gps_fix": tel.gps_fix, "sats": tel.sats,
+               "data_mode": S.data_mode,
                "camera": {"drone": S.camera["drone"], "confidence": S.camera["confidence"],
                           "drone_type": S.camera.get("drone_type", "")}}
         if tel.pos:
@@ -616,43 +753,91 @@ async def telemetry_loop():
         elapsed = now - S.t0
         mmaud_data = None
         sensor_dets = {}
+        se = S.sensor_enabled
 
         if now - last_sensor_push >= 0.2:   # run at 5 Hz (match MMAUD rate)
             last_sensor_push = now
 
             if S.mmaud.available:
                 mmaud_data = S.mmaud.at(elapsed)
-                msg["mmaud"] = mmaud_data
+                if se.get("radar", True) or se.get("lidar", True):
+                    msg["mmaud"] = mmaud_data
                 msg["mmaud_status"] = S.mmaud.status()
                 sensor_dets = {
                     "radar": {
-                        "sensor": "radar", "available": True,
-                        "message": f"MMAUD radar · window {mmaud_data['window_index']}/{mmaud_data['total_windows']}",
-                        "detections": S.mmaud.sensor_detections("radar", elapsed),
+                        "sensor": "radar", "available": se.get("radar", True),
+                        "message": f"MMAUD radar · window {mmaud_data['window_index']}/{mmaud_data['total_windows']}" if se.get("radar", True) else "Radar STOPPED",
+                        "detections": S.mmaud.sensor_detections("radar", elapsed) if se.get("radar", True) else [],
                     },
                     "lidar": {
-                        "sensor": "lidar", "available": True,
-                        "message": f"MMAUD avia+mid360 · window {mmaud_data['window_index']}/{mmaud_data['total_windows']}",
-                        "detections": (S.mmaud.sensor_detections("avia", elapsed) +
-                                       S.mmaud.sensor_detections("mid360", elapsed)),
+                        "sensor": "lidar", "available": se.get("lidar", True),
+                        "message": (f"MMAUD avia+mid360 · window {mmaud_data['window_index']}/{mmaud_data['total_windows']}" if se.get("lidar", True) else "LiDAR STOPPED"),
+                        "detections": ((S.mmaud.sensor_detections("avia", elapsed) +
+                                       S.mmaud.sensor_detections("mid360", elapsed)) if se.get("lidar", True) else []),
                     },
                     "audio": {
-                        "sensor": "audio", "available": False,
-                        "message": "Audio not in MMAUD feed", "detections": [],
+                        "sensor": "audio", "available": se.get("audio", True) and False,
+                        "message": ("Audio not in MMAUD feed" if se.get("audio", True) else "Audio STOPPED"),
+                        "detections": [],
                     },
                 }
                 msg["sensors"] = sensor_dets
             else:
-                sensor_dets = {name: {**r.status(), "detections": r.at(elapsed)}
-                               for name, r in S.sensors.items()}
+                sensor_dets = {}
+                for name, r in S.sensors.items():
+                    if se.get(name, True):
+                        sensor_dets[name] = {**r.status(), "detections": r.at(elapsed)}
+                    else:
+                        sensor_dets[name] = {"sensor": name, "available": False,
+                                             "message": f"{name.title()} STOPPED", "detections": []}
                 msg["sensors"] = sensor_dets
+
+        # ---- Multi-sensor fusion ----
+        fusion_result = S.fusion.fuse(mmaud_data, S.camera, se)
+        if fusion_result:
+            msg["fusion"] = fusion_result
+            # Generate events from fusion state changes
+            ev_type = fusion_result.get("event")
+            if ev_type and fusion_result.get("detected"):
+                f_pos = fusion_result.get("position") or {}
+                sensors_str = ",".join(fusion_result.get("contributing_sensors", []))
+                dtype = fusion_result.get("drone_type", "")
+                conf = fusion_result.get("confidence", 0)
+                if ev_type == "NEW_DETECTION":
+                    det_ev = S.events.add({
+                        "kind": "DETECTION", "level": 1, "level_name": "ADVISORY",
+                        "message": f"Drone detected by {sensors_str} — {dtype} ({conf*100:.0f}% confidence)",
+                        "drone_type": dtype, "confidence": conf,
+                        "contributing_sensors": sensors_str,
+                    }, {"lat": f_pos.get("lat"), "lon": f_pos.get("lon"), "alt_rel": f_pos.get("alt")}, "fusion")
+                    S.hub.broadcast({"type": "event", "event": det_ev})
+                elif ev_type == "TYPE_CHANGE":
+                    det_ev = S.events.add({
+                        "kind": "CLASSIFICATION", "level": 1, "level_name": "ADVISORY",
+                        "message": f"Drone reclassified: now {dtype} ({conf*100:.0f}%) by {sensors_str}",
+                        "drone_type": dtype, "confidence": conf,
+                        "contributing_sensors": sensors_str,
+                    }, {"lat": f_pos.get("lat"), "lon": f_pos.get("lon"), "alt_rel": f_pos.get("alt")}, "fusion")
+                    S.hub.broadcast({"type": "event", "event": det_ev})
+            elif fusion_result.get("event") == "TRACK_LOST":
+                lost_ev = S.events.add({
+                    "kind": "TRACK_LOST", "level": 0,
+                    "message": f"Track lost on {fusion_result.get('drone_type', 'drone')}",
+                    "drone_type": fusion_result.get("drone_type", ""),
+                }, source="fusion")
+                S.hub.broadcast({"type": "event", "event": lost_ev})
 
         # ---- Sensor geofence: check sensor-detected positions against zones ----
         sensor_geofence = None
-        best_pos = _best_sensor_position(mmaud_data, sensor_dets)
+        any_pos_sensor = se.get("radar", True) or se.get("lidar", True)
+        # Use fusion position if available, else fall back to best single sensor
+        if fusion_result and fusion_result.get("detected") and fusion_result.get("position"):
+            fp = fusion_result["position"]
+            best_pos = (fp["lat"], fp["lon"], fp.get("alt", 0))
+        else:
+            best_pos = _best_sensor_position(mmaud_data, sensor_dets) if any_pos_sensor else None
         if best_pos:
             s_lat, s_lon, s_alt = best_pos
-            # Sensor detections don't have speed/climb/heading — use 0
             sensor_sample = TrackSample(time.time(), s_lat, s_lon, s_alt, 0.0, 0.0, 0.0)
             cam_det = S.camera["drone"] and time.time() - S.camera["t"] < 1.0
             sensor_geofence, s_events = S.sensor_monitor.update(sensor_sample, cam_det)
@@ -660,8 +845,13 @@ async def telemetry_loop():
             for ev in s_events:
                 ev["source"] = "sensor"
                 ev["message"] = f"[Sensor] {ev['message']}"
-                S.hub.broadcast({"type": "event", "event": S.events.add(ev, {"lat": s_lat, "lon": s_lon, "alt_rel": s_alt}, "sensor")})
-            # Add sensor track for the map
+                # Enrich geofence events with fusion data
+                if fusion_result and fusion_result.get("detected"):
+                    ev["drone_type"] = fusion_result.get("drone_type", "")
+                    ev["confidence"] = fusion_result.get("confidence")
+                    ev["contributing_sensors"] = ",".join(fusion_result.get("contributing_sensors", []))
+                S.hub.broadcast({"type": "event", "event": S.events.add(
+                    ev, {"lat": s_lat, "lon": s_lon, "alt_rel": s_alt}, "sensor")})
             S.sensor_track.append([round(s_lat, 7), round(s_lon, 7), round(s_alt, 1),
                                    sensor_geofence["level"]])
             del S.sensor_track[:-300]
@@ -693,7 +883,9 @@ async def lifespan(app):
         from sim_drone import SimDrone
         S.sim = SimDrone(MISSION_FILE, [f"127.0.0.1:{MAVLINK_PORT}"] + SIM_EXTRA_TARGETS)
         threading.Thread(target=S.sim.run, daemon=True).start()
-    S.events.add({"kind": "SYSTEM", "level": 0, "message": "AeroSense server started"}, source="system")
+    S.events.clear_session()
+    S.events.add({"kind": "SYSTEM", "level": 0,
+                  "message": f"AeroSense server started — {S.data_mode} mode"}, source="system")
     try:
         yield
     finally:
@@ -870,6 +1062,47 @@ async def api_operator_action(request: Request):
     return {"ok": True}
 
 
+# ---------- sensor control API ----------
+
+VALID_SENSORS = ("radar", "lidar", "audio", "camera")
+
+
+@app.get("/api/sensors/status")
+def api_sensors_status():
+    return {"sensors": dict(S.sensor_enabled)}
+
+
+@app.post("/api/sensors/toggle")
+async def api_sensors_toggle(request: Request):
+    body = await request.json()
+    sensor = str(body.get("sensor", ""))
+    if sensor not in VALID_SENSORS:
+        return JSONResponse({"error": f"unknown sensor {sensor!r}"}, status_code=400)
+    enabled = bool(body.get("enabled", not S.sensor_enabled.get(sensor, True)))
+    S.sensor_enabled[sensor] = enabled
+    ev = S.events.add(
+        {"kind": "SENSOR_CONTROL", "level": 0,
+         "message": f"Sensor {sensor} {'started' if enabled else 'stopped'} by operator"},
+        source="operator")
+    S.hub.broadcast({"type": "event", "event": ev})
+    S.hub.broadcast({"type": "sensor_state", "states": dict(S.sensor_enabled)})
+    return {"ok": True, "sensor": sensor, "enabled": enabled}
+
+
+def _handle_sensor_toggle(sensor: str, enabled: bool | None):
+    if sensor not in VALID_SENSORS:
+        return
+    if enabled is None:
+        enabled = not S.sensor_enabled.get(sensor, True)
+    S.sensor_enabled[sensor] = enabled
+    ev = S.events.add(
+        {"kind": "SENSOR_CONTROL", "level": 0,
+         "message": f"Sensor {sensor} {'started' if enabled else 'stopped'} by operator"},
+        source="operator")
+    S.hub.broadcast({"type": "event", "event": ev})
+    S.hub.broadcast({"type": "sensor_state", "states": dict(S.sensor_enabled)})
+
+
 # ---------- WebSocket: everything live ----------
 
 @app.websocket("/ws")
@@ -882,6 +1115,8 @@ async def stream(websocket: WebSocket):
         "sensor_track": S.sensor_track[-200:],
         "events": S.events.recent(100),
         "mmaud_available": S.mmaud.available,
+        "sensor_states": dict(S.sensor_enabled),
+        "data_mode": S.data_mode,
     }))
     S.hub.clients.add(q)
     print(f"Dashboard connected ({len(S.hub.clients)} total).")
@@ -892,7 +1127,18 @@ async def stream(websocket: WebSocket):
 
     async def reader():
         while True:
-            await websocket.receive_text()     # keep-alive / future commands
+            raw = await websocket.receive_text()
+            try:
+                cmd = json.loads(raw)
+            except (json.JSONDecodeError, TypeError):
+                continue
+            if cmd.get("type") == "sensor_toggle":
+                sensor = str(cmd.get("sensor", ""))
+                enabled = cmd.get("enabled")
+                if isinstance(enabled, bool):
+                    _handle_sensor_toggle(sensor, enabled)
+                else:
+                    _handle_sensor_toggle(sensor, None)
 
     tasks = [asyncio.create_task(writer()), asyncio.create_task(reader())]
     try:

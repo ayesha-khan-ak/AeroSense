@@ -1,0 +1,241 @@
+{
+  "radar": {
+    "test_windows": 1039,
+    "drone_present_windows": 327,
+    "drone_absent_windows": 712,
+    "detection_recall": 0.9663608562691132,
+    "detection_precision": 0.8426666666666667,
+    "false_alarm_rate_empty_windows": 0.08286516853932584,
+    "wrong_cluster_detections": 0,
+    "localization_mean_m": 0.6983137347035292,
+    "localization_median_m": 0.5102902569184398,
+    "localization_p90_m": 1.4707645698057226,
+    "n_correct_detections": 316,
+    "type_accuracy": 0.569620253164557,
+    "type_accuracy_ci95": [
+      0.4429326070937805,
+      0.692069597069597
+    ],
+    "type_balanced_accuracy": 0.5624702945041231,
+    "type_majority_baseline": 0.23734177215189872,
+    "per_class_recall": {
+      "Avata": 0.7761194029850746,
+      "M300": 0.35714285714285715,
+      "Mavic2": 0.5789473684210527,
+      "Mavic3": 0.44680851063829785,
+      "Pham4": 0.6533333333333333
+    },
+    "size_class_accuracy": 0.8006329113924051,
+    "size_class_accuracy_ci95": [
+      0.6432926829268293,
+      0.9297757073844031
+    ],
+    "end_to_end_correct_type_of_present": 0.5504587155963303,
+    "confusion_matrix_rows_true_cols_pred": [
+      [
+        52,
+        0,
+        12,
+        3,
+        0
+      ],
+      [
+        4,
+        25,
+        7,
+        13,
+        21
+      ],
+      [
+        3,
+        0,
+        33,
+        15,
+        6
+      ],
+      [
+        0,
+        0,
+        3,
+        21,
+        23
+      ],
+      [
+        0,
+        0,
+        10,
+        16,
+        49
+      ]
+    ],
+    "notes": "Type accuracy is largely driven by apparent target size; relative-shape signal not established."
+  },
+  "avia": {
+    "test_windows": 1039,
+    "drone_present_windows": 749,
+    "drone_absent_windows": 290,
+    "detection_recall": 0.9826435246995995,
+    "detection_precision": 1.0,
+    "false_alarm_rate_empty_windows": 0.0,
+    "wrong_cluster_detections": 0,
+    "localization_mean_m": 0.29056091697109276,
+    "localization_median_m": 0.27039107583734745,
+    "localization_p90_m": 0.39054986317639606,
+    "n_correct_detections": 736,
+    "type_accuracy": 0.5978260869565217,
+    "type_accuracy_ci95": [
+      0.47720937928777796,
+      0.7211188994023905
+    ],
+    "type_balanced_accuracy": 0.5601196460576793,
+    "type_majority_baseline": 0.35597826086956524,
+    "per_class_recall": {
+      "Avata": 0.7786259541984732,
+      "M300": 0.9831932773109243,
+      "Mavic2": 0.04,
+      "Mavic3": 0.5384615384615384,
+      "Pham4": 0.4603174603174603
+    },
+    "size_class_accuracy": 0.8505434782608695,
+    "size_class_accuracy_ci95": [
+      0.7810627392017496,
+      0.9091060002414584
+    ],
+    "end_to_end_correct_type_of_present": 0.5874499332443258,
+    "confusion_matrix_rows_true_cols_pred": [
+      [
+        204,
+        1,
+        42,
+        12,
+        3
+      ],
+      [
+        0,
+        117,
+        0,
+        1,
+        1
+      ],
+      [
+        15,
+        19,
+        5,
+        82,
+        4
+      ],
+      [
+        4,
+        7,
+        15,
+        56,
+        22
+      ],
+      [
+        0,
+        5,
+        33,
+        30,
+        58
+      ]
+    ],
+    "notes": "Detection metrics are not meaningful: the exported Avia frames contain almost only drone clusters (1 non-drone cluster in the test split). Use Avia as a localizer / size-class source."
+  },
+  "mid360": {
+    "test_windows": 1039,
+    "drone_present_windows": 282,
+    "drone_absent_windows": 757,
+    "detection_recall": 0.4397163120567376,
+    "detection_precision": 0.7425149700598802,
+    "false_alarm_rate_empty_windows": 0.04227212681638045,
+    "wrong_cluster_detections": 11,
+    "localization_mean_m": 0.17677936380388953,
+    "localization_median_m": 0.14679321805030587,
+    "localization_p90_m": 0.33944295281615855,
+    "n_correct_detections": 124,
+    "type_accuracy": 0.18548387096774194,
+    "type_accuracy_ci95": [
+      0.09846633629528366,
+      0.32659519504004125
+    ],
+    "type_balanced_accuracy": 0.2774074074074074,
+    "type_majority_baseline": 0.2661290322580645,
+    "per_class_recall": {
+      "Avata": 0.8181818181818182,
+      "M300": 0.35,
+      "Mavic2": 0.06060606060606061,
+      "Mavic3": 0.037037037037037035,
+      "Pham4": 0.12121212121212122
+    },
+    "size_class_accuracy": 0.5403225806451613,
+    "size_class_accuracy_ci95": [
+      0.4503624474820995,
+      0.6349259974259974
+    ],
+    "end_to_end_correct_type_of_present": 0.08156028368794327,
+    "confusion_matrix_rows_true_cols_pred": [
+      [
+        9,
+        1,
+        1,
+        0,
+        0
+      ],
+      [
+        4,
+        7,
+        2,
+        2,
+        5
+      ],
+      [
+        8,
+        3,
+        2,
+        12,
+        8
+      ],
+      [
+        13,
+        0,
+        10,
+        1,
+        3
+      ],
+      [
+        17,
+        1,
+        6,
+        5,
+        4
+      ]
+    ],
+    "notes": "Drone-type classification is at chance (6-8 points per cluster). Use for detection and localization only."
+  },
+  "_protocol": {
+    "classes": [
+      "Avata",
+      "M300",
+      "Mavic2",
+      "Mavic3",
+      "Pham4"
+    ],
+    "size_classes": {
+      "small": [
+        "Avata"
+      ],
+      "medium": [
+        "Mavic2",
+        "Mavic3",
+        "Pham4"
+      ],
+      "large": [
+        "M300"
+      ]
+    },
+    "size_class_note": "Grouping chosen post hoc, supported by the RCS/size table in the MMAUD paper.",
+    "split": "per drone recording, contiguous time blocks: train <58%, gap, val 60-78%, gap, test >=80%",
+    "caveat": "One flight per drone in V1: test blocks are later parts of the same flights, so results do not show generalisation to new flights.",
+    "ci": "95% block-bootstrap over ~5 s blocks of the test split"
+  }
+}

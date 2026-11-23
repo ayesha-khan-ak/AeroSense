@@ -76,12 +76,25 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
 .small-tag.warn { color: var(--amber); border-color: #5a4210; }
 .small-tag.bad { color: var(--red); border-color: #5a1e24; }
 
-#videoWrap { width: 100%; height: 380px; background: #020508; border: 1px solid #152230; border-radius: 6px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+#videoWrap { width: 100%; height: 380px; background: #020508; border: 2px solid #152230; border-radius: 6px; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; transition: border-color 0.4s, box-shadow 0.4s; }
+#videoWrap.geo-advisory { border-color: #ffa502; box-shadow: inset 0 0 20px rgba(255,165,2,0.15), 0 0 8px rgba(255,165,2,0.2); }
+#videoWrap.geo-warning  { border-color: #ff7f50; box-shadow: inset 0 0 25px rgba(255,127,80,0.2), 0 0 10px rgba(255,127,80,0.25); }
+#videoWrap.geo-breach   { border-color: #ff4757; box-shadow: inset 0 0 30px rgba(255,71,87,0.25), 0 0 14px rgba(255,71,87,0.3); animation: geoPulse 1.2s ease-in-out infinite; }
+#videoWrap.geo-critical { border-color: #c039ff; box-shadow: inset 0 0 35px rgba(192,57,255,0.3), 0 0 18px rgba(192,57,255,0.35); animation: geoPulse 0.8s ease-in-out infinite; }
+@keyframes geoPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.85; } }
 #frame { display: none; width: 100%; height: 100%; object-fit: contain; }
 #placeholder { max-width: 280px; text-align: center; padding: 20px; color: var(--muted); font-size: 11px; line-height: 1.6; }
 #box { position: absolute; border: 2px solid var(--red); display: none; pointer-events: none; box-shadow: 0 0 12px rgba(255, 71, 87, 0.6); }
 #boxLabel { position: absolute; left: -2px; top: -16px; white-space: nowrap; background: var(--red); color: white; padding: 1px 5px; font-size: 8px; line-height: 12px; font-weight: 800; }
 #droneTypeOverlay { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.7); border: 1px solid var(--teal); border-radius: 5px; padding: 4px 8px; font-size: 10px; font-weight: 700; color: var(--teal); display: none; z-index: 2; }
+#geoOverlay { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.8); border-radius: 6px; padding: 6px 10px; z-index: 3; min-width: 140px; border: 1px solid #162636; backdrop-filter: blur(6px); pointer-events: none; transition: border-color 0.3s; }
+#geoOverlayLevel { font-size: 13px; font-weight: 800; letter-spacing: 0.5px; color: var(--green); display: flex; align-items: center; gap: 6px; }
+#geoOverlayTtb { font-size: 10px; font-weight: 700; color: var(--amber); }
+#geoOverlayZone { font-size: 9px; color: #788d9f; margin-top: 2px; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#geoOverlayAction { font-size: 8px; color: #607d94; margin-top: 2px; }
+#geoOverlayDistance { font-size: 9px; color: #607d94; margin-top: 1px; }
+#geoOverlayConfirmed { font-size: 9px; font-weight: 700; color: var(--green); margin-top: 2px; display: none; }
+#geoOverlayBorder { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--green); z-index: 3; border-radius: 6px 6px 0 0; transition: background 0.3s, height 0.3s, box-shadow 0.3s; }
 .frame-meta { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 10px; margin-top: 6px; font-family: monospace; }
 
 .map-box { position: relative; width: 100%; height: 380px; border: 1px solid #152230; border-radius: 6px; overflow: hidden; background: #06101a; }
@@ -120,6 +133,19 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
 .radar-sweep-line { transform-origin: 100px 100px; animation: sweep360 3.5s linear infinite; }
 @keyframes sweep360 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 .sensor-note { font-size: 9px; color: var(--muted); margin-top: 5px; line-height: 1.4; }
+.sensor-toggle { position: relative; width: 32px; height: 16px; flex-shrink: 0; cursor: pointer; }
+.sensor-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+.sensor-toggle .slider { position: absolute; inset: 0; background: #2a3a4a; border-radius: 8px; transition: background .2s; }
+.sensor-toggle .slider::before { content: ""; position: absolute; left: 2px; top: 2px; width: 12px; height: 12px; background: #607d94; border-radius: 50%; transition: transform .2s, background .2s; }
+.sensor-toggle input:checked + .slider { background: #0a3a4a; }
+.sensor-toggle input:checked + .slider::before { transform: translateX(16px); background: var(--teal); box-shadow: 0 0 6px var(--teal); }
+.master-sensor-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; background: var(--panel2); border: 1px solid #162636; border-radius: 6px; }
+.master-sensor-row .master-label { font-size: 10px; font-weight: 800; color: var(--teal); letter-spacing: .5px; }
+.master-sensor-btns { display: flex; gap: 6px; }
+.master-btn { padding: 3px 10px; border: 1px solid #1e3a52; border-radius: 4px; background: #0d1e2e; color: #cfd8e3; font-size: 9px; font-weight: 700; cursor: pointer; letter-spacing: .3px; }
+.master-btn:hover { background: #152a3e; border-color: var(--teal); }
+.master-btn.stop { border-color: #ff4757; color: #ff4757; }
+.master-btn.stop:hover { background: #2a0f14; }
 .spectro-visual { height: 70px; background: var(--panel2); border: 1px solid #162636; border-radius: 6px; overflow: hidden; position: relative; }
 .spectro-svg { width: 100%; height: 100%; display: block; }
 .lidar-reading { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; background: var(--panel2); border: 1px solid #162636; border-radius: 6px; }
@@ -205,6 +231,9 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
 
 #alertBanner { display: none; position: fixed; right: 14px; top: 14px; z-index: 100; background: var(--red); color: white; padding: 8px 14px; border-radius: 6px; font-size: 11px; font-weight: 800; box-shadow: 0 4px 20px rgba(255, 71, 87, 0.5); letter-spacing: 0.5px; max-width: 420px; }
 #alertBanner.show { display: block; }
+#dataModeBanner { display: none; position: fixed; left: 50%; top: 0; transform: translateX(-50%); z-index: 150; background: linear-gradient(90deg, #1a3a2a, #0d2a1a); border: 1px solid #2a6a4a; border-top: none; color: var(--amber); padding: 4px 20px; border-radius: 0 0 8px 8px; font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; box-shadow: 0 4px 15px rgba(255,165,2,0.15); }
+#dataModeBanner.show { display: block; }
+#dataModeBanner .mode-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--amber); margin-right: 6px; animation: pulse 2s infinite; }
 #toast { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); background: #0b3a4a; border: 1px solid #1a6e8a; color: var(--teal); padding: 8px 14px; border-radius: 6px; font-size: 11px; font-weight: 700; z-index: 200; display: none; }
 
 @media (max-width: 1250px) { .feeds { grid-template-columns: 1fr; } .strip { grid-template-columns: 1fr 1fr; } .strip > :last-child { grid-column: 1 / -1; } }
@@ -268,6 +297,7 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
     </div>
   </header>
 
+  <div id="dataModeBanner"><span class="mode-dot"></span>DATASET REPLAY — Sensor data from MMAUD dataset, not live hardware</div>
   <div id="alertBanner"></div>
   <div id="toast"></div>
   <div id="status" role="status" aria-live="polite"></div>
@@ -280,6 +310,7 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
           <section class="card">
             <div class="card-head">
               <div class="card-title">Primary Camera Feed</div>
+              <label class="sensor-toggle" title="Toggle camera"><input type="checkbox" checked id="toggleCamera" onchange="toggleSensor('camera',this.checked)"><span class="slider"></span></label>
               <span class="small-tag" id="feedTag">CONNECTING</span>
             </div>
             <div id="videoWrap">
@@ -287,6 +318,14 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
               <img id="frame" alt="Live camera detection frame">
               <div id="box"><div id="boxLabel">DRONE DETECTED</div></div>
               <div id="droneTypeOverlay"></div>
+              <div id="geoOverlayBorder"></div>
+              <div id="geoOverlay">
+                <div id="geoOverlayLevel">CLEAR <span id="geoOverlayTtb"></span></div>
+                <div id="geoOverlayZone">No zone breach</div>
+                <div id="geoOverlayDistance"></div>
+                <div id="geoOverlayAction"></div>
+                <div id="geoOverlayConfirmed">CAMERA CONFIRMED</div>
+              </div>
             </div>
             <div class="frame-meta">
               <span id="frameInfo">Waiting for stream</span>
@@ -354,6 +393,13 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
       </div>
 
       <aside class="right-col">
+        <div class="master-sensor-row">
+          <span class="master-label">SENSOR CONTROL</span>
+          <div class="master-sensor-btns">
+            <button class="master-btn" onclick="toggleAllSensors(true)">START ALL</button>
+            <button class="master-btn stop" onclick="toggleAllSensors(false)">STOP ALL</button>
+          </div>
+        </div>
         <section class="card sensor-card geofence-card" id="geofencePanel">
           <div class="sensor-heading">
             <div class="sensor-name"><span class="sensor-icon">⌖</span> 3D Geo-fence · Zones</div>
@@ -366,6 +412,7 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
         <section class="card sensor-card">
           <div class="sensor-heading">
             <div class="sensor-name"><span class="sensor-icon">◉</span> Radar · MMAUD</div>
+            <label class="sensor-toggle" title="Toggle radar"><input type="checkbox" checked id="toggleRadar" onchange="toggleSensor('radar',this.checked)"><span class="slider"></span></label>
             <span class="small-tag" id="radarTag">NO MODEL OUTPUT</span>
           </div>
           <div class="radar-visual">
@@ -403,6 +450,7 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
         <section class="card sensor-card">
           <div class="sensor-heading">
             <div class="sensor-name"><span class="sensor-icon">↕</span> LiDAR · Avia + Mid360</div>
+            <label class="sensor-toggle" title="Toggle LiDAR"><input type="checkbox" checked id="toggleLidar" onchange="toggleSensor('lidar',this.checked)"><span class="slider"></span></label>
             <span class="small-tag" id="lidarTag">NO MODEL OUTPUT</span>
           </div>
           <div class="lidar-reading">
@@ -427,6 +475,7 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
         <section class="card sensor-card">
           <div class="sensor-heading">
             <div class="sensor-name"><span class="sensor-icon">▥</span> Audio · Acoustic Classifier</div>
+            <label class="sensor-toggle" title="Toggle audio"><input type="checkbox" checked id="toggleAudio" onchange="toggleSensor('audio',this.checked)"><span class="slider"></span></label>
             <span class="small-tag" id="audioTag">NO MODEL OUTPUT</span>
           </div>
           <div class="spectro-visual">
@@ -593,14 +642,14 @@ h1 { font-size: 18px; letter-spacing: .2px; font-weight: 800; color: #fff; }
   <main id="view-alerts" class="view-section">
     <div class="card" style="flex:1">
       <div class="card-head">
-        <div class="card-title">Alerts & Events (stored in SQLite)</div>
+        <div class="card-title">Alerts & Events (real-time from detections)</div>
         <span class="small-tag" id="fullAlertCount">0 EVENTS</span>
       </div>
       <div style="overflow:auto; flex:1; max-height: calc(100vh - 140px)">
         <table class="full-event-table">
-          <thead><tr><th>Time</th><th>Source</th><th>Event</th><th>Zone</th><th>Level</th><th>Details</th><th>Camera</th></tr></thead>
+          <thead><tr><th>Time</th><th>Source</th><th>Event</th><th>Drone Type</th><th>Confidence</th><th>Level</th><th>Sensors</th><th>Location</th><th>Details</th></tr></thead>
           <tbody id="fullEventTableBody">
-            <tr><td colspan="7" style="text-align:center; color:var(--muted); padding:20px;">No events logged yet.</td></tr>
+            <tr><td colspan="9" style="text-align:center; color:var(--muted); padding:20px;">No events logged yet — alerts generated from real detection activity only.</td></tr>
           </tbody>
         </table>
       </div>
@@ -737,6 +786,8 @@ let ws = null, liveMap = null, planMap = null, follow = false;
 const ST = {
   site: null, zones: [], mission: null, tel: null, geofence: null, sensors: {},
   mmaud: null, mmaudAvailable: false, sensorGeofence: null, sensorTrack: [],
+  sensorStates: { radar: true, lidar: true, audio: true, camera: true },
+  fusion: null, dataMode: "UNKNOWN",
   track: [], alt: [], sensorAlt: [], lastFrame: null, framesSeen: 0, droneCount: 0, latestConf: 0,
   prevCamDrone: null, eventCount: 0, breaches: 0, maxLevel: 0, lastLevel: 0, allEvents: [],
 };
@@ -997,6 +1048,7 @@ function connectServer() {
       case "event": onEvent(msg.event, true); break;
       case "zones": ST.zones = msg.zones; if (!PL.zonesDirty) loadPlannerZones(); renderZoneList(); break;
       case "mission": ST.mission = msg.mission; if (!PL.missionDirty) loadPlannerMission(); break;
+      case "sensor_state": updateSensorToggles(msg.states); break;
       case "error": setStatus(msg.message); addLog(msg.message, "warn"); break;
     }
   };
@@ -1014,6 +1066,7 @@ function onHello(msg) {
   ST.track = msg.track || [];
   ST.sensorTrack = msg.sensor_track || [];
   ST.mmaudAvailable = !!msg.mmaud_available;
+  ST.dataMode = msg.data_mode || "UNKNOWN";
   $("siteName").textContent = ST.site.site_name;
   const rr = ((ST.site.sensors || {}).radar || {}).range_m || 1000;
   $("ringLabel").textContent = `${Math.round(rr / 2)} m`;
@@ -1023,6 +1076,37 @@ function onHello(msg) {
   (msg.events || []).slice().reverse().forEach(e => onEvent(e, false));
   addLog(`Site: ${ST.site.site_name} · ${ST.zones.length} geo-fence zones · mission ${ST.mission.file || ""}`);
   if (ST.mmaudAvailable) addLog("MMAUD feed loaded — radar/LiDAR data active.");
+  if (msg.sensor_states) updateSensorToggles(msg.sensor_states);
+  // Data mode banner
+  const banner = $("dataModeBanner");
+  if (ST.dataMode === "DATASET_REPLAY") {
+    banner.classList.add("show");
+    addLog("DATA MODE: DATASET REPLAY — All sensor data from MMAUD dataset, not live hardware.", "warn");
+  } else if (ST.dataMode === "LIVE") {
+    banner.innerHTML = '<span class="mode-dot" style="background:var(--green)"></span>LIVE — Connected to real sensor hardware';
+    banner.style.borderColor = "#1c523b"; banner.style.color = "var(--green)";
+    banner.classList.add("show");
+  }
+}
+
+// ====================================================== sensor toggles ==
+function toggleSensor(name, enabled) {
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ type: "sensor_toggle", sensor: name, enabled: enabled }));
+  }
+  ST.sensorStates[name] = enabled;
+}
+function toggleAllSensors(enabled) {
+  ["radar", "lidar", "audio", "camera"].forEach(s => toggleSensor(s, enabled));
+}
+function updateSensorToggles(states) {
+  if (!states) return;
+  ST.sensorStates = Object.assign(ST.sensorStates, states);
+  const map = { camera: "toggleCamera", radar: "toggleRadar", lidar: "toggleLidar", audio: "toggleAudio" };
+  for (const [sensor, id] of Object.entries(map)) {
+    const cb = $(id);
+    if (cb) cb.checked = !!states[sensor];
+  }
 }
 
 // ====================================================== camera feed ==
@@ -1051,7 +1135,8 @@ function displayFrame(msg) {
   }
 
   $("frameInfo").textContent = `Frame ${msg.index + 1}/${msg.total} · ${msg.drone_type || ""} · ${msg.frame_name}`;
-  $("feedTag").textContent = "STREAM LIVE"; $("feedTag").className = "small-tag ok";
+  const feedLabel = ST.dataMode === "DATASET_REPLAY" ? "REPLAY" : "LIVE";
+  $("feedTag").textContent = feedLabel; $("feedTag").className = "small-tag " + (ST.dataMode === "DATASET_REPLAY" ? "warn" : "ok");
   if (msg.drone === true) {
     ST.droneCount++; ST.latestConf = Math.round((msg.confidence || 0) * 100);
     $("boxLabel").textContent = `DRONE ${ST.latestConf}%`;
@@ -1104,6 +1189,8 @@ function onTelemetry(m) {
   if (m.mmaud) ST.mmaud = m.mmaud;
   if (m.mmaud_status) ST.mmaudAvailable = m.mmaud_status.available;
   if (m.sensor_geofence) ST.sensorGeofence = m.sensor_geofence;
+  if (m.fusion) ST.fusion = m.fusion;
+  if (m.data_mode) ST.dataMode = m.data_mode;
   const g = m.geofence; ST.geofence = g;
   ST.camConfirmed = !!(g && g.camera_confirmed);
   const ok = m.link === "OK";
@@ -1210,13 +1297,99 @@ function onTelemetry(m) {
   $("statMavSrc").textContent = m.source || "—";
   $("statMavRate").textContent = ok ? `${m.rate_hz} msg/s` : m.link;
   $("statVehicle").textContent = m.sysid ? `sysid ${m.sysid} · ${m.autopilot} · ${m.armed ? "armed" : "disarmed"}` : "—";
-  $("statMmaud").textContent = ST.mmaudAvailable ? `ACTIVE · ${(m.mmaud_status || {}).windows || 0} windows` : "NOT LOADED";
+  $("statMmaud").textContent = ST.mmaudAvailable ? `ACTIVE · ${(m.mmaud_status || {}).windows || 0} windows · ${ST.dataMode || ""}` : "NOT LOADED";
+  // Fusion status display
+  const fusionEl = $("fusionMode");
+  if (fusionEl && ST.fusion && ST.fusion.detected) {
+    fusionEl.textContent = `${ST.fusion.sensor_count} SENSORS · ${ST.fusion.drone_type || "?"}`;
+    fusionEl.className = "small-tag ok";
+  } else if (fusionEl) {
+    fusionEl.textContent = "NO DETECTION";
+    fusionEl.className = "small-tag";
+  }
 
   if (effLvl < 3 && ST.lastLevel >= 3) $("alertBanner").classList.remove("show");
   ST.lastLevel = effLvl;
 
-  renderZoneList(); renderRadar(); renderLidarAudio(); renderMmaud(); renderAltChart(); renderFusion(); renderTargets(); renderC2Extra(); renderAnalyticsExtra(); renderEnv3d(); renderSensorCorrelation();
+  renderZoneList(); renderRadar(); renderLidarAudio(); renderMmaud(); renderAltChart(); renderFusion(); renderTargets(); renderC2Extra(); renderAnalyticsExtra(); renderEnv3d(); renderSensorCorrelation(); updateGeoOverlay();
   liveMap && liveMap.requestRender();
+}
+
+function updateGeoOverlay() {
+  const g = ST.geofence;
+  const sg = ST.sensorGeofence;
+  const effLvl = Math.max(g ? g.level : 0, sg ? sg.level : 0);
+  const col = LEVEL_COLORS[effLvl];
+
+  $("geoOverlayLevel").firstChild.textContent = LEVEL_NAMES[effLvl] + " ";
+  $("geoOverlayLevel").style.color = col;
+  $("geoOverlayBorder").style.background = col;
+
+  // Video wrap border glow — aligns geofence state with the feed visually
+  const vw = $("videoWrap");
+  vw.classList.remove("geo-advisory", "geo-warning", "geo-breach", "geo-critical");
+  if (effLvl >= 4) vw.classList.add("geo-critical");
+  else if (effLvl >= 3) vw.classList.add("geo-breach");
+  else if (effLvl >= 2) vw.classList.add("geo-warning");
+  else if (effLvl >= 1) vw.classList.add("geo-advisory");
+
+  // Overlay border matches threat level
+  $("geoOverlay").style.borderColor = effLvl > 0 ? col : "#162636";
+
+  const ttb = g && g.time_to_breach_s;
+  const ttbEl = $("geoOverlayTtb");
+  if (ttb != null && ttb > 0) {
+    ttbEl.textContent = `${ttb.toFixed(0)}s to breach`;
+    ttbEl.style.display = "inline";
+  } else {
+    ttbEl.textContent = "";
+    ttbEl.style.display = "none";
+  }
+
+  const bestGeo = g || sg;
+  const allZones = [];
+  const closestZone = { dist: Infinity, closing: 0, name: "" };
+  if (bestGeo && bestGeo.zones) {
+    bestGeo.zones.forEach(z => {
+      if (z.inside) allZones.push(z.name);
+      if (z.distance_m != null && z.distance_m < closestZone.dist && (z.kind === "restricted" || z.kind === "critical")) {
+        closestZone.dist = z.distance_m;
+        closestZone.closing = z.closing_mps || 0;
+        closestZone.name = z.name;
+      }
+    });
+  }
+  $("geoOverlayZone").textContent = allZones.length ? allZones.join(", ") : (effLvl > 0 ? "Approaching zone" : "No zone breach");
+
+  // Distance to nearest protected zone
+  const distEl = $("geoOverlayDistance");
+  if (closestZone.dist < Infinity && !allZones.length) {
+    let distText = `${closestZone.dist.toFixed(0)}m to ${closestZone.name}`;
+    if (closestZone.closing > 0.3) distText += ` · ${closestZone.closing.toFixed(1)} m/s closing`;
+    distEl.textContent = distText;
+    distEl.style.display = "block";
+  } else {
+    distEl.style.display = "none";
+  }
+
+  $("geoOverlayAction").textContent = bestGeo ? (bestGeo.recommended_action || "").slice(0, 60) : "";
+
+  // Camera-confirmed badge
+  const confirmed = !!(bestGeo && bestGeo.camera_confirmed);
+  const confEl = $("geoOverlayConfirmed");
+  confEl.style.display = confirmed && effLvl >= 1 ? "block" : "none";
+
+  const border = $("geoOverlayBorder");
+  if (effLvl >= 3) {
+    border.style.height = "5px";
+    border.style.boxShadow = "0 0 12px " + col;
+  } else if (effLvl >= 1) {
+    border.style.height = "4px";
+    border.style.boxShadow = "0 0 6px " + col;
+  } else {
+    border.style.height = "3px";
+    border.style.boxShadow = "none";
+  }
 }
 
 function renderZoneList() {
@@ -1415,8 +1588,12 @@ function renderFusion() {
         mm.avia && mm.avia.detected && mm.avia.position ? `${mm.avia.position.range.toFixed(0)} m` : "—") +
       row("MID360 (LiDAR 360°)", "MMAUD feed", mm.mid360 && mm.mid360.detected ? "DETECTED" : "SCANNING", !!(mm.mid360 && mm.mid360.detected),
         mm.mid360 && mm.mid360.detected && mm.mid360.position ? `${mm.mid360.position.range.toFixed(0)} m` : "—") +
-      row("FUSION", "MMAUD placeholder", mm.fusion && mm.fusion.detected ? "DETECTED" : "CLEAR", !!(mm.fusion && mm.fusion.detected),
-        mm.fusion && mm.fusion.detected ? `${mm.fusion.size || "?"} · ${mm.fusion.top_types.map(t => `${t.type} ${t.prob}%`).join(", ")}` : "—");
+      row("MMAUD FUSION", "MMAUD placeholder", mm.fusion && mm.fusion.detected ? "DETECTED" : "CLEAR", !!(mm.fusion && mm.fusion.detected),
+        mm.fusion && mm.fusion.detected ? `${mm.fusion.size || "?"} · ${mm.fusion.top_types.map(t => `${t.type} ${t.prob}%`).join(", ")}` : "—") +
+      (ST.fusion && ST.fusion.detected ?
+        row("MULTI-SENSOR FUSION", `${ST.fusion.sensor_count} sensors`, "TRACKING", true,
+          `${ST.fusion.drone_type || "?"} ${(ST.fusion.confidence * 100).toFixed(0)}% · [${ST.fusion.contributing_sensors.join("+")}]`) :
+        row("MULTI-SENSOR FUSION", "engine", "NO TARGET", false, "—"));
   } else {
     // Legacy mode
     const sens = n => s[n] ? row(n.toUpperCase(), `data/${n}/…json`, s[n].available ? "REPLAYING" : "NO MODEL OUTPUT", s[n].available, esc(s[n].message)) : "";
@@ -1477,6 +1654,14 @@ function renderTargets() {
     }
   }
 
+  // Multi-sensor fusion target (server-side fusion engine)
+  const fus = ST.fusion;
+  if (fus && fus.detected && fus.position) {
+    const fp = fus.position;
+    const sLvl = ST.sensorGeofence ? ST.sensorGeofence.level : 0;
+    rows += `<tr style="background:#0a1e2e"><td style="color:var(--green);font-weight:800">FUSED-TRK-${fus.track_id}</td><td style="color:var(--green)">${fus.contributing_sensors.join("+")}</td><td>${fp.lat.toFixed(6)}, ${fp.lon.toFixed(6)}</td><td>${fp.alt.toFixed(1)} m</td><td>—</td><td><span class="lvl-chip" style="color:${LEVEL_COLORS[sLvl]}">${LEVEL_NAMES[sLvl]}</span> <b>${fus.drone_type || "?"}</b> ${(fus.confidence * 100).toFixed(0)}%</td></tr>`;
+  }
+
   if (!rows) rows = `<tr><td colspan="6" style="text-align:center;color:var(--dim)">No targets detected</td></tr>`;
   $("targetsBody").innerHTML = rows;
 }
@@ -1535,25 +1720,46 @@ function renderSensorCorrelation() {
     if (mm.radar && mm.radar.detected && mm.radar.position && mm.radar.position.lat) positions.push({ name: "Radar", ...mm.radar.position });
     if (mm.avia && mm.avia.detected && mm.avia.position && mm.avia.position.lat) positions.push({ name: "Avia", ...mm.avia.position });
     if (mm.mid360 && mm.mid360.detected && mm.mid360.position && mm.mid360.position.lat) positions.push({ name: "Mid360", ...mm.mid360.position });
-    if (mm.fusion && mm.fusion.detected && mm.fusion.position && mm.fusion.position.lat) positions.push({ name: "Fusion", ...mm.fusion.position });
+    if (mm.fusion && mm.fusion.detected && mm.fusion.position && mm.fusion.position.lat) positions.push({ name: "MMAUD Fusion", ...mm.fusion.position });
+
+    // Add server-side fusion engine result (weighted multi-sensor fusion)
+    const fus = ST.fusion;
+    if (fus && fus.detected && fus.position) {
+      positions.push({ name: "Fused (weighted)", ...fus.position, isFused: true });
+    }
 
     if (positions.length >= 2) {
       html += `<table class="full-event-table" style="margin-bottom:8px"><thead><tr><th>Sensor</th><th>Lat</th><th>Lon</th><th>Alt m</th><th>Range m</th></tr></thead><tbody>`;
       positions.forEach(p => {
-        html += `<tr><td style="color:var(--teal)">${p.name}</td><td>${p.lat.toFixed(6)}</td><td>${p.lon.toFixed(6)}</td><td>${(p.alt || 0).toFixed(1)}</td><td>${p.range ? p.range.toFixed(0) : "—"}</td></tr>`;
+        const style = p.isFused ? 'color:var(--green);font-weight:800' : 'color:var(--teal)';
+        html += `<tr><td style="${style}">${p.name}</td><td>${p.lat.toFixed(6)}</td><td>${p.lon.toFixed(6)}</td><td>${(p.alt || 0).toFixed(1)}</td><td>${p.range ? p.range.toFixed(0) : "—"}</td></tr>`;
       });
       html += `</tbody></table>`;
-      // Compute spread between sensors
-      const lats = positions.map(p => p.lat), lons = positions.map(p => p.lon);
-      const latSpread = (Math.max(...lats) - Math.min(...lats)) * 111320;
-      const lonSpread = (Math.max(...lons) - Math.min(...lons)) * 111320 * Math.cos(lats[0] * Math.PI / 180);
-      const spread = Math.sqrt(latSpread * latSpread + lonSpread * lonSpread);
-      const tight = spread < 50;
-      html += `<div style="color:${tight ? "var(--green)" : "var(--amber)"};font-weight:700">Position spread: ${spread.toFixed(1)} m ${tight ? "· TIGHT CORRELATION" : "· MODERATE SPREAD"}</div>`;
+      const rawPos = positions.filter(p => !p.isFused);
+      if (rawPos.length >= 2) {
+        const lats = rawPos.map(p => p.lat), lons = rawPos.map(p => p.lon);
+        const latSpread = (Math.max(...lats) - Math.min(...lats)) * 111320;
+        const lonSpread = (Math.max(...lons) - Math.min(...lons)) * 111320 * Math.cos(lats[0] * Math.PI / 180);
+        const spread = Math.sqrt(latSpread * latSpread + lonSpread * lonSpread);
+        const tight = spread < 50;
+        html += `<div style="color:${tight ? "var(--green)" : "var(--amber)"};font-weight:700">Position spread: ${spread.toFixed(1)} m ${tight ? "· TIGHT CORRELATION" : "· MODERATE SPREAD"}</div>`;
+      }
     } else if (positions.length === 1) {
       html = `<div>Only <b>${positions[0].name}</b> reporting position: ${positions[0].lat.toFixed(6)}, ${positions[0].lon.toFixed(6)} at ${(positions[0].alt || 0).toFixed(1)} m</div>`;
     } else {
       html = `<div style="color:var(--muted)">No sensor positions available in current window.</div>`;
+    }
+
+    // Show fusion engine summary
+    if (fus && fus.detected) {
+      html += `<div style="margin-top:8px;padding:6px 10px;background:rgba(0,242,254,0.06);border:1px solid rgba(0,242,254,0.2);border-radius:4px">`;
+      html += `<div style="font-weight:800;color:var(--teal);margin-bottom:4px">Multi-Sensor Fusion Engine</div>`;
+      html += `<div style="font-size:10px">Track #${fus.track_id} · <b style="color:#fff">${fus.drone_type || "unknown"}</b> · ${(fus.confidence * 100).toFixed(0)}% confidence</div>`;
+      html += `<div style="font-size:10px;color:var(--muted)">Contributing: ${fus.contributing_sensors.join(", ")}</div>`;
+      if (fus.class_votes && Object.keys(fus.class_votes).length > 0) {
+        html += `<div style="font-size:9px;color:var(--muted);margin-top:2px">Votes: ${Object.entries(fus.class_votes).map(([k,v]) => `${k}:${(v*100).toFixed(0)}%`).join(" · ")}</div>`;
+      }
+      html += `</div>`;
     }
     posEl.innerHTML = html;
   }
@@ -1817,21 +2023,35 @@ function onEvent(e, live) {
   if (ST.allEvents.length === 1) tbody.innerHTML = "";
   const row = document.createElement("tr");
   const when = new Date((e.ts || Date.now() / 1000) * 1000).toLocaleTimeString();
+  const droneType = e.drone_type || "";
+  const conf = e.confidence != null ? `${(e.confidence * 100).toFixed(0)}%` : "";
+  const sensors = (e.contributing_sensors || "").split(",").filter(Boolean).join(", ") || (e.source || "").toUpperCase();
+  const loc = (e.lat != null && e.lon != null) ? `${e.lat.toFixed(5)}, ${e.lon.toFixed(5)}` : "";
+  const altStr = e.alt != null ? ` · ${e.alt.toFixed(0)}m` : "";
   row.innerHTML = `<td>${when}</td><td style="color:var(--teal)">${esc((e.source || "").toUpperCase())}</td><td>${esc(e.kind)}</td>
-    <td>${esc(e.zone || "")}</td><td><span class="lvl-chip" style="color:${LEVEL_COLORS[lvl]}">${esc(e.level_name || LEVEL_NAMES[lvl])}</span></td>
-    <td style="font-family:inherit">${esc(e.message)}</td><td>${e.camera_confirmed ? "✔" : ""}</td>`;
+    <td style="color:var(--teal);font-weight:700">${esc(droneType)}</td>
+    <td style="font-weight:700;color:${conf && parseFloat(conf)>=70 ? 'var(--green)' : conf ? 'var(--amber)' : 'var(--muted)'}">${conf || "—"}</td>
+    <td><span class="lvl-chip" style="color:${LEVEL_COLORS[lvl]}">${esc(e.level_name || LEVEL_NAMES[lvl])}</span></td>
+    <td style="font-size:9px">${esc(sensors)}</td>
+    <td style="font-size:9px">${esc(loc)}${esc(altStr)}</td>
+    <td style="font-family:inherit">${esc(e.message)}</td>`;
   tbody.insertBefore(row, tbody.firstChild);
   while (tbody.children.length > 500) tbody.removeChild(tbody.lastChild);
   const alerts = ST.allEvents.filter(x => (x.level || 0) >= 2).length;
   $("alertNavCount").textContent = alerts;
   $("fullAlertCount").textContent = `${ST.allEvents.length} EVENTS · ${alerts} ALERTS`;
   if (!live) return;
-  addLog(e.message, lvl >= 3 ? "drone" : lvl === 2 ? "warn" : (e.kind === "ZONE_EXIT" ? "clear" : "system"));
+  const logMsg = droneType ? `[${droneType}] ${e.message}` : e.message;
+  addLog(logMsg, lvl >= 3 ? "drone" : lvl === 2 ? "warn" : (e.kind === "ZONE_EXIT" || e.kind === "TRACK_LOST" ? "clear" : "system"));
   if ((e.kind === "ZONE_ENTER" || e.kind === "LEVEL_CHANGE") && lvl >= 3) {
-    $("alertBanner").textContent = `${LEVEL_NAMES[lvl]} · ${e.message}`;
+    const bannerText = droneType ? `${LEVEL_NAMES[lvl]} · ${droneType} · ${e.message}` : `${LEVEL_NAMES[lvl]} · ${e.message}`;
+    $("alertBanner").textContent = bannerText;
     $("alertBanner").style.background = LEVEL_COLORS[lvl];
     $("alertBanner").classList.add("show");
     beep();
+  }
+  if (e.kind === "DETECTION" && live) {
+    toast(`New detection: ${droneType || "drone"} by ${sensors} (${conf || "?"})`);
   }
 }
 async function operatorAction(action) {

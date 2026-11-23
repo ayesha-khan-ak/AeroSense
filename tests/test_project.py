@@ -1,17 +1,17 @@
-﻿from pathlib import Path
+﻿﻿from pathlib import Path
 import ast
 import json
 
 ROOT = Path(__file__).resolve().parents[1]
 
-PY_FILES = ["server.py", "make_detections.py", "make_test_frames.py", "geo.py", "geofence.py",
+PY_FILES = ["server.py", "generate_sensor_data.py", "geo.py", "geofence.py",
             "mavlink_lite.py", "qgc_plan.py", "sim_drone.py", "sensor_adapters.py",
             "tools/build_campus_demo.py", "tools/convert_sensor_output.py"]
 
 
 def test_required_project_files_exist():
     required = PY_FILES + ["test_dashboard.html", "static/aeromap.js", "requirements.txt",
-                           "requirements_detection.txt", "data/site_config.json",
+                           "data/site_config.json",
                            "data/geofence/fast_campus_zones.json",
                            "data/missions/fast_intruder_demo.plan"]
     for filename in required:
