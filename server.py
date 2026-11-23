@@ -52,7 +52,7 @@ SITE_FILE = HERE / "data" / "site_config.json"
 ZONES_FILE = HERE / "data" / "geofence" / "fast_campus_zones.json"
 MISSION_FILE = HERE / "data" / "missions" / "fast_intruder_demo.plan"
 DB_FILE = HERE / "data" / "aerosense_events.db"
-MMAUD_FEED_FILE = HERE / "data" / "frontend_demo_feed.json"
+MMAUD_FEED_FILE = HERE / "data" / "mmaud_real_feed.json"
 TELEMETRY_HZ = 5
 LINK_TIMEOUT_S = 3.0
 RUN_SIM = os.environ.get("AEROSENSE_SIM", "0") == "1"
@@ -65,6 +65,67 @@ DRONE_TYPES = [
     {"name": "Mavic_3",   "frames": "data/test_frames/Mavic_3",   "detections": "data/Mavic_3_detections.json"},
     {"name": "Phantom_4", "frames": "data/test_frames/Phantom_4", "detections": "data/Phantom_4_detections.json"},
 ]
+
+# Simulated flight path timed to match camera sequence — so the drone
+# moves on the geofence map even without MAVLink hardware.
+# Avata(185 fr / 10fps = 18.5s): approaching from outside
+# M300(72 fr = 7.2s): entering restricted zone
+# Mavic_2(90 fr = 9.0s): approaching critical
+# Mavic_3(142 fr = 14.2s): inside critical, loitering
+# Phantom_4(164 fr = 16.4s): exiting
+SIM_FLIGHT_PATH = [
+    (0.0,  33.6520, 73.0100, 80),
+    (4.0,  33.6528, 73.0115, 85),
+    (8.0,  33.6535, 73.0130, 90),
+    (12.0, 33.6540, 73.0140, 90),
+    (16.0, 33.6545, 73.0148, 85),
+    (18.5, 33.6548, 73.0152, 80),
+    (20.0, 33.6550, 73.0155, 75),
+    (22.0, 33.6553, 73.0158, 70),
+    (24.0, 33.6556, 73.0160, 65),
+    (25.7, 33.6558, 73.0162, 60),
+    (27.0, 33.6559, 73.0162, 55),
+    (29.0, 33.6561, 73.0163, 50),
+    (31.0, 33.6563, 73.0164, 45),
+    (33.0, 33.6564, 73.0165, 40),
+    (34.7, 33.6565, 73.0166, 35),
+    (36.0, 33.6566, 73.0166, 32),
+    (38.0, 33.6567, 73.0167, 30),
+    (40.0, 33.6566, 73.0168, 28),
+    (42.0, 33.6565, 73.0167, 30),
+    (44.0, 33.6564, 73.0166, 32),
+    (46.0, 33.6565, 73.0165, 33),
+    (48.0, 33.6566, 73.0166, 30),
+    (48.9, 33.6567, 73.0167, 32),
+    (50.0, 33.6568, 73.0168, 38),
+    (52.0, 33.6570, 73.0170, 45),
+    (54.0, 33.6572, 73.0172, 55),
+    (56.0, 33.6575, 73.0175, 65),
+    (58.0, 33.6578, 73.0180, 75),
+    (60.0, 33.6582, 73.0185, 85),
+    (62.0, 33.6588, 73.0192, 100),
+    (65.3, 33.6595, 73.0200, 120),
+]
+SIM_FLIGHT_DURATION = 65.3
+
+def _interp_flight(t):
+    """Interpolate simulated drone position at time t (loops every 65.3s)."""
+    t = t % SIM_FLIGHT_DURATION
+    path = SIM_FLIGHT_PATH
+    if t <= path[0][0]:
+        return path[0][1], path[0][2], path[0][3]
+    if t >= path[-1][0]:
+        return path[-1][1], path[-1][2], path[-1][3]
+    for i in range(1, len(path)):
+        if t <= path[i][0]:
+            t0, lat0, lon0, alt0 = path[i-1]
+            t1, lat1, lon1, alt1 = path[i]
+            frac = (t - t0) / max(t1 - t0, 1e-6)
+            return (lat0 + (lat1 - lat0) * frac,
+                    lon0 + (lon1 - lon0) * frac,
+                    alt0 + (alt1 - alt0) * frac)
+    return path[-1][1], path[-1][2], path[-1][3]
+
 # ---------------------------------------------
 
 
@@ -76,52 +137,59 @@ DRONE_SIZES = {"Avata": "small", "M300": "large", "Mavic2": "medium",
 
 
 class MMAUDFeedReplay:
-    """Replays frontend_demo_feed.json from the MMAUD dataset.
+    """Replays real MMAUD dataset windows grouped by drone type.
 
-    The feed is a list of 'windows' at 5 Hz. Each window has keys for each
-    sensor (radar, avia, mid360) and a placeholder_fusion, each with:
-      detected: bool
-      position: {x,y,z} or [x,y,z] or null
-      class_probs: {Avata:0.6, ...} or [0.6, ...] or null
+    The real feed is a list of dicts with keys: drone_true, window, t,
+    gt_position, drone_in_view, sensors: {radar, avia, mid360},
+    placeholder_fusion.  Windows are grouped by drone_true so the dashboard
+    can request data for the drone type the camera is currently showing.
     """
 
     DRONE_NAMES = ["Avata", "M300", "Mavic2", "Mavic3", "Pham4"]
+    CAMERA_TO_MMAUD = {"Avata": "Avata", "M300": "M300", "Mavic_2": "Mavic2",
+                       "Mavic_3": "Mavic3", "Phantom_4": "Pham4"}
 
     def __init__(self, path, site, heading_deg=0.0):
         self.path = Path(path)
         self.site = site
         self.heading = heading_deg
-        self.windows = []
-        self.duration = 0.0
-        self.rate_hz = 5.0
+        self.by_drone: dict[str, list[dict]] = {}
+        self.all_windows: list[dict] = []
         self.error = ""
+        self._cursor: dict[str, int] = {}
         self.load()
 
     @property
     def available(self):
-        return bool(self.windows)
+        return bool(self.all_windows)
 
     def load(self):
-        self.windows, self.error = [], ""
+        self.by_drone, self.all_windows, self.error = {}, [], ""
+        self._cursor = {}
         if not self.path.exists():
-            self.error = f"Place frontend_demo_feed.json in data/ folder"
+            self.error = f"Place mmaud_real_feed.json in data/ folder"
             return
         try:
             raw = json.loads(self.path.read_text(encoding="utf-8"))
             if isinstance(raw, dict) and "windows" in raw:
-                self.windows = raw["windows"]
+                windows = raw["windows"]
             elif isinstance(raw, list):
-                self.windows = raw
+                windows = raw
             else:
                 raise ValueError("Expected a list of windows or {windows:[...]}")
-            self.duration = len(self.windows) / self.rate_hz
-            print(f"[mmaud] loaded {len(self.windows)} windows from {self.path.name} ({self.duration:.1f} s)")
+            self.all_windows = windows
+            for w in windows:
+                dtype = w.get("drone_true", "unknown")
+                self.by_drone.setdefault(dtype, []).append(w)
+            for dtype in self.by_drone:
+                self._cursor[dtype] = 0
+            summary = ", ".join(f"{k}: {len(v)}" for k, v in self.by_drone.items())
+            print(f"[mmaud] loaded {len(windows)} real windows ({summary})")
         except Exception as e:
             self.error = f"could not load MMAUD feed: {e}"
-            self.windows = []
+            self.all_windows = []
 
     def _parse_position(self, pos):
-        """Parse position from various formats: {x,y,z}, [x,y,z], or null."""
         if pos is None:
             return None
         if isinstance(pos, dict):
@@ -131,7 +199,6 @@ class MMAUDFeedReplay:
         return None
 
     def _parse_class_probs(self, probs):
-        """Parse class_probs from dict or list format."""
         if probs is None:
             return {}
         if isinstance(probs, dict):
@@ -141,7 +208,6 @@ class MMAUDFeedReplay:
         return {}
 
     def _pos_to_latlon(self, xyz):
-        """Convert sensor_xyz (x forward, y left, z up) to lat/lon/alt."""
         if xyz is None:
             return None
         x, y, z = xyz
@@ -153,84 +219,111 @@ class MMAUDFeedReplay:
         return {"lat": lat, "lon": lon, "alt": alt, "range": rng, "azimuth": az, "elevation": el}
 
     def _classify_size(self, class_probs):
-        """Classify drone size from class_probs."""
         if not class_probs:
             return "unknown"
         top = max(class_probs, key=class_probs.get)
         return DRONE_SIZES.get(top, "medium")
 
     def _top_types(self, class_probs, n=2):
-        """Return top-n drone types with percentages."""
         if not class_probs:
             return []
         sorted_probs = sorted(class_probs.items(), key=lambda x: x[1], reverse=True)
         return [{"type": k, "prob": round(v * 100, 1)} for k, v in sorted_probs[:n]]
 
-    def _parse_sensor(self, window, sensor_key):
-        """Parse one sensor's data from a window."""
-        data = window.get(sensor_key, {})
-        if data is None:
-            data = {}
-        detected = bool(data.get("detected", False))
-        raw_pos = self._parse_position(data.get("position"))
-        class_probs = self._parse_class_probs(data.get("class_probs"))
+    def _parse_sensor_real(self, sensor_data):
+        """Parse one sensor from the real MMAUD format (sensors.radar etc)."""
+        if sensor_data is None:
+            sensor_data = {}
+        detected = bool(sensor_data.get("detected", False))
+        raw_pos = self._parse_position(sensor_data.get("position"))
+        class_probs = self._parse_class_probs(sensor_data.get("class_probs"))
+        score = float(sensor_data.get("score", 0.0))
         pos_map = self._pos_to_latlon(raw_pos) if detected and raw_pos else None
-        result = {
+        return {
             "detected": detected,
+            "score": round(score, 3),
             "position": pos_map,
             "class_probs": class_probs,
             "size": self._classify_size(class_probs) if detected else None,
             "top_types": self._top_types(class_probs) if detected else [],
         }
+
+    def at_for_drone(self, camera_drone_type):
+        """Get the next MMAUD window for the given camera drone type.
+        Falls back to the closest available type if no data exists."""
+        if not self.all_windows:
+            return None
+        mmaud_name = self.CAMERA_TO_MMAUD.get(camera_drone_type, camera_drone_type)
+        windows = self.by_drone.get(mmaud_name)
+        if not windows:
+            fallback_order = {"Pham4": ["Mavic3", "Mavic2", "M300", "Avata"],
+                              "Avata": ["Mavic2", "Mavic3", "M300"],
+                              "M300": ["Mavic3", "Mavic2", "Avata"]}
+            for fb in fallback_order.get(mmaud_name, list(self.by_drone.keys())):
+                if fb in self.by_drone:
+                    windows = self.by_drone[fb]
+                    mmaud_name = fb
+                    break
+            if not windows:
+                return None
+        idx = self._cursor.get(mmaud_name, 0) % len(windows)
+        self._cursor[mmaud_name] = idx + 1
+        window = windows[idx]
+
+        sensors = window.get("sensors", {})
+        result = {
+            "window_index": idx,
+            "total_windows": len(windows),
+            "drone_true": window.get("drone_true", ""),
+            "drone_in_view": window.get("drone_in_view", False),
+            "gt_position": window.get("gt_position"),
+            "radar": self._parse_sensor_real(sensors.get("radar")),
+            "avia": self._parse_sensor_real(sensors.get("avia")),
+            "mid360": self._parse_sensor_real(sensors.get("mid360")),
+            "fusion": self._parse_sensor_real(window.get("placeholder_fusion")),
+        }
         return result
 
     def at(self, elapsed_s):
-        """Get the sensor data for the current time (loops)."""
-        if not self.windows:
+        """Legacy fallback: sequential index by time."""
+        if not self.all_windows:
             return None
-        t = elapsed_s % self.duration if self.duration > 0 else 0
-        idx = int(t * self.rate_hz)
-        idx = max(0, min(idx, len(self.windows) - 1))
-        window = self.windows[idx]
-
-        result = {
+        total = len(self.all_windows)
+        idx = int(elapsed_s * 5) % total
+        window = self.all_windows[idx]
+        sensors = window.get("sensors", {})
+        return {
             "window_index": idx,
-            "total_windows": len(self.windows),
-            "radar": self._parse_sensor(window, "radar"),
-            "avia": self._parse_sensor(window, "avia"),
-            "mid360": self._parse_sensor(window, "mid360"),
-            "fusion": self._parse_sensor(window, "placeholder_fusion"),
+            "total_windows": total,
+            "drone_true": window.get("drone_true", ""),
+            "drone_in_view": window.get("drone_in_view", False),
+            "radar": self._parse_sensor_real(sensors.get("radar")),
+            "avia": self._parse_sensor_real(sensors.get("avia")),
+            "mid360": self._parse_sensor_real(sensors.get("mid360")),
+            "fusion": self._parse_sensor_real(window.get("placeholder_fusion")),
         }
-        return result
 
     def status(self):
+        counts = {k: len(v) for k, v in self.by_drone.items()}
         return {
             "available": self.available,
-            "windows": len(self.windows),
-            "duration_s": round(self.duration, 1),
-            "message": self.error or f"{len(self.windows)} MMAUD windows loaded ({self.duration:.1f} s)",
+            "windows": len(self.all_windows),
+            "by_drone": counts,
+            "message": self.error or f"{len(self.all_windows)} real MMAUD windows ({counts})",
         }
 
-    def sensor_detections(self, sensor_key, elapsed_s):
-        """Get detections in the contract format for backward compat with map display."""
-        if not self.windows:
+    def sensor_detections(self, sensor_key, mmaud_data):
+        """Extract detection list from already-parsed mmaud_data for map display."""
+        if not mmaud_data:
             return []
-        t = elapsed_s % self.duration if self.duration > 0 else 0
-        idx = int(t * self.rate_hz)
-        idx = max(0, min(idx, len(self.windows) - 1))
-        window = self.windows[idx]
-        data = window.get(sensor_key, {})
-        if not data or not data.get("detected"):
+        s = mmaud_data.get(sensor_key, {})
+        if not s or not s.get("detected") or not s.get("position"):
             return []
-        raw_pos = self._parse_position(data.get("position"))
-        pos_map = self._pos_to_latlon(raw_pos) if raw_pos else None
-        if not pos_map:
-            return []
-        class_probs = self._parse_class_probs(data.get("class_probs"))
+        pos = s["position"]
         return [{
-            "lat": pos_map["lat"], "lon": pos_map["lon"], "alt": pos_map["alt"],
-            "range": pos_map["range"], "azimuth": pos_map["azimuth"], "elevation": pos_map["elevation"],
-            "confidence": max(class_probs.values()) if class_probs else 0.5,
+            "lat": pos["lat"], "lon": pos["lon"], "alt": pos["alt"],
+            "range": pos["range"], "azimuth": pos["azimuth"], "elevation": pos["elevation"],
+            "confidence": s.get("score", max(s.get("class_probs", {}).values(), default=0.5)),
             "track_id": 1, "label": "drone",
         }]
 
@@ -628,36 +721,30 @@ async def camera_loop():
             await asyncio.sleep(delay)
 
 
-def _camera_confirms() -> bool:
+def _camera_confirms(active_pos=None) -> bool:
     cam = S.camera
-    if not cam["drone"] or time.time() - cam["t"] > 1.0 or not S.tel.pos:
+    if not cam["drone"] or time.time() - cam["t"] > 1.0:
+        return False
+    pos = active_pos or S.tel.pos
+    if not pos:
         return False
     s = S.site["sensor_site"]
-    rng = geo.haversine_m(s["lat"], s["lon"], S.tel.pos["lat"], S.tel.pos["lon"])
+    rng = geo.haversine_m(s["lat"], s["lon"], pos["lat"], pos["lon"])
     return rng <= S.site.get("sensors", {}).get("camera", {}).get("range_m", 700)
 
 
-def _best_sensor_position(mmaud_data, sensor_dets):
-    """Pick the best sensor-detected position for geofence checking.
-
-    Priority: fusion > radar > mid360 > avia (based on accuracy).
-    Returns (lat, lon, alt) or None if no sensor has a detection with position.
-    """
+def _any_sensor_detected(mmaud_data, sensor_dets):
+    """Check if any sensor has a detection (used to gate geofence check)."""
     if mmaud_data:
-        # Try fusion first, then radar, then mid360, then avia
-        for key in ("fusion", "radar", "mid360", "avia"):
+        for key in ("radar", "avia", "mid360"):
             s = mmaud_data.get(key)
-            if s and s.get("detected") and s.get("position"):
-                pos = s["position"]
-                return pos.get("lat"), pos.get("lon"), pos.get("alt", 0)
-    # Fallback: use legacy sensor detections (radar first, then lidar)
+            if s and s.get("detected"):
+                return True
     for name in ("radar", "lidar"):
         dets = sensor_dets.get(name, {}).get("detections", [])
         if dets:
-            d = dets[0]
-            if "lat" in d and "lon" in d:
-                return d["lat"], d["lon"], d.get("alt", 0)
-    return None
+            return True
+    return False
 
 
 def _fuse_geofence(mav_status, sensor_status):
@@ -700,47 +787,69 @@ def _fuse_geofence(mav_status, sensor_status):
 
 
 async def telemetry_loop():
-    """5 Hz: run the geofence on MAVLink + sensor positions and push to dashboards."""
+    """5 Hz: run the geofence on MAVLink/sim positions + MMAUD sensors, push to dashboards."""
     period = 1.0 / TELEMETRY_HZ
     last_sensor_push = 0.0
     while True:
         await asyncio.sleep(period)
         tel = S.tel
         ok = tel.link_ok()
+
+        # ---- Simulated drone position (when no MAVLink) ----
+        now_mono = time.monotonic()
+        elapsed = now_mono - S.t0
+        sim_pos = None
+        if not ok:
+            lat, lon, alt = _interp_flight(elapsed)
+            sim_pos = {"lat": lat, "lon": lon, "alt_msl": alt + 500, "alt_rel": alt,
+                       "heading": 45.0, "vn": 0, "ve": 0, "vd": 0}
+
         if ok != S.link_was_ok:
             ev = {"kind": "LINK_UP" if ok else "LINK_LOST", "level": 0,
                   "message": (f"MAVLink telemetry connected ({tel.autopilot or 'vehicle'} "
                               f"sysid {tel.vehicle_sysid}, {tel.source})") if ok
-                  else "MAVLink telemetry lost"}
-            S.hub.broadcast({"type": "event", "event": S.events.add(ev, tel.pos, "mavlink")})
+                  else "Using simulated flight path (no MAVLink)"}
+            S.hub.broadcast({"type": "event", "event": S.events.add(ev, tel.pos or sim_pos, "mavlink")})
             S.link_was_ok = ok
             if not ok:
                 S.geofence_status = None
 
-        msg = {"type": "telemetry", "link": "OK" if ok else ("LOST" if tel.pos else "WAITING"),
-               "source": tel.source, "rate_hz": round(tel.rate, 1), "packets": tel.packets,
-               "autopilot": tel.autopilot, "sysid": tel.vehicle_sysid, "armed": tel.armed,
-               "battery": tel.battery, "gps_fix": tel.gps_fix, "sats": tel.sats,
+        # Decide which position to use
+        active_pos = tel.pos if ok else sim_pos
+        active_gs = tel.groundspeed if ok else 5.0
+        active_climb = tel.climb if ok else 0.0
+
+        msg = {"type": "telemetry",
+               "link": "OK" if ok else "SIM",
+               "source": tel.source if ok else "sim_flight_path",
+               "rate_hz": round(tel.rate, 1) if ok else TELEMETRY_HZ,
+               "packets": tel.packets,
+               "autopilot": tel.autopilot if ok else "SimPath",
+               "sysid": tel.vehicle_sysid if ok else 1,
+               "armed": tel.armed if ok else True,
+               "battery": tel.battery, "gps_fix": tel.gps_fix if ok else 3,
+               "sats": tel.sats if ok else 12,
                "data_mode": S.data_mode,
                "camera": {"drone": S.camera["drone"], "confidence": S.camera["confidence"],
                           "drone_type": S.camera.get("drone_type", "")}}
-        if tel.pos:
-            p = tel.pos
+
+        if active_pos:
+            p = active_pos
             site = S.site["sensor_site"]
             e, n, u = geo.geodetic_to_enu(p["lat"], p["lon"], p["alt_rel"], site["lat"], site["lon"],
                                           site.get("height_agl", 0.0))
             rng, az, el = geo.enu_to_polar(e, n, u)
-            msg["drone"] = {**p, "groundspeed": round(tel.groundspeed, 2), "climb": round(tel.climb, 2)}
+            msg["drone"] = {**p, "groundspeed": round(active_gs, 2), "climb": round(active_climb, 2)}
             msg["relative"] = {"range_m": round(rng, 1), "bearing_deg": round(az, 1),
                                "elevation_deg": round(el, 1)}
 
-        # ---- MAVLink geofence (when link is up) ----
+        # ---- Geofence (MAVLink or sim position) ----
         mav_geofence = None
-        if ok:
-            p = tel.pos
-            cam = _camera_confirms()
-            sample = TrackSample(time.time(), p["lat"], p["lon"], p["alt_rel"], tel.groundspeed,
-                                 tel.climb, p["heading"] or 0.0)
+        if active_pos:
+            p = active_pos
+            cam = _camera_confirms(active_pos)
+            sample = TrackSample(time.time(), p["lat"], p["lon"], p["alt_rel"], active_gs,
+                                 active_climb, p.get("heading") or 0.0)
             mav_geofence, events = S.monitor.update(sample, cam)
             for ev in events:
                 S.hub.broadcast({"type": "event", "event": S.events.add(ev, p)})
@@ -748,41 +857,41 @@ async def telemetry_loop():
                             mav_geofence["level"]])
             del S.track[:-600]
 
-        # ---- Sensor data (MMAUD or legacy) ----
-        now = time.monotonic()
-        elapsed = now - S.t0
+        # ---- Sensor data (MMAUD synced to current camera drone type) ----
         mmaud_data = None
         sensor_dets = {}
         se = S.sensor_enabled
+        camera_dtype = S.camera.get("drone_type", "")
 
-        if now - last_sensor_push >= 0.2:   # run at 5 Hz (match MMAUD rate)
-            last_sensor_push = now
+        if now_mono - last_sensor_push >= 0.2:
+            last_sensor_push = now_mono
 
-            if S.mmaud.available:
-                mmaud_data = S.mmaud.at(elapsed)
-                if se.get("radar", True) or se.get("lidar", True):
-                    msg["mmaud"] = mmaud_data
-                msg["mmaud_status"] = S.mmaud.status()
-                sensor_dets = {
-                    "radar": {
-                        "sensor": "radar", "available": se.get("radar", True),
-                        "message": f"MMAUD radar · window {mmaud_data['window_index']}/{mmaud_data['total_windows']}" if se.get("radar", True) else "Radar STOPPED",
-                        "detections": S.mmaud.sensor_detections("radar", elapsed) if se.get("radar", True) else [],
-                    },
-                    "lidar": {
-                        "sensor": "lidar", "available": se.get("lidar", True),
-                        "message": (f"MMAUD avia+mid360 · window {mmaud_data['window_index']}/{mmaud_data['total_windows']}" if se.get("lidar", True) else "LiDAR STOPPED"),
-                        "detections": ((S.mmaud.sensor_detections("avia", elapsed) +
-                                       S.mmaud.sensor_detections("mid360", elapsed)) if se.get("lidar", True) else []),
-                    },
-                    "audio": {
-                        "sensor": "audio", "available": se.get("audio", True) and False,
-                        "message": ("Audio not in MMAUD feed" if se.get("audio", True) else "Audio STOPPED"),
-                        "detections": [],
-                    },
-                }
-                msg["sensors"] = sensor_dets
-            else:
+            if S.mmaud.available and camera_dtype:
+                mmaud_data = S.mmaud.at_for_drone(camera_dtype)
+                if mmaud_data:
+                    if se.get("radar", True) or se.get("lidar", True):
+                        msg["mmaud"] = mmaud_data
+                    msg["mmaud_status"] = S.mmaud.status()
+                    sensor_dets = {
+                        "radar": {
+                            "sensor": "radar", "available": se.get("radar", True),
+                            "message": f"MMAUD radar · {mmaud_data['drone_true']} win {mmaud_data['window_index']}/{mmaud_data['total_windows']}" if se.get("radar", True) else "Radar STOPPED",
+                            "detections": S.mmaud.sensor_detections("radar", mmaud_data) if se.get("radar", True) else [],
+                        },
+                        "lidar": {
+                            "sensor": "lidar", "available": se.get("lidar", True),
+                            "message": f"MMAUD avia+mid360 · {mmaud_data['drone_true']} win {mmaud_data['window_index']}/{mmaud_data['total_windows']}" if se.get("lidar", True) else "LiDAR STOPPED",
+                            "detections": ((S.mmaud.sensor_detections("avia", mmaud_data) +
+                                           S.mmaud.sensor_detections("mid360", mmaud_data)) if se.get("lidar", True) else []),
+                        },
+                        "audio": {
+                            "sensor": "audio", "available": False,
+                            "message": "Audio not in MMAUD feed",
+                            "detections": [],
+                        },
+                    }
+                    msg["sensors"] = sensor_dets
+            elif not S.mmaud.available:
                 sensor_dets = {}
                 for name, r in S.sensors.items():
                     if se.get(name, True):
@@ -796,7 +905,6 @@ async def telemetry_loop():
         fusion_result = S.fusion.fuse(mmaud_data, S.camera, se)
         if fusion_result:
             msg["fusion"] = fusion_result
-            # Generate events from fusion state changes
             ev_type = fusion_result.get("event")
             if ev_type and fusion_result.get("detected"):
                 f_pos = fusion_result.get("position") or {}
@@ -827,41 +935,36 @@ async def telemetry_loop():
                 }, source="fusion")
                 S.hub.broadcast({"type": "event", "event": lost_ev})
 
-        # ---- Sensor geofence: check sensor-detected positions against zones ----
+        # ---- Sensor geofence: use sim/MAVLink position for geofence check ----
         sensor_geofence = None
-        any_pos_sensor = se.get("radar", True) or se.get("lidar", True)
-        # Use fusion position if available, else fall back to best single sensor
-        if fusion_result and fusion_result.get("detected") and fusion_result.get("position"):
-            fp = fusion_result["position"]
-            best_pos = (fp["lat"], fp["lon"], fp.get("alt", 0))
-        else:
-            best_pos = _best_sensor_position(mmaud_data, sensor_dets) if any_pos_sensor else None
-        if best_pos:
-            s_lat, s_lon, s_alt = best_pos
-            sensor_sample = TrackSample(time.time(), s_lat, s_lon, s_alt, 0.0, 0.0, 0.0)
-            cam_det = S.camera["drone"] and time.time() - S.camera["t"] < 1.0
-            sensor_geofence, s_events = S.sensor_monitor.update(sensor_sample, cam_det)
-            S.sensor_geofence_status = sensor_geofence
-            for ev in s_events:
-                ev["source"] = "sensor"
-                ev["message"] = f"[Sensor] {ev['message']}"
-                # Enrich geofence events with fusion data
-                if fusion_result and fusion_result.get("detected"):
-                    ev["drone_type"] = fusion_result.get("drone_type", "")
-                    ev["confidence"] = fusion_result.get("confidence")
-                    ev["contributing_sensors"] = ",".join(fusion_result.get("contributing_sensors", []))
-                S.hub.broadcast({"type": "event", "event": S.events.add(
-                    ev, {"lat": s_lat, "lon": s_lon, "alt_rel": s_alt}, "sensor")})
-            S.sensor_track.append([round(s_lat, 7), round(s_lon, 7), round(s_alt, 1),
-                                   sensor_geofence["level"]])
-            del S.sensor_track[:-300]
+        if active_pos and (se.get("radar", True) or se.get("lidar", True)):
+            any_sensor_active = mmaud_data and (
+                mmaud_data.get("radar", {}).get("detected") or
+                mmaud_data.get("avia", {}).get("detected") or
+                mmaud_data.get("mid360", {}).get("detected"))
+            if any_sensor_active:
+                s_lat, s_lon, s_alt = active_pos["lat"], active_pos["lon"], active_pos["alt_rel"]
+                sensor_sample = TrackSample(time.time(), s_lat, s_lon, s_alt, 0.0, 0.0, 0.0)
+                cam_det = S.camera["drone"] and time.time() - S.camera["t"] < 1.0
+                sensor_geofence, s_events = S.sensor_monitor.update(sensor_sample, cam_det)
+                S.sensor_geofence_status = sensor_geofence
+                for ev in s_events:
+                    ev["source"] = "sensor"
+                    ev["message"] = f"[Sensor] {ev['message']}"
+                    if fusion_result and fusion_result.get("detected"):
+                        ev["drone_type"] = fusion_result.get("drone_type", "")
+                        ev["confidence"] = fusion_result.get("confidence")
+                        ev["contributing_sensors"] = ",".join(fusion_result.get("contributing_sensors", []))
+                    S.hub.broadcast({"type": "event", "event": S.events.add(
+                        ev, {"lat": s_lat, "lon": s_lon, "alt_rel": s_alt}, "sensor")})
+                S.sensor_track.append([round(s_lat, 7), round(s_lon, 7), round(s_alt, 1),
+                                       sensor_geofence["level"]])
+                del S.sensor_track[:-300]
 
         # ---- Fuse MAVLink + sensor geofence into one status ----
         fused = _fuse_geofence(mav_geofence, sensor_geofence)
         S.geofence_status = fused
         msg["geofence"] = fused
-
-        # Include sensor geofence separately so dashboard can show it
         if sensor_geofence:
             msg["sensor_geofence"] = sensor_geofence
 
@@ -1115,6 +1218,7 @@ async def stream(websocket: WebSocket):
         "sensor_track": S.sensor_track[-200:],
         "events": S.events.recent(100),
         "mmaud_available": S.mmaud.available,
+        "mmaud_status": S.mmaud.status(),
         "sensor_states": dict(S.sensor_enabled),
         "data_mode": S.data_mode,
     }))

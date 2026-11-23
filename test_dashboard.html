@@ -966,14 +966,16 @@ function drawTrackAndDrone(ctx, map) {
   }
   ctx.globalAlpha = 1;
 
-  // MAVLink drone icon
+  // Drone icon (MAVLink or sim path)
   const d = ST.tel && ST.tel.drone;
   if (d) {
     const lvl = ST.geofence ? ST.geofence.level : 0;
     const q = map.project(d.lat, d.lon);
-    const col = ST.tel.link === "OK" ? LEVEL_COLORS[lvl] : "#788d9f";
+    const linkOk = ST.tel.link === "OK" || ST.tel.link === "SIM";
+    const col = linkOk ? LEVEL_COLORS[lvl] : "#788d9f";
     AeroDraw.drone(ctx, q.x, q.y, d.heading, col);
-    AeroDraw.label(ctx, q.x + 18, q.y - 10, `UAV ${ST.tel.sysid ?? ""} · ${d.alt_rel.toFixed(0)} m AGL · ${(d.groundspeed || 0).toFixed(1)} m/s`, { color: col, border: col });
+    const srcLabel = ST.tel.link === "SIM" ? "SIM" : `UAV ${ST.tel.sysid ?? ""}`;
+    AeroDraw.label(ctx, q.x + 18, q.y - 10, `${srcLabel} · ${d.alt_rel.toFixed(0)} m AGL · ${(d.groundspeed || 0).toFixed(1)} m/s`, { color: col, border: col });
   }
 
   // Draw mission waypoints with labels on live map too
@@ -1193,11 +1195,12 @@ function onTelemetry(m) {
   if (m.data_mode) ST.dataMode = m.data_mode;
   const g = m.geofence; ST.geofence = g;
   ST.camConfirmed = !!(g && g.camera_confirmed);
-  const ok = m.link === "OK";
+  const ok = m.link === "OK" || m.link === "SIM";
+  const isSim = m.link === "SIM";
   // header pills
   const lp = $("linkPill");
-  lp.className = "live-pill " + (ok ? "" : (m.link === "LOST" ? "bad" : "warn"));
-  $("linkPillText").textContent = ok ? `MAVLINK: ${m.autopilot || "VEHICLE"} ${m.rate_hz} Hz` : `MAVLINK: ${m.link}`;
+  lp.className = "live-pill " + (ok ? (isSim ? "warn" : "") : (m.link === "LOST" ? "bad" : "warn"));
+  $("linkPillText").textContent = ok ? (isSim ? `SIM PATH · ${m.rate_hz} Hz` : `MAVLINK: ${m.autopilot || "VEHICLE"} ${m.rate_hz} Hz`) : `MAVLINK: ${m.link}`;
   const lvl = g ? g.level : 0;
   // Sensor geofence level (independent of MAVLink)
   const sLvl = ST.sensorGeofence ? ST.sensorGeofence.level : 0;
@@ -1208,13 +1211,13 @@ function onTelemetry(m) {
   $("threatPillText").textContent = `THREAT: ${LEVEL_NAMES[effLvl]}`;
 
   const d = m.drone;
-  if (d && ok) {
+  if (d) {
     const last = ST.track[ST.track.length - 1];
     if (!last || Math.abs(last[0] - d.lat) + Math.abs(last[1] - d.lon) > 2e-6) ST.track.push([d.lat, d.lon, d.alt_rel, lvl]);
     if (ST.track.length > 600) ST.track.splice(0, ST.track.length - 600);
     ST.alt.push({ t: Date.now(), alt: d.alt_rel, lvl });
     while (ST.alt.length && Date.now() - ST.alt[0].t > 120000) ST.alt.shift();
-    if (follow) liveMap.setView([d.lat, d.lon]);
+    if (follow && liveMap) liveMap.setView([d.lat, d.lon]);
   }
 
   // Build sensor track from radar/LiDAR detections (for map drawing)
@@ -1234,7 +1237,7 @@ function onTelemetry(m) {
   // Map tag: show sensor status even without MAVLink
   const hasSensorDet = sLvl > 0;
   if (ok) {
-    $("mapTag").textContent = `LIVE · ${LEVEL_NAMES[effLvl]}`;
+    $("mapTag").textContent = `${isSim ? "SIM" : "LIVE"} · ${LEVEL_NAMES[effLvl]}`;
     $("mapTag").className = "small-tag " + (effLvl >= 3 ? "bad" : effLvl ? "warn" : "ok");
   } else if (hasSensorDet) {
     $("mapTag").textContent = `SENSOR · ${LEVEL_NAMES[sLvl]}`;
@@ -1243,11 +1246,11 @@ function onTelemetry(m) {
     $("mapTag").textContent = m.link === "LOST" ? "LINK LOST" : "NO TELEMETRY";
     $("mapTag").className = "small-tag warn";
   }
-  $("mapInfo").textContent = ok ? `MAVLink ${m.source} · sysid ${m.sysid} · ${m.packets} pkts` : (hasSensorDet ? "Sensor detection active (no MAVLink)" : "Telemetry: waiting for MAVLink on UDP 14445 (run server.py --sim or sim_drone.py)");
+  $("mapInfo").textContent = ok ? (isSim ? `Simulated flight path · synced to camera feed` : `MAVLink ${m.source} · sysid ${m.sysid} · ${m.packets} pkts`) : (hasSensorDet ? "Sensor detection active (no MAVLink)" : "Telemetry: waiting for MAVLink on UDP 14445 (run server.py --sim or sim_drone.py)");
   $("trackCount").textContent = (ST.track.length || ST.sensorTrack.length) ? `${ST.track.length + ST.sensorTrack.length} track pts` : "";
 
   // telemetry strip
-  $("telSrc").textContent = ok ? `${m.autopilot || ""} · ${m.armed ? "ARMED" : "DISARMED"}` : m.link;
+  $("telSrc").textContent = ok ? (isSim ? `SIM PATH · ACTIVE` : `${m.autopilot || ""} · ${m.armed ? "ARMED" : "DISARMED"}`) : m.link;
   $("tLat").textContent = d ? d.lat.toFixed(6) : "—";
   $("tLon").textContent = d ? d.lon.toFixed(6) : "—";
   $("tAlt").textContent = d ? `${d.alt_rel.toFixed(1)} m` : "—";
@@ -1297,7 +1300,8 @@ function onTelemetry(m) {
   $("statMavSrc").textContent = m.source || "—";
   $("statMavRate").textContent = ok ? `${m.rate_hz} msg/s` : m.link;
   $("statVehicle").textContent = m.sysid ? `sysid ${m.sysid} · ${m.autopilot} · ${m.armed ? "armed" : "disarmed"}` : "—";
-  $("statMmaud").textContent = ST.mmaudAvailable ? `ACTIVE · ${(m.mmaud_status || {}).windows || 0} windows · ${ST.dataMode || ""}` : "NOT LOADED";
+  const mmStat = m.mmaud_status || {};
+  $("statMmaud").textContent = ST.mmaudAvailable ? `ACTIVE · ${mmStat.windows || 0} real windows · ${ST.dataMode || ""}` : "NOT LOADED";
   // Fusion status display
   const fusionEl = $("fusionMode");
   if (fusionEl && ST.fusion && ST.fusion.detected) {
@@ -1418,8 +1422,9 @@ function renderZoneList() {
   }).join("");
   const t = ST.tel;
   const sensorActive = ST.sensorGeofence && ST.sensorGeofence.level > 0;
-  if (t && t.link === "OK") {
-    $("linkLine").textContent = `MAVLink ${t.source} · ${t.rate_hz} msg/s · ${t.autopilot || ""} sysid ${t.sysid}` + (sensorActive ? " + sensor fusion active" : "");
+  if (t && (t.link === "OK" || t.link === "SIM")) {
+    const srcTxt = t.link === "SIM" ? `Sim flight path · ${t.rate_hz} Hz` : `MAVLink ${t.source} · ${t.rate_hz} msg/s · ${t.autopilot || ""} sysid ${t.sysid}`;
+    $("linkLine").textContent = srcTxt + (sensorActive ? " + sensor fusion active" : "");
   } else if (sensorActive) {
     $("linkLine").textContent = "Sensor detection active — geofence running on radar/LiDAR positions.";
   } else {
@@ -1437,7 +1442,7 @@ function renderRadar() {
   const rad = ST.sensors.radar;
   (rad && rad.detections || []).forEach(d => { const [x, y] = toXY(d.range, d.azimuth, d.elevation); html += `<circle cx="${x}" cy="${y}" r="3" fill="#ff4757"/><circle cx="${x}" cy="${y}" r="7" fill="none" stroke="#ff4757" opacity=".6"/>`; });
   const rel = ST.tel && ST.tel.relative;
-  if (rel && ST.tel.link === "OK") {
+  if (rel && (ST.tel.link === "OK" || ST.tel.link === "SIM")) {
     const [x, y] = toXY(rel.range_m, rel.bearing_deg, rel.elevation_deg);
     html += `<rect x="${x - 3.5}" y="${y - 3.5}" width="7" height="7" transform="rotate(45 ${x} ${y})" fill="#39d98a"/>`;
   }
@@ -1490,21 +1495,29 @@ function renderMmaud() {
   const radar = mm.radar;
   $("radarMmaudInfo").style.display = "block";
   if (radar && radar.detected) {
-    $("radarNote").textContent = `Radar: DETECTED · ${radar.top_types.map(t => `${t.type} ${t.prob}%`).join(", ") || "classifying…"}`;
+    const score = radar.score != null ? ` (score ${(radar.score * 100).toFixed(0)}%)` : "";
+    $("radarNote").textContent = `Radar: DETECTED${score} · ${radar.top_types.map(t => `${t.type} ${t.prob}%`).join(", ") || "classifying…"}`;
     renderProbBars("radarProbs", radar.class_probs);
   } else {
     $("radarNote").textContent = "Radar: no detection in current window";
     $("radarProbs").innerHTML = "";
   }
 
+  // Show current drone type being replayed
+  const droneTrue = mm.drone_true;
+  if (droneTrue) {
+    $("radarNote").textContent = `[${droneTrue}] ` + $("radarNote").textContent;
+  }
+
   // LiDAR MMAUD data (avia + mid360)
   const avia = mm.avia, mid360 = mm.mid360;
   $("lidarMmaudInfo").style.display = "block";
-  $("lidarAviaStatus").textContent = avia && avia.detected ? "DETECTED" : "—";
+  const aviaScore = avia && avia.score != null ? ` ${(avia.score * 100).toFixed(0)}%` : "";
+  const midScore = mid360 && mid360.score != null ? ` ${(mid360.score * 100).toFixed(0)}%` : "";
+  $("lidarAviaStatus").textContent = avia && avia.detected ? `DETECTED${aviaScore}` : "—";
   $("lidarAviaStatus").style.color = avia && avia.detected ? "var(--green)" : "var(--muted)";
-  $("lidarMid360Status").textContent = mid360 && mid360.detected ? "DETECTED" : "—";
+  $("lidarMid360Status").textContent = mid360 && mid360.detected ? `DETECTED${midScore}` : "—";
   $("lidarMid360Status").style.color = mid360 && mid360.detected ? "var(--green)" : "var(--muted)";
-  // Show mid360 class probs (better for detection) or avia
   const lidarForProbs = mid360 && mid360.detected ? mid360 : (avia && avia.detected ? avia : null);
   if (lidarForProbs) {
     renderProbBars("lidarProbs", lidarForProbs.class_probs);
@@ -1581,14 +1594,18 @@ function renderFusion() {
   if (ST.mmaudAvailable && ST.mmaud) {
     // MMAUD mode: show per-sensor status from MMAUD data
     const mm = ST.mmaud;
+    const dtLabel = mm.drone_true ? ` [${mm.drone_true}]` : "";
+    const rScore = mm.radar && mm.radar.score != null ? ` ${(mm.radar.score*100).toFixed(0)}%` : "";
+    const aScore = mm.avia && mm.avia.score != null ? ` ${(mm.avia.score*100).toFixed(0)}%` : "";
+    const mScore = mm.mid360 && mm.mid360.score != null ? ` ${(mm.mid360.score*100).toFixed(0)}%` : "";
     sensorRows =
-      row("RADAR", "MMAUD feed", mm.radar && mm.radar.detected ? "DETECTED" : "SCANNING", !!(mm.radar && mm.radar.detected),
+      row("RADAR", `MMAUD${dtLabel}`, mm.radar && mm.radar.detected ? `DETECTED${rScore}` : "SCANNING", !!(mm.radar && mm.radar.detected),
         mm.radar && mm.radar.detected ? mm.radar.top_types.map(t => `${t.type} ${t.prob}%`).join(", ") : "—") +
-      row("AVIA (LiDAR↑)", "MMAUD feed", mm.avia && mm.avia.detected ? "DETECTED" : "SCANNING", !!(mm.avia && mm.avia.detected),
-        mm.avia && mm.avia.detected && mm.avia.position ? `${mm.avia.position.range.toFixed(0)} m` : "—") +
-      row("MID360 (LiDAR 360°)", "MMAUD feed", mm.mid360 && mm.mid360.detected ? "DETECTED" : "SCANNING", !!(mm.mid360 && mm.mid360.detected),
-        mm.mid360 && mm.mid360.detected && mm.mid360.position ? `${mm.mid360.position.range.toFixed(0)} m` : "—") +
-      row("MMAUD FUSION", "MMAUD placeholder", mm.fusion && mm.fusion.detected ? "DETECTED" : "CLEAR", !!(mm.fusion && mm.fusion.detected),
+      row("AVIA (LiDAR↑)", `MMAUD${dtLabel}`, mm.avia && mm.avia.detected ? `DETECTED${aScore}` : "SCANNING", !!(mm.avia && mm.avia.detected),
+        mm.avia && mm.avia.detected ? (mm.avia.top_types || []).map(t => `${t.type} ${t.prob}%`).join(", ") || "detected" : "—") +
+      row("MID360 (LiDAR 360°)", `MMAUD${dtLabel}`, mm.mid360 && mm.mid360.detected ? `DETECTED${mScore}` : "SCANNING", !!(mm.mid360 && mm.mid360.detected),
+        mm.mid360 && mm.mid360.detected ? (mm.mid360.top_types || []).map(t => `${t.type} ${t.prob}%`).join(", ") || "detected" : "—") +
+      row("MMAUD FUSION", "placeholder", mm.fusion && mm.fusion.detected ? "DETECTED" : "CLEAR", !!(mm.fusion && mm.fusion.detected),
         mm.fusion && mm.fusion.detected ? `${mm.fusion.size || "?"} · ${mm.fusion.top_types.map(t => `${t.type} ${t.prob}%`).join(", ")}` : "—") +
       (ST.fusion && ST.fusion.detected ?
         row("MULTI-SENSOR FUSION", `${ST.fusion.sensor_count} sensors`, "TRACKING", true,
@@ -1609,11 +1626,11 @@ function renderFusion() {
 
   $("fusionBody").innerHTML =
     row("CAMERA (YOLO)", "detections JSON", ST.framesSeen ? "STREAMING" : "WAITING", !!ST.framesSeen, ST.prevCamDrone ? `drone ${ST.latestConf}%` : "no drone") +
-    row("MAVLINK", t.source || "udp :14445", t.link || "WAITING", t.link === "OK", t.drone ? `${t.drone.alt_rel.toFixed(0)} m AGL` : "—") +
+    row("MAVLINK", t.source || "udp :14445", t.link || "WAITING", t.link === "OK" || t.link === "SIM", t.drone ? `${t.drone.alt_rel.toFixed(0)} m AGL` : "—") +
     sensorRows +
     geoRow;
 
-  const nSources = 1 + (t.link === "OK" ? 1 : 0) +
+  const nSources = 1 + ((t.link === "OK" || t.link === "SIM") ? 1 : 0) +
     (ST.mmaudAvailable ? (ST.mmaud ? [ST.mmaud.radar, ST.mmaud.avia, ST.mmaud.mid360].filter(s => s && s.detected).length : 0) :
       ["radar", "lidar", "audio"].filter(k => s[k] && s[k].available).length);
   $("fusionMode").textContent = ST.mmaudAvailable ? `MMAUD · ${nSources} SOURCES` : `${nSources} SOURCE${nSources > 1 ? "S" : ""} ACTIVE`;
@@ -1676,17 +1693,16 @@ function renderSensorCorrelation() {
   const corrTag = $("corrTag");
   if (mm && camType) {
     const sensors = [];
-    if (mm.radar && mm.radar.detected && mm.radar.top_types) sensors.push({ name: "Radar", types: mm.radar.top_types, probs: mm.radar.class_probs });
-    if (mm.avia && mm.avia.detected && mm.avia.top_types) sensors.push({ name: "Avia LiDAR", types: mm.avia.top_types, probs: mm.avia.class_probs });
-    if (mm.mid360 && mm.mid360.detected && mm.mid360.top_types) sensors.push({ name: "Mid360 LiDAR", types: mm.mid360.top_types, probs: mm.mid360.class_probs });
+    if (mm.radar && mm.radar.detected && mm.radar.top_types) sensors.push({ name: "Radar", types: mm.radar.top_types, probs: mm.radar.class_probs, score: mm.radar.score });
+    if (mm.avia && mm.avia.detected && mm.avia.top_types) sensors.push({ name: "Avia LiDAR", types: mm.avia.top_types, probs: mm.avia.class_probs, score: mm.avia.score });
+    if (mm.mid360 && mm.mid360.detected && mm.mid360.top_types) sensors.push({ name: "Mid360 LiDAR", types: mm.mid360.top_types, probs: mm.mid360.class_probs, score: mm.mid360.score });
     if (mm.fusion && mm.fusion.detected && mm.fusion.top_types) sensors.push({ name: "Fusion", types: mm.fusion.top_types, probs: mm.fusion.class_probs });
 
-    // Map MMAUD names to camera names for matching
-    const mmToCamera = { Avata: "Avata", M300: "M300", Mavic2: "Mavic_2", Mavic3: "Mavic_3", Pham4: "Phantom_4" };
     const cameraToMm = { Avata: "Avata", M300: "M300", Mavic_2: "Mavic2", Mavic_3: "Mavic3", Phantom_4: "Pham4" };
     const expectedMm = cameraToMm[camType] || camType;
+    const droneTrue = mm.drone_true || expectedMm;
 
-    let html = `<div style="margin-bottom:8px"><b style="color:var(--teal)">Camera feed:</b> <span style="color:#fff;font-weight:700">${esc(camType)}</span> <span style="color:var(--muted)">→ expected sensor class: ${esc(expectedMm)}</span></div>`;
+    let html = `<div style="margin-bottom:8px"><b style="color:var(--teal)">Camera feed:</b> <span style="color:#fff;font-weight:700">${esc(camType)}</span> <span style="color:var(--muted)">· MMAUD ground truth: <b style="color:var(--green)">${esc(droneTrue)}</b> · win ${mm.window_index != null ? mm.window_index : "?"}/${mm.total_windows || "?"}</span></div>`;
     let matchCount = 0;
     sensors.forEach(s => {
       const topType = s.types[0];
