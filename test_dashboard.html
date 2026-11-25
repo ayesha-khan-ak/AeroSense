@@ -971,10 +971,10 @@ function drawTrackAndDrone(ctx, map) {
   if (d) {
     const lvl = ST.geofence ? ST.geofence.level : 0;
     const q = map.project(d.lat, d.lon);
-    const linkOk = ST.tel.link === "OK" || ST.tel.link === "SIM";
+    const linkOk = _linkActive(ST.tel.link);
     const col = linkOk ? LEVEL_COLORS[lvl] : "#788d9f";
     AeroDraw.drone(ctx, q.x, q.y, d.heading, col);
-    const srcLabel = ST.tel.link === "SIM" ? "SIM" : `UAV ${ST.tel.sysid ?? ""}`;
+    const srcLabel = ST.tel.link === "CAM" ? "CAM" : ST.tel.link === "SIM" ? "SIM" : `UAV ${ST.tel.sysid ?? ""}`;
     AeroDraw.label(ctx, q.x + 18, q.y - 10, `${srcLabel} · ${d.alt_rel.toFixed(0)} m AGL · ${(d.groundspeed || 0).toFixed(1)} m/s`, { color: col, border: col });
   }
 
@@ -1185,6 +1185,8 @@ function _bestSensorPos(m) {
   return null;
 }
 
+function _linkActive(link) { return link === "OK" || link === "SIM" || link === "CAM"; }
+
 function onTelemetry(m) {
   ST.tel = m;
   if (m.sensors) ST.sensors = m.sensors;
@@ -1195,12 +1197,13 @@ function onTelemetry(m) {
   if (m.data_mode) ST.dataMode = m.data_mode;
   const g = m.geofence; ST.geofence = g;
   ST.camConfirmed = !!(g && g.camera_confirmed);
-  const ok = m.link === "OK" || m.link === "SIM";
+  const ok = _linkActive(m.link);
+  const isCam = m.link === "CAM";
   const isSim = m.link === "SIM";
   // header pills
   const lp = $("linkPill");
-  lp.className = "live-pill " + (ok ? (isSim ? "warn" : "") : (m.link === "LOST" ? "bad" : "warn"));
-  $("linkPillText").textContent = ok ? (isSim ? `SIM PATH · ${m.rate_hz} Hz` : `MAVLINK: ${m.autopilot || "VEHICLE"} ${m.rate_hz} Hz`) : `MAVLINK: ${m.link}`;
+  lp.className = "live-pill " + (ok ? (isCam ? "warn" : isSim ? "warn" : "") : (m.link === "LOST" ? "bad" : "warn"));
+  $("linkPillText").textContent = ok ? (isCam ? `CAM TRACK · ${m.rate_hz} Hz` : isSim ? `SIM PATH · ${m.rate_hz} Hz` : `MAVLINK: ${m.autopilot || "VEHICLE"} ${m.rate_hz} Hz`) : `LINK: ${m.link}`;
   const lvl = g ? g.level : 0;
   // Sensor geofence level (independent of MAVLink)
   const sLvl = ST.sensorGeofence ? ST.sensorGeofence.level : 0;
@@ -1237,7 +1240,7 @@ function onTelemetry(m) {
   // Map tag: show sensor status even without MAVLink
   const hasSensorDet = sLvl > 0;
   if (ok) {
-    $("mapTag").textContent = `${isSim ? "SIM" : "LIVE"} · ${LEVEL_NAMES[effLvl]}`;
+    $("mapTag").textContent = `${isCam ? "CAM TRACK" : isSim ? "SIM" : "LIVE"} · ${LEVEL_NAMES[effLvl]}`;
     $("mapTag").className = "small-tag " + (effLvl >= 3 ? "bad" : effLvl ? "warn" : "ok");
   } else if (hasSensorDet) {
     $("mapTag").textContent = `SENSOR · ${LEVEL_NAMES[sLvl]}`;
@@ -1246,11 +1249,11 @@ function onTelemetry(m) {
     $("mapTag").textContent = m.link === "LOST" ? "LINK LOST" : "NO TELEMETRY";
     $("mapTag").className = "small-tag warn";
   }
-  $("mapInfo").textContent = ok ? (isSim ? `Simulated flight path · synced to camera feed` : `MAVLink ${m.source} · sysid ${m.sysid} · ${m.packets} pkts`) : (hasSensorDet ? "Sensor detection active (no MAVLink)" : "Telemetry: waiting for MAVLink on UDP 14445 (run server.py --sim or sim_drone.py)");
+  $("mapInfo").textContent = ok ? (isCam ? `Camera projection · drone tracked via YOLO bounding box` : isSim ? `Simulated flight path · synced to camera feed` : `MAVLink ${m.source} · sysid ${m.sysid} · ${m.packets} pkts`) : (hasSensorDet ? "Sensor detection active (no MAVLink)" : "Waiting for camera detection or MAVLink on UDP 14445");
   $("trackCount").textContent = (ST.track.length || ST.sensorTrack.length) ? `${ST.track.length + ST.sensorTrack.length} track pts` : "";
 
   // telemetry strip
-  $("telSrc").textContent = ok ? (isSim ? `SIM PATH · ACTIVE` : `${m.autopilot || ""} · ${m.armed ? "ARMED" : "DISARMED"}`) : m.link;
+  $("telSrc").textContent = ok ? (isCam ? `CAM TRACK · ${m.camera && m.camera.drone_type || "detecting"}` : isSim ? `SIM PATH · ACTIVE` : `${m.autopilot || ""} · ${m.armed ? "ARMED" : "DISARMED"}`) : m.link;
   $("tLat").textContent = d ? d.lat.toFixed(6) : "—";
   $("tLon").textContent = d ? d.lon.toFixed(6) : "—";
   $("tAlt").textContent = d ? `${d.alt_rel.toFixed(1)} m` : "—";
@@ -1298,7 +1301,7 @@ function onTelemetry(m) {
   $("statMaxLevel").textContent = LEVEL_NAMES[ST.maxLevel]; $("statMaxLevel").style.color = LEVEL_COLORS[ST.maxLevel];
   $("statPackets").textContent = m.packets;
   $("statMavSrc").textContent = m.source || "—";
-  $("statMavRate").textContent = ok ? `${m.rate_hz} msg/s` : m.link;
+  $("statMavRate").textContent = ok ? (isCam ? `${m.rate_hz} Hz (cam)` : `${m.rate_hz} msg/s`) : m.link;
   $("statVehicle").textContent = m.sysid ? `sysid ${m.sysid} · ${m.autopilot} · ${m.armed ? "armed" : "disarmed"}` : "—";
   const mmStat = m.mmaud_status || {};
   $("statMmaud").textContent = ST.mmaudAvailable ? `ACTIVE · ${mmStat.windows || 0} real windows · ${ST.dataMode || ""}` : "NOT LOADED";
@@ -1422,8 +1425,8 @@ function renderZoneList() {
   }).join("");
   const t = ST.tel;
   const sensorActive = ST.sensorGeofence && ST.sensorGeofence.level > 0;
-  if (t && (t.link === "OK" || t.link === "SIM")) {
-    const srcTxt = t.link === "SIM" ? `Sim flight path · ${t.rate_hz} Hz` : `MAVLink ${t.source} · ${t.rate_hz} msg/s · ${t.autopilot || ""} sysid ${t.sysid}`;
+  if (t && _linkActive(t.link)) {
+    const srcTxt = t.link === "CAM" ? `Camera projection · ${t.camera && t.camera.drone_type || "?"} · ${t.rate_hz} Hz` : t.link === "SIM" ? `Sim flight path · ${t.rate_hz} Hz` : `MAVLink ${t.source} · ${t.rate_hz} msg/s · ${t.autopilot || ""} sysid ${t.sysid}`;
     $("linkLine").textContent = srcTxt + (sensorActive ? " + sensor fusion active" : "");
   } else if (sensorActive) {
     $("linkLine").textContent = "Sensor detection active — geofence running on radar/LiDAR positions.";
@@ -1442,7 +1445,7 @@ function renderRadar() {
   const rad = ST.sensors.radar;
   (rad && rad.detections || []).forEach(d => { const [x, y] = toXY(d.range, d.azimuth, d.elevation); html += `<circle cx="${x}" cy="${y}" r="3" fill="#ff4757"/><circle cx="${x}" cy="${y}" r="7" fill="none" stroke="#ff4757" opacity=".6"/>`; });
   const rel = ST.tel && ST.tel.relative;
-  if (rel && (ST.tel.link === "OK" || ST.tel.link === "SIM")) {
+  if (rel && _linkActive(ST.tel.link)) {
     const [x, y] = toXY(rel.range_m, rel.bearing_deg, rel.elevation_deg);
     html += `<rect x="${x - 3.5}" y="${y - 3.5}" width="7" height="7" transform="rotate(45 ${x} ${y})" fill="#39d98a"/>`;
   }
@@ -1626,11 +1629,11 @@ function renderFusion() {
 
   $("fusionBody").innerHTML =
     row("CAMERA (YOLO)", "detections JSON", ST.framesSeen ? "STREAMING" : "WAITING", !!ST.framesSeen, ST.prevCamDrone ? `drone ${ST.latestConf}%` : "no drone") +
-    row("MAVLINK", t.source || "udp :14445", t.link || "WAITING", t.link === "OK" || t.link === "SIM", t.drone ? `${t.drone.alt_rel.toFixed(0)} m AGL` : "—") +
+    row("POSITION", t.source || "udp :14445", t.link || "WAITING", _linkActive(t.link), t.drone ? `${t.drone.alt_rel.toFixed(0)} m AGL` : "—") +
     sensorRows +
     geoRow;
 
-  const nSources = 1 + ((t.link === "OK" || t.link === "SIM") ? 1 : 0) +
+  const nSources = 1 + (_linkActive(t.link) ? 1 : 0) +
     (ST.mmaudAvailable ? (ST.mmaud ? [ST.mmaud.radar, ST.mmaud.avia, ST.mmaud.mid360].filter(s => s && s.detected).length : 0) :
       ["radar", "lidar", "audio"].filter(k => s[k] && s[k].available).length);
   $("fusionMode").textContent = ST.mmaudAvailable ? `MMAUD · ${nSources} SOURCES` : `${nSources} SOURCE${nSources > 1 ? "S" : ""} ACTIVE`;

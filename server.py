@@ -126,7 +126,122 @@ def _interp_flight(t):
                     alt0 + (alt1 - alt0) * frac)
     return path[-1][1], path[-1][2], path[-1][3]
 
-# ---------------------------------------------
+# ============================================ camera-to-map projection ====
+
+import math
+
+class CameraProjector:
+    """Projects camera YOLO bounding-box detections to geographic coordinates.
+
+    Maps the drone's position in the camera frame to azimuth (from horizontal
+    position) and range (from box size + flight-phase), then projects to
+    lat/lon from the sensor mast.
+
+    Box format: [x, y, w, h] where (x,y) is top-left corner in pixels.
+    Frame size: 1280 x 960 (from MMAUD dataset captures).
+    """
+
+    FRAME_W = 1280
+    FRAME_H = 960
+
+    # Real-world approximate wingspans (metres) for range calibration
+    DRONE_WINGSPANS = {
+        "Avata": 0.18, "M300": 0.81, "Mavic_2": 0.32,
+        "Mavic_3": 0.35, "Phantom_4": 0.35,
+    }
+
+    # Range bands per flight phase (min_m, max_m)
+    # Each drone-type segment of the camera playlist represents a phase:
+    #   Avata  → approaching from outside  (far → medium)
+    #   M300   → entering restricted zone  (medium)
+    #   Mavic_2 → approaching critical     (medium → close)
+    #   Mavic_3 → inside critical, loiter  (close)
+    #   Phantom_4 → exiting                (close → far)
+    PHASE_RANGES = {
+        "Avata":     (280, 500),
+        "M300":      (160, 300),
+        "Mavic_2":   (100, 200),
+        "Mavic_3":   (80, 160),
+        "Phantom_4": (180, 480),
+    }
+    DEFAULT_RANGE = (150, 400)
+
+    def __init__(self, sensor_lat, sensor_lon, sensor_alt_agl,
+                 camera_heading_deg, camera_fov_deg=60.0):
+        self.sensor_lat = sensor_lat
+        self.sensor_lon = sensor_lon
+        self.sensor_alt = sensor_alt_agl
+        self.heading = camera_heading_deg
+        self.fov_h = camera_fov_deg
+        self.fov_v = camera_fov_deg * (self.FRAME_H / self.FRAME_W)
+        self._last_pos = None
+        self._smooth = 0.35
+
+    def project(self, box, drone_type=None):
+        """Convert a YOLO box [x, y, w, h] to a geographic position dict.
+
+        Returns dict with lat, lon, alt_rel, alt_msl, heading, range_m, etc.
+        or the last known position if box is None, or None if no history.
+        """
+        if box is None or len(box) < 4:
+            return self._last_pos
+
+        x, y, w, h = float(box[0]), float(box[1]), float(box[2]), float(box[3])
+        # Ensure w, h are positive (some detections store x2,y2 instead of w,h)
+        if w < 0:
+            w = abs(w)
+        if h < 0:
+            h = abs(h)
+        cx = x + w / 2.0
+        cy = y + h / 2.0
+
+        # --- Azimuth: horizontal position in frame → bearing from sensor ---
+        x_frac = cx / self.FRAME_W
+        azimuth_offset = (x_frac - 0.5) * self.fov_h
+        azimuth = (self.heading + azimuth_offset) % 360.0
+
+        # --- Range: phase band + modulation from vertical position & box size ---
+        min_r, max_r = self.PHASE_RANGES.get(drone_type, self.DEFAULT_RANGE)
+        y_frac = cy / self.FRAME_H              # 0=top(far)  1=bottom(close)
+        box_size = max(w, h) / self.FRAME_W     # apparent size fraction
+        size_factor = min(1.0, box_size / 0.12) # 0.12 → large box → closest
+
+        # Higher in frame or smaller box → farther; lower or larger → closer
+        distance_factor = 1.0 - (0.55 * y_frac + 0.45 * size_factor)
+        distance_factor = max(0.0, min(1.0, distance_factor))
+        estimated_range = min_r + distance_factor * (max_r - min_r)
+
+        # --- Elevation: vertical position → angle above horizon ---
+        elevation = (0.5 - cy / self.FRAME_H) * self.fov_v
+        alt_rel = estimated_range * math.tan(math.radians(max(elevation, 1.5))) + self.sensor_alt
+        alt_rel = max(5.0, min(200.0, alt_rel))
+
+        # --- Project to lat/lon ---
+        e, n, u = geo.polar_to_enu(estimated_range, azimuth, max(elevation, 0.0))
+        lat, lon, _ = geo.enu_to_geodetic(e, n, u, self.sensor_lat, self.sensor_lon, self.sensor_alt)
+
+        raw = {
+            "lat": round(lat, 7), "lon": round(lon, 7),
+            "alt_msl": round(alt_rel + 500.0, 1),
+            "alt_rel": round(alt_rel, 1),
+            "heading": round(azimuth, 1),
+            "range_m": round(estimated_range, 1),
+            "azimuth_deg": round(azimuth, 1),
+            "vn": 0, "ve": 0, "vd": 0,
+        }
+
+        # Exponential smoothing to avoid jitter between consecutive frames
+        if self._last_pos is not None:
+            a = self._smooth
+            raw["lat"]     = round(self._last_pos["lat"]     * (1 - a) + raw["lat"]     * a, 7)
+            raw["lon"]     = round(self._last_pos["lon"]     * (1 - a) + raw["lon"]     * a, 7)
+            raw["alt_rel"] = round(self._last_pos["alt_rel"] * (1 - a) + raw["alt_rel"] * a, 1)
+
+        self._last_pos = raw
+        return raw
+
+    def clear(self):
+        self._last_pos = None
 
 
 # ======================================================== MMAUD feed ====
@@ -618,14 +733,15 @@ class State:
     def __init__(self):
         self.site = load_site()
         self.zones = load_zones(ZONES_FILE)
-        self.monitor = GeofenceMonitor(self.zones)           # MAVLink-based target
+        self.monitor = GeofenceMonitor(self.zones)           # camera-projected target
         self.sensor_monitor = GeofenceMonitor(self.zones)    # sensor-detected targets (radar/LiDAR)
         self.events = EventStore(DB_FILE)
         self.hub = Hub()
         self.tel = Telemetry()
-        self.camera = {"drone": False, "confidence": 0.0, "t": 0.0, "frame": None, "drone_type": ""}
+        self.camera = {"drone": False, "confidence": 0.0, "t": 0.0, "frame": None,
+                       "drone_type": "", "box": None}
         self.geofence_status = None
-        self.sensor_geofence_status = None                   # geofence result from sensor detections
+        self.sensor_geofence_status = None
         self.link_was_ok = False
         self.track: list = []                 # recent positions for late-joining dashboards
         self.sensor_track: list = []          # track from sensor detections
@@ -635,9 +751,16 @@ class State:
         self.fusion = FusionEngine()
         self.data_mode = "DATASET_REPLAY"  # "LIVE" when real hardware connected
 
-        # MMAUD feed (preferred) or legacy individual sensor files
+        # Camera-to-map projector: bearing from sensor toward campus core (~315° NW)
         site = self.site["sensor_site"]
         sens = self.site.get("sensors", {})
+        cam_fov = sens.get("camera", {}).get("fov_deg", 60.0)
+        self.projector = CameraProjector(
+            site["lat"], site["lon"], site.get("height_agl", 15.0),
+            camera_heading_deg=315.0, camera_fov_deg=cam_fov,
+        )
+
+        # MMAUD feed (preferred) or legacy individual sensor files
         self.mmaud = MMAUDFeedReplay(
             MMAUD_FEED_FILE, site,
             sens.get("radar", {}).get("heading_deg", 0.0)
@@ -704,6 +827,7 @@ async def camera_loop():
                 "t": time.time(),
                 "frame": item["frame_name"],
                 "drone_type": item["drone_type"],
+                "box": det.get("box", None),
             }
             if S.hub.clients:
                 path = item["path"]
@@ -795,43 +919,50 @@ async def telemetry_loop():
         tel = S.tel
         ok = tel.link_ok()
 
-        # ---- Simulated drone position (when no MAVLink) ----
+        # ---- Drone position: MAVLink or camera-projected ----
         now_mono = time.monotonic()
         elapsed = now_mono - S.t0
-        sim_pos = None
+        cam_pos = None
         if not ok:
-            lat, lon, alt = _interp_flight(elapsed)
-            sim_pos = {"lat": lat, "lon": lon, "alt_msl": alt + 500, "alt_rel": alt,
-                       "heading": 45.0, "vn": 0, "ve": 0, "vd": 0}
+            cam = S.camera
+            if cam["drone"] and cam.get("box") and time.time() - cam["t"] < 1.0:
+                cam_pos = S.projector.project(cam["box"], cam.get("drone_type"))
+            elif cam["drone"] and time.time() - cam["t"] < 1.0:
+                cam_pos = S.projector.project(None)  # hold last known position
+            else:
+                # No camera detection — clear projector and report no position
+                S.projector.clear()
+                cam_pos = None
 
         if ok != S.link_was_ok:
             ev = {"kind": "LINK_UP" if ok else "LINK_LOST", "level": 0,
                   "message": (f"MAVLink telemetry connected ({tel.autopilot or 'vehicle'} "
                               f"sysid {tel.vehicle_sysid}, {tel.source})") if ok
-                  else "Using simulated flight path (no MAVLink)"}
-            S.hub.broadcast({"type": "event", "event": S.events.add(ev, tel.pos or sim_pos, "mavlink")})
+                  else "Camera tracking active — projecting detections to map"}
+            S.hub.broadcast({"type": "event", "event": S.events.add(ev, tel.pos or cam_pos, "mavlink")})
             S.link_was_ok = ok
             if not ok:
                 S.geofence_status = None
 
         # Decide which position to use
-        active_pos = tel.pos if ok else sim_pos
-        active_gs = tel.groundspeed if ok else 5.0
+        active_pos = tel.pos if ok else cam_pos
+        active_gs = tel.groundspeed if ok else 3.0
         active_climb = tel.climb if ok else 0.0
 
         msg = {"type": "telemetry",
-               "link": "OK" if ok else "SIM",
-               "source": tel.source if ok else "sim_flight_path",
+               "link": "OK" if ok else ("CAM" if cam_pos else "LOST"),
+               "source": tel.source if ok else ("camera_projection" if cam_pos else "no_detection"),
                "rate_hz": round(tel.rate, 1) if ok else TELEMETRY_HZ,
                "packets": tel.packets,
-               "autopilot": tel.autopilot if ok else "SimPath",
+               "autopilot": tel.autopilot if ok else ("CamTrack" if cam_pos else "—"),
                "sysid": tel.vehicle_sysid if ok else 1,
-               "armed": tel.armed if ok else True,
-               "battery": tel.battery, "gps_fix": tel.gps_fix if ok else 3,
-               "sats": tel.sats if ok else 12,
+               "armed": tel.armed if ok else bool(cam_pos),
+               "battery": tel.battery, "gps_fix": tel.gps_fix if ok else (3 if cam_pos else 0),
+               "sats": tel.sats if ok else (0 if not cam_pos else 0),
                "data_mode": S.data_mode,
                "camera": {"drone": S.camera["drone"], "confidence": S.camera["confidence"],
-                          "drone_type": S.camera.get("drone_type", "")}}
+                          "drone_type": S.camera.get("drone_type", ""),
+                          "box": S.camera.get("box")}}
 
         if active_pos:
             p = active_pos
